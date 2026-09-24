@@ -16,18 +16,28 @@ export default async function ProductsPage({
 }) {
   const params = await searchParams;
   const query: CatalogQuery = {};
-  for (const key of ['categoria', 'tecido', 'ocasiao', 'busca', 'ordem', 'pagina'] as const) {
+  for (const key of [
+    'categoria',
+    'colecao',
+    'cor',
+    'tecido',
+    'ocasiao',
+    'busca',
+    'ordem',
+    'pagina',
+  ] as const) {
     const value = params[key];
     if (typeof value === 'string') query[key] = value;
   }
-  const result = queryCatalog(await getProducts(), query);
+  const products = await getProducts();
+  const result = queryCatalog(products, query);
   return (
     <div className="page-container py-10 sm:py-14">
       <div className="text-center mb-10">
         <p className="eyebrow mb-3">Activewear & Wellness</p>
         <h1 className="font-serif text-4xl sm:text-5xl">A coleção STUW</h1>
       </div>
-      <CatalogFilters key={JSON.stringify(query)} query={query} />
+      <CatalogFilters key={JSON.stringify(query)} query={query} products={products} />
       <p className="text-xs text-stuw-slate mb-6" role="status">
         {result.total} peças{query.busca ? ` para “${query.busca}”` : ''}
       </p>

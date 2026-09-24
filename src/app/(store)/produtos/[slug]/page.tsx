@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getProductBySlug, getProducts } from '@/services/product-service';
 import { ProductDetails } from '@/components/product/ProductDetails/ProductDetails';
+import { getComplementaryProduct } from '@/services/recommendations';
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamicParams = false;
@@ -16,8 +17,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug((await params).slug);
   if (!product) notFound();
-  const related = (await getProducts()).find(
-    (candidate) => candidate.id !== product.id && candidate.occasion === product.occasion,
-  );
+  const related = getComplementaryProduct(await getProducts(), product);
   return <ProductDetails key={product.id} product={product} related={related} />;
 }

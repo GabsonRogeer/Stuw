@@ -4,9 +4,14 @@ import { FabricSection } from '@/components/home/FabricSection/FabricSection';
 import { LifestyleSection } from '@/components/home/LifestyleSection/LifestyleSection';
 import { ProductGrid } from '@/components/catalog/ProductGrid/ProductGrid';
 import { getProducts } from '@/services/product-service';
+import { ProductDiscovery } from '@/components/product/ProductDiscovery/ProductDiscovery';
 
 export default async function HomePage() {
   const products = await getProducts();
+  const featuredProducts = [
+    ...products.filter((product) => product.featured),
+    ...products.filter((product) => !product.featured),
+  ].slice(0, 8);
   return (
     <>
       <HeroSection />
@@ -20,8 +25,11 @@ export default async function HomePage() {
             Ver coleção
           </Link>
         </div>
-        <ProductGrid products={products.slice(0, 8)} />
+        <ProductGrid products={featuredProducts} />
       </section>
+      <div className="page-container">
+        <ProductDiscovery />
+      </div>
       <FabricSection />
       <LifestyleSection />
     </>

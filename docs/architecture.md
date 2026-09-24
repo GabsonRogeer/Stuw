@@ -43,7 +43,8 @@ Cada componente tem sua própria pasta. `app` compõe páginas e define as rotas
 - `/`: home editorial.
 - `/produtos`: catálogo, com categoria, tecido, ocasião, busca, ordenação e paginação na URL.
 - `/produtos/legging-sculpt-pure-waist`: exemplo de página individual.
-- `/checkout`: demonstração da finalização.
+- `/checkout`: redireciona para `/checkout/information`.
+- `/checkout/information`, `/checkout/shipping`, `/checkout/payment`: etapas independentes, com layout, estado e resumo compartilhados. Ver `docs/checkout.md`.
 - Slugs desconhecidos retornam 404; os seis produtos têm rotas geradas e metadata individual.
 
 Na fonte local, `dynamicParams = false` garante status HTTP 404 antes do streaming para slugs fora do catálogo. Depois de cadastrar uma peça, executar novo build. Ao integrar catálogo dinâmico, trocar essa política por geração sob demanda/revalidação e validar novamente os status HTTP. O diretório de compilação é o padrão `.next`, compatível com o deploy na Vercel. No painel da Vercel, use o preset Next.js, o comando `npm run build` e o diretório de saída padrão (sem override).

@@ -1,6 +1,14 @@
 import { calculateTotals, currency } from '@/lib/commerce';
 
-export function OrderSummary({ totals }: { totals: ReturnType<typeof calculateTotals> }) {
+export function OrderSummary({
+  totals,
+  shippingPending = false,
+  shippingLabel = 'Frete estimado',
+}: {
+  totals: ReturnType<typeof calculateTotals>;
+  shippingPending?: boolean;
+  shippingLabel?: string;
+}) {
   return (
     <dl className="space-y-3 text-sm">
       <div className="flex justify-between">
@@ -20,8 +28,14 @@ export function OrderSummary({ totals }: { totals: ReturnType<typeof calculateTo
         </div>
       )}
       <div className="flex justify-between">
-        <dt>Frete estimado</dt>
-        <dd>{totals.shipping ? currency(totals.shipping) : 'Cortesia'}</dd>
+        <dt>{shippingLabel}</dt>
+        <dd>
+          {shippingPending
+            ? 'A calcular'
+            : totals.shipping
+              ? currency(totals.shipping)
+              : 'Cortesia'}
+        </dd>
       </div>
       {totals.giftCost > 0 && (
         <div className="flex justify-between">
@@ -30,7 +44,7 @@ export function OrderSummary({ totals }: { totals: ReturnType<typeof calculateTo
         </div>
       )}
       <div className="flex justify-between border-t border-stuw-border dark:border-stuw-borderDark pt-4 font-semibold text-base">
-        <dt>Total</dt>
+        <dt>{shippingPending ? 'Total parcial' : 'Total'}</dt>
         <dd>{currency(totals.total)}</dd>
       </div>
     </dl>

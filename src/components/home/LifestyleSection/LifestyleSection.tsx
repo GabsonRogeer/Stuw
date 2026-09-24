@@ -7,7 +7,11 @@ const edits = [
     image: '/products/top-sage-frente.jpg',
     caption: 'Encontre seu equilíbrio.',
   },
-  { title: 'Street & Travel', image: '/products/bomber-taupe.jpg', caption: 'Além do estúdio.' },
+  {
+    title: 'Street & Travel',
+    image: '/products/bomber-taupe-frente.jpg',
+    caption: 'Além do estúdio.',
+  },
   {
     title: 'Racquet Club',
     image: '/products/skirt-tennis-frente.jpg',

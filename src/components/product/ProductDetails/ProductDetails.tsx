@@ -11,6 +11,10 @@ import { useWishlist } from '@/providers/wishlist-provider';
 import { useStorefront } from '@/providers/storefront-provider';
 import { Button } from '@/components/ui/button/button';
 import { ProductGallery } from '@/components/product/ProductGallery/ProductGallery';
+import {
+  ProductDiscovery,
+  ProductViewTracker,
+} from '@/components/product/ProductDiscovery/ProductDiscovery';
 
 export function ProductDetails({ product, related }: { product: Product; related?: Product }) {
   const [color, setColor] = useState(product.colors[0].name);
@@ -20,6 +24,7 @@ export function ProductDetails({ product, related }: { product: Product; related
   const { setPanel } = useStorefront();
   return (
     <div className="page-container py-6 sm:py-10">
+      <ProductViewTracker productId={product.id} />
       <Link href="/produtos" className="inline-flex items-center gap-2 text-xs mb-6">
         <ArrowLeft size={14} /> Coleção
       </Link>
@@ -34,6 +39,30 @@ export function ProductDetails({ product, related }: { product: Product; related
           <p className="text-xs text-stuw-slate mt-2">
             ou 6x de {currency(product.price / 6)} sem juros
           </p>
+          <dl className="mt-6 grid grid-cols-2 gap-4 text-xs">
+            <div>
+              <dt className="text-stuw-slate mb-1">Coleção</dt>
+              <dd>
+                <Link
+                  href={`/produtos?colecao=${encodeURIComponent(product.collection)}`}
+                  className="underline"
+                >
+                  {product.collection}
+                </Link>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-stuw-slate mb-1">Categoria</dt>
+              <dd>
+                <Link
+                  href={`/produtos?categoria=${encodeURIComponent(product.activityCategory)}`}
+                  className="underline"
+                >
+                  {product.activityCategory}
+                </Link>
+              </dd>
+            </div>
+          </dl>
           <fieldset className="mt-9">
             <legend className="text-xs mb-4">
               Cor: <span className="text-stuw-slate">{color}</span>
@@ -133,6 +162,7 @@ export function ProductDetails({ product, related }: { product: Product; related
           )}
         </div>
       </div>
+      <ProductDiscovery currentProductId={product.id} />
     </div>
   );
 }

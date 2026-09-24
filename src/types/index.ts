@@ -13,6 +13,9 @@ export interface Product {
   slug: string;
   title: string;
   category: string;
+  collection: string;
+  activityCategory: string;
+  featured?: boolean;
   fabric: 'SilkAir' | 'SculptHold' | 'VelvetNulu' | 'ShieldAir';
   feelTag: string;
   occasion:

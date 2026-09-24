@@ -60,8 +60,8 @@ body {
 }
 
 .glass-header {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(32px) saturate(140%);
+  backdrop-filter: blur(3px) saturate(120%);
   background-color: rgba(251, 249, 245, 0.88);
 }
 

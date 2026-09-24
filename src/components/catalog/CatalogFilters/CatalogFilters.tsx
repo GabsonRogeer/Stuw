@@ -1,21 +1,53 @@
 import Link from 'next/link';
-import { categories, fabrics, occasions } from '@/data/navigation';
+import { categories, activityCategories, fabrics, occasions } from '@/data/navigation';
 import type { CatalogQuery } from '@/services/catalog';
+import type { Product } from '@/types';
 
-export function CatalogFilters({ query }: { query: CatalogQuery }) {
+export function CatalogFilters({ query, products }: { query: CatalogQuery; products: Product[] }) {
+  const collections = [...new Set(products.map((product) => product.collection))].sort();
+  const colors = [
+    ...new Set(products.flatMap((product) => product.colors.map((color) => color.name))),
+  ].sort();
   return (
     <form
       action="/produtos"
-      className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 py-6 border-y border-stuw-border dark:border-stuw-borderDark mb-8"
+      className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3 py-6 border-y border-stuw-border dark:border-stuw-borderDark mb-8"
     >
       <label className="text-[10px] uppercase tracking-wider">
         Categoria
         <select name="categoria" defaultValue={query.categoria ?? ''} className="filter-select">
           <option value="">Todas</option>
-          {categories.map((category) => (
-            <option key={category.value} value={category.value}>
-              {category.label}
-            </option>
+          <optgroup label="Por peça">
+            {categories.map((category) => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Por atividade">
+            {activityCategories.map((category) => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </optgroup>
+        </select>
+      </label>
+      <label className="text-[10px] uppercase tracking-wider">
+        Coleção
+        <select name="colecao" defaultValue={query.colecao ?? ''} className="filter-select">
+          <option value="">Todas</option>
+          {collections.map((collection) => (
+            <option key={collection}>{collection}</option>
+          ))}
+        </select>
+      </label>
+      <label className="text-[10px] uppercase tracking-wider">
+        Cor
+        <select name="cor" defaultValue={query.cor ?? ''} className="filter-select">
+          <option value="">Todas</option>
+          {colors.map((color) => (
+            <option key={color}>{color}</option>
           ))}
         </select>
       </label>
@@ -51,7 +83,7 @@ export function CatalogFilters({ query }: { query: CatalogQuery }) {
           type="search"
           name="busca"
           defaultValue={query.busca ?? ''}
-          placeholder="Produto ou tecido"
+          placeholder="Produto, cor ou coleção"
           className="filter-select"
         />
       </label>

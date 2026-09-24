@@ -6,14 +6,19 @@ import { CartProvider } from './cart-provider';
 import { WishlistProvider } from './wishlist-provider';
 import { StorefrontProvider } from './storefront-provider';
 import { StorefrontOverlays } from '@/components/layout/StorefrontOverlays/StorefrontOverlays';
+import { PersonalizationProvider } from './personalization-provider';
+import { PrivacyNotice } from '@/components/privacy/PrivacyNotice';
 
 export function AppProviders({ children, products }: { children: ReactNode; products: Product[] }) {
   return (
     <CartProvider products={products}>
       <WishlistProvider>
         <StorefrontProvider>
-          {children}
-          <StorefrontOverlays products={products} />
+          <PersonalizationProvider products={products}>
+            {children}
+            <StorefrontOverlays products={products} />
+            <PrivacyNotice />
+          </PersonalizationProvider>
         </StorefrontProvider>
       </WishlistProvider>
     </CartProvider>

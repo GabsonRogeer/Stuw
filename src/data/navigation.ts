@@ -7,6 +7,14 @@ export const categories = [
   { label: 'Saias', value: 'Tennis & Saias' },
   { label: 'Acessórios', value: 'Acessórios & Wellness' },
 ];
+export const activityCategories = [
+  { label: 'Training', value: 'Activewear / Training' },
+  { label: 'Running', value: 'Activewear / Running' },
+  { label: 'Studio', value: 'Activewear / Studio' },
+  { label: 'Lifestyle', value: 'Activewear / Lifestyle' },
+  { label: 'Tennis', value: 'Activewear / Tennis' },
+  { label: 'Recovery', value: 'Wellness / Recovery' },
+];
 export const fabrics = ['SilkAir', 'SculptHold', 'VelvetNulu', 'ShieldAir'];
 export const occasions = [
   'Studio & Mindful',

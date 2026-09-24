@@ -2,6 +2,8 @@ import type { Product } from '@/types';
 
 export type CatalogQuery = {
   categoria?: string;
+  colecao?: string;
+  cor?: string;
   tecido?: string;
   ocasiao?: string;
   busca?: string;
@@ -18,12 +20,16 @@ export function queryCatalog(products: Product[], query: CatalogQuery) {
   const search = normalize(query.busca?.trim() ?? '');
   let filtered = products.filter(
     (product) =>
-      (!query.categoria || product.category === query.categoria) &&
+      (!query.categoria ||
+        product.category === query.categoria ||
+        product.activityCategory === query.categoria) &&
+      (!query.colecao || product.collection === query.colecao) &&
+      (!query.cor || product.colors.some((color) => color.name === query.cor)) &&
       (!query.tecido || product.fabric === query.tecido) &&
       (!query.ocasiao || product.occasion === query.ocasiao) &&
       (!search ||
         normalize(
-          `${product.title} ${product.category} ${product.fabric} ${product.feelTag}`,
+          `${product.title} ${product.category} ${product.collection} ${product.activityCategory} ${product.colors.map((color) => color.name).join(' ')} ${product.fabric} ${product.feelTag}`,
         ).includes(search)),
   );
   if (query.ordem === 'menor-preco') filtered = filtered.sort((a, b) => a.price - b.price);

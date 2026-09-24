@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useStorefront } from '@/providers/storefront-provider';
+import { usePersonalization } from '@/providers/personalization-provider';
 
 export function SiteFooter() {
   const { setPanel } = useStorefront();
+  const { openSettings } = usePersonalization();
   return (
     <footer className="border-t border-stuw-border dark:border-stuw-borderDark">
       <div className="page-container py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 text-xs">
@@ -36,6 +38,9 @@ export function SiteFooter() {
           </button>
           <button className="block" onClick={() => setPanel('returns')}>
             Trocas e devoluções
+          </button>
+          <button className="block" onClick={openSettings}>
+            Cookies e privacidade
           </button>
           <a
             className="block"

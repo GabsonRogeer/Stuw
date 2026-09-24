@@ -1,19 +1,16 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '@/providers/cart-provider';
 import { currency, FREE_SHIPPING_THRESHOLD, itemKey } from '@/lib/commerce';
 import { Modal } from '@/components/ui/modal/modal';
-import { Button } from '@/components/ui/button/button';
+import { CouponForm } from '@/components/cart/CouponForm/CouponForm';
 import { OrderSummary } from '@/components/cart/OrderSummary/OrderSummary';
 
 export function CartDrawer({ onClose }: { onClose: () => void }) {
-  const { items, count, changeQuantity, removeItem, coupon, setCoupon, totals } = useCart();
-  const [code, setCode] = useState(coupon);
-  const [message, setMessage] = useState('');
+  const { items, count, changeQuantity, removeItem, totals } = useCart();
   return (
     <Modal title={`Sua sacola (${count})`} onClose={onClose} drawer>
       {items.length === 0 ? (
@@ -87,51 +84,10 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              const normalized = code.trim().toUpperCase();
-              if (normalized === 'PRIVE10') {
-                setCoupon(normalized);
-                setMessage('Cupom aplicado.');
-              } else {
-                setMessage('Cupom inválido.');
-              }
-            }}
-            className="space-y-2"
-          >
-            <div className="flex gap-2">
-              <input
-                aria-label="Cupom de desconto"
-                value={code}
-                onChange={(event) => setCode(event.target.value)}
-                placeholder="Cupom de desconto"
-                className="field"
-              />
-              <Button type="submit" className="!px-4">
-                Aplicar
-              </Button>
-            </div>
-            <p role="status" className="text-xs">
-              {message}
-            </p>
-            {coupon && (
-              <button
-                type="button"
-                className="text-xs underline"
-                onClick={() => {
-                  setCoupon('');
-                  setCode('');
-                  setMessage('Cupom removido.');
-                }}
-              >
-                Remover cupom
-              </button>
-            )}
-          </form>
+          <CouponForm />
           <OrderSummary totals={totals} />
           <Link
-            href="/checkout"
+            href="/checkout/information"
             onClick={onClose}
             className="block text-center bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian py-4 text-xs tracking-widest uppercase"
           >

@@ -30,7 +30,7 @@ export function SearchDialog({ products, onClose }: { products: Product[]; onClo
           type="search"
           name="busca"
           className="field"
-          placeholder="Busque por peça, tecido ou categoria"
+          placeholder="Busque por peça, cor, coleção ou categoria"
           aria-label="Buscar produtos"
           value={query}
           onChange={(event) => setQuery(event.target.value)}

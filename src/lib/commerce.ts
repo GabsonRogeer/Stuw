@@ -13,11 +13,19 @@ export function calculateTotals(
   coupon = '',
   payment: 'pix' | 'card' | null = null,
   gift = false,
+  shippingPrice?: number,
 ) {
   const subtotal = round(items.reduce((sum, item) => sum + item.price * item.qty, 0));
   const discount = coupon === 'PRIVE10' ? round(subtotal * 0.1) : 0;
   const pixDiscount = payment === 'pix' ? round((subtotal - discount) * 0.05) : 0;
-  const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 28;
+  const shipping =
+    subtotal === 0
+      ? 0
+      : shippingPrice !== undefined && Number.isFinite(shippingPrice) && shippingPrice >= 0
+        ? round(shippingPrice)
+        : subtotal >= FREE_SHIPPING_THRESHOLD
+          ? 0
+          : 28;
   const giftCost = gift && items.length > 0 ? 35 : 0;
   return {
     subtotal,
