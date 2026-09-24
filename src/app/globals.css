@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .page-container {
+    @apply mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12;
+  }
+  .eyebrow {
+    @apply text-[10px] uppercase tracking-[.2em] font-medium text-stuw-sage dark:text-stuw-champagne;
+  }
+  .filter-select {
+    @apply block w-full bg-transparent py-2 mt-1 text-xs normal-case tracking-normal border-b border-stuw-border dark:border-stuw-borderDark rounded-none;
+  }
+  .filter-select option {
+    background: var(--color-canvas);
+    color: var(--color-obsidian);
+  }
+  .count-badge {
+    @apply absolute -top-0.5 -right-0.5 min-w-4 h-4 px-0.5 flex justify-center items-center rounded-full text-[9px] bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian;
+  }
+}
+@media (hover: none) {
+  .quick-add {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:root {
+  --color-obsidian: #131413;
+  --color-canvas: #fbf9f5;
+  --color-sand: #efece5;
+  --color-sage: #586255;
+  --color-champagne: #b8a28e;
+  --color-border: #e5e0d7;
+  --ease-silk: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  --color-canvas: #131413;
+  --color-obsidian: #fbf9f5;
+  --color-sand: #1c1d1b;
+  --color-border: #2a2d28;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-obsidian);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 400ms var(--ease-silk),
+    color 400ms var(--ease-silk);
+}
+
+.silk-transition {
+  transition: all 400ms var(--ease-silk);
+}
+
+.glass-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: rgba(251, 249, 245, 0.88);
+}
+
+.dark .glass-header {
+  background-color: rgba(19, 20, 19, 0.9);
+}
+
+.glass-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(229, 224, 215, 0.7);
+}
+
+.dark .glass-card {
+  background-color: rgba(28, 29, 27, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.haptic-press:active {
+  transform: scale(0.97);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sage);
+}
+
+/* Hide scrollbar for tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}
+:focus-visible {
+  outline: 2px solid #b8a28e;
+  outline-offset: 4px;
+}
+.stuw-dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(8px);
+}
+.stuw-dialog {
+  padding: 0;
+}
+.stuw-drawer {
+  margin: 0 0 0 auto;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(100%, 28rem);
+  max-width: 100%;
+}
+.field {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-sand);
+  font-size: 0.875rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

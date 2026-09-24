@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STUW — Luxury Activewear & Wellness | Official E-Commerce MVP</title>
+  
+  <!-- Favicon / Meta -->
+  <link rel="icon" type="image/jpeg" href="public/logo.jpg">
+  <meta name="description" content="STUW — A precisão do movimento. O luxo da pausa. Moda feminina athleisure de alto padrão com tecnologia têxtil sensorial.">
+  
+  <!-- Google Fonts: Cormorant Garamond (Editorial Serif) & Plus Jakarta Sans (Modern Geometric Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            stuw: {
+              obsidian: '#131413',
+              obsidianLight: '#1C1D1B',
+              canvas: '#FBF9F5',
+              sand: '#EFECE5',
+              sandLight: '#F5F2EB',
+              sandDark: '#DFDAD0',
+              sage: '#586255',
+              sageLight: '#E8ECE6',
+              sageDark: '#3E463C',
+              champagne: '#B8A28E',
+              champagneLight: '#F3EFEA',
+              border: '#E5E0D7',
+              borderDark: '#2E302D',
+              slate: '#7C827D'
+            }
+          },
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          boxShadow: {
+            'luxury-sm': '0 4px 20px -2px rgba(19, 20, 19, 0.04)',
+            'luxury-md': '0 12px 32px -4px rgba(19, 20, 19, 0.06)',
+            'luxury-lg': '0 24px 48px -8px rgba(19, 20, 19, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --color-obsidian: #131413;
+      --color-canvas: #FBF9F5;
+      --color-sand: #EFECE5;
+      --color-sage: #586255;
+      --color-champagne: #B8A28E;
+      --color-border: #E5E0D7;
+      --ease-silk: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .dark {
+      --color-canvas: #131413;
+      --color-obsidian: #FBF9F5;
+      --color-sand: #1C1D1B;
+      --color-border: #2A2D28;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--color-canvas);
+      color: var(--color-obsidian);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 400ms var(--ease-silk), color 400ms var(--ease-silk);
+    }
+
+    .silk-transition {
+      transition: all 400ms var(--ease-silk);
+    }
+
+    .glass-header {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background-color: rgba(251, 249, 245, 0.88);
+    }
+
+    .dark .glass-header {
+      background-color: rgba(19, 20, 19, 0.90);
+    }
+
+    .glass-card {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(229, 224, 215, 0.7);
+    }
+
+    .dark .glass-card {
+      background-color: rgba(28, 29, 27, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .haptic-press:active {
+      transform: scale(0.97);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-sage);
+    }
+
+    /* Hide scrollbar for tabs */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="selection:bg-stuw-sage selection:text-white relative min-h-screen">
+
+  <!-- ========================================== -->
+  <!-- 1. TOP ANNOUNCEMENT BAR                    -->
+  <!-- ========================================== -->
+  <aside class="bg-stuw-obsidian text-stuw-canvas dark:bg-[#0d0e0d] text-[11px] py-2 px-4 text-center tracking-[0.22em] uppercase font-medium flex items-center justify-center gap-3 border-b border-stone-800 relative z-50">
+    <span class="inline-block w-1.5 h-1.5 rounded-full bg-stuw-sage animate-pulse"></span>
+    <span>Drop Cápsula SilkAir™ 2026 &bull; Frete Expresso Cortesia a partir de R$ 499 &bull; 5% OFF no PIX</span>
+    <span class="hidden md:inline-block text-stuw-champagne">&bull; Concierge Privé Ativo</span>
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- 2. STICKY LUXURY HEADER                    -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 glass-header border-b border-stuw-border dark:border-stuw-borderDark px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between silk-transition">
+    <!-- Mobile Menu Button & Search -->
+    <div class="flex items-center gap-4">
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage" aria-label="Abrir menu">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Desktop Navigation Menu (Baseado no Sitemap Oficial) -->
+      <nav class="hidden lg:flex items-center space-x-7 text-[11px] uppercase tracking-[0.2em] font-semibold text-stuw-obsidian/80 dark:text-stuw-canvas/80">
+        <a href="#catalogo" onclick="setCategoryFilter('all')" class="hover:text-stuw-sage dark:hover:text-stuw-champagne silk-transition">Lançamentos</a>
+        <div class="relative group">
+          <a href="#catalogo" class="hover:text-stuw-sage dark:hover:text-stuw-champagne silk-transition flex items-center gap-1">
+            <span>Vestuário</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-stuw-slate"></i>
+          </a>
+          <!-- Dropdown Vestuário -->
+          <div class="absolute top-full -left-4 w-56 pt-3 hidden group-hover:block z-50">
+            <div class="glass-card rounded-xl p-3 shadow-luxury-lg border border-stuw-border dark:border-stuw-borderDark space-y-1 text-xs tracking-wider normal-case font-normal">
+              <button onclick="setCategoryFilter('Leggings & Calças')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition flex items-center justify-between">
+                <span>Leggings & Calças</span>
+                <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-semibold">Sculpt</span>
+              </button>
+              <button onclick="setCategoryFilter('Tops & Sutiãs')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition flex items-center justify-between">
+                <span>Tops & Sutiãs</span>
+                <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-semibold">Suporte</span>
+              </button>
+              <button onclick="setCategoryFilter('Macacões & Bodies')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition">
+                <span>Macacões & Onesies</span>
+              </button>
+              <button onclick="setCategoryFilter('Alfaiataria Esportiva')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition">
+                <span>Jaquetas & Alfaiataria</span>
+              </button>
+              <button onclick="setCategoryFilter('Tennis & Saias')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition">
+                <span>Saias & Racquet Club</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <a href="#sensorial" class="hover:text-stuw-sage dark:hover:text-stuw-champagne silk-transition">O Toque Stuw</a>
+        <a href="#studio-to-street" class="hover:text-stuw-sage dark:hover:text-stuw-champagne silk-transition">Studio-to-Street</a>
+        <a href="#prive" class="hover:text-stuw-sage dark:hover:text-stuw-champagne silk-transition">Stuw Privé</a>
+      </nav>
+    </div>
+
+    <!-- Centered Brand Logo -->
+    <a href="#" class="flex flex-col items-center group">
+      <div class="flex items-center gap-2">
+        <img src="public/logo.jpg" alt="STUW" class="h-6 w-auto object-contain dark:invert rounded-sm">
+        <span class="text-2xl lg:text-3xl font-light tracking-[0.28em] font-serif uppercase text-stuw-obsidian dark:text-stuw-canvas group-hover:opacity-80 silk-transition">STUW</span>
+      </div>
+      <span class="text-[8px] uppercase tracking-[0.35em] text-stuw-sage dark:text-stuw-champagne font-semibold -mt-0.5">Luxury Activewear</span>
+    </a>
+
+    <!-- Header Actions (Theme, Search, Wishlist, Bag) -->
+    <div class="flex items-center space-x-2 sm:space-x-4">
+      <!-- Theme Toggle -->
+      <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition text-stuw-obsidian dark:text-stuw-canvas" title="Alternar Modo de Ambiente">
+        <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Search Trigger -->
+      <button onclick="openSearchModal()" class="hidden sm:inline-flex p-2 rounded-full hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition text-stuw-obsidian dark:text-stuw-canvas" title="Buscar no Catálogo">
+        <i data-lucide="search" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Wishlist Trigger -->
+      <button onclick="openWishlistModal()" class="p-2 rounded-full hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition text-stuw-obsidian dark:text-stuw-canvas relative" title="Favoritos">
+        <i data-lucide="heart" class="w-4 h-4"></i>
+        <span id="wishlistCountBadge" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-stuw-sage"></span>
+      </button>
+
+      <!-- Cart Drawer Trigger -->
+      <button onclick="openSideCart()" class="bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian px-3.5 sm:px-4 py-2 rounded-full text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition flex items-center gap-2.5 haptic-press shadow-luxury-sm">
+        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Sacola</span>
+        <span id="cartCountBadge" class="w-4 h-4 rounded-full bg-stuw-champagne text-stuw-obsidian text-[10px] font-bold inline-flex items-center justify-center">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Navigation -->
+  <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden silk-transition" onclick="toggleMobileMenu()">
+    <div class="bg-stuw-canvas dark:bg-stuw-obsidian w-4/5 max-w-sm h-full p-6 space-y-6 shadow-2xl flex flex-col justify-between" onclick="event.stopPropagation()">
+      <div class="space-y-6">
+        <div class="flex items-center justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4">
+          <div class="flex items-center gap-2">
+            <img src="public/logo.jpg" alt="STUW" class="h-6 w-auto object-contain dark:invert">
+            <span class="text-xl font-serif tracking-[0.25em] font-light">STUW</span>
+          </div>
+          <button onclick="toggleMobileMenu()" class="p-2 text-stuw-slate hover:text-stuw-obsidian dark:hover:text-stuw-canvas">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <nav class="space-y-4 text-xs uppercase tracking-widest font-semibold">
+          <a href="#catalogo" onclick="toggleMobileMenu(); setCategoryFilter('all');" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">Lançamentos SilkAir™</a>
+          <a href="#catalogo" onclick="toggleMobileMenu(); setCategoryFilter('Leggings & Calças');" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">Leggings & Calças Sculpt</a>
+          <a href="#catalogo" onclick="toggleMobileMenu(); setCategoryFilter('Tops & Sutiãs');" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">Tops & Sustentação</a>
+          <a href="#catalogo" onclick="toggleMobileMenu(); setCategoryFilter('Macacões & Bodies');" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">Macacões & Onesies</a>
+          <a href="#catalogo" onclick="toggleMobileMenu(); setCategoryFilter('Alfaiataria Esportiva');" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">Jaquetas Bomber</a>
+          <a href="#sensorial" onclick="toggleMobileMenu()" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">A Ciência do Toque</a>
+          <a href="#studio-to-street" onclick="toggleMobileMenu()" class="block py-2 text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage">Studio-to-Street</a>
+        </nav>
+      </div>
+      <div class="pt-6 border-t border-stuw-border dark:border-stuw-borderDark space-y-3">
+        <button onclick="openConciergeModal(); toggleMobileMenu();" class="w-full py-3 bg-stuw-sage text-white rounded-full text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Concierge WhatsApp VIP</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. HERO SECTION CINEMATOGRÁFICA            -->
+  <!-- ========================================== -->
+  <section class="relative bg-stuw-sand dark:bg-[#181917] border-b border-stuw-border dark:border-stuw-borderDark py-12 sm:py-20 lg:py-28 px-4 sm:px-8 lg:px-16 overflow-hidden">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+      
+      <!-- Text & Manifesto -->
+      <div class="lg:col-span-7 space-y-6 sm:space-y-8">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-stuw-sage/10 text-stuw-sage dark:bg-stuw-sage/20 dark:text-stuw-champagne text-[11px] font-semibold uppercase tracking-[0.2em] rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-stuw-sage"></span>
+          <span>Coleção Cápsula 2026 &bull; Quiet Luxury Activewear</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-light font-serif text-stuw-obsidian dark:text-stuw-canvas leading-[1.08] tracking-tight">
+          A precisão do movimento.<br>
+          <em class="font-normal italic text-stuw-sage dark:text-stuw-champagne">O luxo da pausa.</em>
+        </h1>
+
+        <p class="text-stuw-obsidian/75 dark:text-stone-300 text-base sm:text-lg max-w-xl font-light leading-relaxed">
+          Nascida da convergência entre a biomecânica suíça, a estética editorial de estúdio e a ciência sensorial do toque. Feita para a mulher que exige sofisticação absoluta em cada instante da sua rotina.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-wrap gap-4 pt-2">
+          <a href="#catalogo" class="px-8 py-4 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition shadow-luxury-md haptic-press flex items-center gap-2">
+            <span>Explorar Coleção</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <button onclick="openFitAdvisorModal()" class="px-7 py-4 border border-stuw-obsidian dark:border-stuw-canvas/40 text-stuw-obsidian dark:text-stuw-canvas rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-obsidian hover:text-stuw-canvas dark:hover:bg-stuw-canvas dark:hover:text-stuw-obsidian silk-transition flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-stuw-champagne"></i>
+            <span>Provador Virtual Inteligente</span>
+          </button>
+        </div>
+
+        <!-- Pillar Trust Badges -->
+        <div class="grid grid-cols-3 gap-4 pt-6 border-t border-stuw-border/70 dark:border-stuw-borderDark">
+          <div>
+            <span class="block text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas">0.08mm SilkAir™</span>
+            <span class="text-[11px] text-stuw-slate font-light">Sensação segunda pele</span>
+          </div>
+          <div>
+            <span class="block text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas">Zero Transparência</span>
+            <span class="text-[11px] text-stuw-slate font-light">Teste 360° em estúdio</span>
+          </div>
+          <div>
+            <span class="block text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas">Studio-to-Street</span>
+            <span class="text-[11px] text-stuw-slate font-light">Do pilates ao brunch</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual Showcase Card -->
+      <div class="lg:col-span-5 relative">
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-stuw-border dark:border-stuw-borderDark bg-white dark:bg-stone-900 group">
+          <img src="public/products/legging-sculpt.jpg" alt="STUW Luxury Sculpt Legging" class="w-full aspect-[3/4] object-cover object-top group-hover:scale-105 silk-transition duration-700">
+          
+          <!-- Floating Glass Pill -->
+          <div class="absolute bottom-6 left-6 right-6 glass-card p-4 rounded-2xl shadow-luxury-lg border border-white/60 dark:border-stone-800">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-stuw-sage dark:text-stuw-champagne">Look em Destaque</span>
+                <h3 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas font-medium mt-0.5">Legging Sculpt Pure Waist</h3>
+                <p class="text-[11px] text-stuw-slate">Obsidian Black &bull; Compressão Anatômica 4/4</p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ 480,00</span>
+                <button onclick="quickViewProduct(1)" class="block text-[10px] uppercase tracking-widest text-stuw-sage dark:text-stuw-champagne font-bold mt-1 hover:underline">
+                  Ver Detalhes &rarr;
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 4. AS 3 PORTAS DE DESCOBERTA (SITEMAP UX)  -->
+  <!-- ========================================== -->
+  <section class="py-12 px-4 sm:px-8 lg:px-12 border-b border-stuw-border dark:border-stuw-borderDark bg-stuw-canvas dark:bg-stuw-obsidian">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Navegação Híbrida de Luxo</span>
+        <h2 class="font-serif text-2xl sm:text-3xl text-stuw-obsidian dark:text-stuw-canvas mt-1 font-light">Como você deseja descobrir a Stuw?</h2>
+        <p class="text-xs text-stuw-slate mt-1.5 font-light">Convergência Alo Yoga, Lululemon & On Running: compre por categoria, sensação na pele ou ocasião de uso.</p>
+      </div>
+
+      <!-- Navigation Discovery Selector Tabs -->
+      <div class="flex justify-center mb-8">
+        <div class="inline-flex p-1 bg-stuw-sand dark:bg-stone-800 rounded-full border border-stuw-border dark:border-stuw-borderDark">
+          <button id="tabBtnCategory" onclick="switchDiscoveryTab('category')" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian silk-transition">
+            1. Por Categoria
+          </button>
+          <button id="tabBtnFeel" onclick="switchDiscoveryTab('feel')" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider text-stuw-obsidian/70 dark:text-stuw-canvas/70 hover:text-stuw-obsidian silk-transition">
+            2. Por Sensação (Tecido)
+          </button>
+          <button id="tabBtnOccasion" onclick="switchDiscoveryTab('occasion')" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider text-stuw-obsidian/70 dark:text-stuw-canvas/70 hover:text-stuw-obsidian silk-transition">
+            3. Por Ocasião
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content: 1. Por Categoria -->
+      <div id="tabContentCategory" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <button onclick="setCategoryFilter('Leggings & Calças')" class="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage dark:hover:border-stuw-champagne silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-slate font-medium">01</span>
+          <h4 class="font-serif text-base font-medium text-stuw-obsidian dark:text-stuw-canvas group-hover:text-stuw-sage mt-1">Leggings & Calças</h4>
+          <p class="text-[11px] text-stuw-slate font-light mt-0.5">Sculpt, Flare & Cós Alto</p>
+        </button>
+        <button onclick="setCategoryFilter('Tops & Sutiãs')" class="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage dark:hover:border-stuw-champagne silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-slate font-medium">02</span>
+          <h4 class="font-serif text-base font-medium text-stuw-obsidian dark:text-stuw-canvas group-hover:text-stuw-sage mt-1">Tops & Sutiãs</h4>
+          <p class="text-[11px] text-stuw-slate font-light mt-0.5">Suporte Leve a Alto</p>
+        </button>
+        <button onclick="setCategoryFilter('Macacões & Bodies')" class="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage dark:hover:border-stuw-champagne silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-slate font-medium">03</span>
+          <h4 class="font-serif text-base font-medium text-stuw-obsidian dark:text-stuw-canvas group-hover:text-stuw-sage mt-1">Macacões & Onesies</h4>
+          <p class="text-[11px] text-stuw-slate font-light mt-0.5">Seamless One-Piece</p>
+        </button>
+        <button onclick="setCategoryFilter('Alfaiataria Esportiva')" class="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage dark:hover:border-stuw-champagne silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-slate font-medium">04</span>
+          <h4 class="font-serif text-base font-medium text-stuw-obsidian dark:text-stuw-canvas group-hover:text-stuw-sage mt-1">Jaquetas Bomber</h4>
+          <p class="text-[11px] text-stuw-slate font-light mt-0.5">Corta-vento Térmico</p>
+        </button>
+        <button onclick="setCategoryFilter('Tennis & Saias')" class="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage dark:hover:border-stuw-champagne silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-slate font-medium">05</span>
+          <h4 class="font-serif text-base font-medium text-stuw-obsidian dark:text-stuw-canvas group-hover:text-stuw-sage mt-1">Saias & Racquet</h4>
+          <p class="text-[11px] text-stuw-slate font-light mt-0.5">Court Plissado</p>
+        </button>
+      </div>
+
+      <!-- Tab Content: 2. Por Sensação (Tecido) -->
+      <div id="tabContentFeel" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
+        <button onclick="setFabricFilter('SilkAir')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-bold bg-stuw-sage/10 px-2 py-0.5 rounded-full">0.08mm Ultra-Light</span>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas mt-2">Tecido SilkAir™</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Toque seda pura, respirabilidade 98% e caimento fluido sem atrito.</p>
+        </button>
+        <button onclick="setFabricFilter('SculptHold')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-bold bg-stuw-sage/10 px-2 py-0.5 rounded-full">Compressão 4/4</span>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas mt-2">Tecido SculptHold™</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Efeito modelador anatômico, cós duplo e garantia de zero transparência.</p>
+        </button>
+        <button onclick="setFabricFilter('VelvetNulu')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-bold bg-stuw-sage/10 px-2 py-0.5 rounded-full">Pele de Pêssego</span>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas mt-2">Tecido VelvetNulu™</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Toque amanteigado ultra-macio, perfeito para yoga, pilates e descanso.</p>
+        </button>
+        <button onclick="setFabricFilter('ShieldAir')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-bold bg-stuw-sage/10 px-2 py-0.5 rounded-full">Proteção UV50+</span>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas mt-2">Tecido ShieldAir™</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Corta-vento técnico, repelente à água e barreira térmica para viagens.</p>
+        </button>
+      </div>
+
+      <!-- Tab Content: 3. Por Ocasião -->
+      <div id="tabContentOccasion" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
+        <button onclick="setOccasionFilter('Studio & Mindful')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <div class="w-8 h-8 rounded-full bg-stuw-sand dark:bg-stone-800 flex items-center justify-center text-stuw-sage mb-2">
+            <i data-lucide="flower" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas">Studio & Mindful</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Pilates Reformer, Vinyasa Yoga e Barre.</p>
+        </button>
+        <button onclick="setOccasionFilter('High Impact')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <div class="w-8 h-8 rounded-full bg-stuw-sand dark:bg-stone-800 flex items-center justify-center text-stuw-sage mb-2">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas">High Energy</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Running, HIIT e musculação funcional.</p>
+        </button>
+        <button onclick="setOccasionFilter('Racquet Club')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <div class="w-8 h-8 rounded-full bg-stuw-sand dark:bg-stone-800 flex items-center justify-center text-stuw-sage mb-2">
+            <i data-lucide="trophy" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas">Racquet Club</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Tennis, Pickleball e Beach Tennis de luxo.</p>
+        </button>
+        <button onclick="setOccasionFilter('Street & Travel')" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition group">
+          <div class="w-8 h-8 rounded-full bg-stuw-sand dark:bg-stone-800 flex items-center justify-center text-stuw-sage mb-2">
+            <i data-lucide="compass" class="w-4 h-4"></i>
+          </div>
+          <h4 class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas">Street & Travel</h4>
+          <p class="text-xs text-stuw-slate font-light mt-1">Do treino ao aeroporto e reuniões casuais.</p>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 5. CATÁLOGO DE PRODUTOS / PLP              -->
+  <!-- ========================================== -->
+  <section id="catalogo" class="py-16 px-4 sm:px-8 lg:px-12 bg-stuw-sand/40 dark:bg-[#151614] border-b border-stuw-border dark:border-stuw-borderDark">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Catalog Header & Grid View Controls -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <span class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Catálogo Oficial</span>
+          <h2 class="font-serif text-3xl sm:text-4xl text-stuw-obsidian dark:text-stuw-canvas mt-1 font-light">Coleção Cápsula 2026</h2>
+          <p id="activeFilterLabel" class="text-xs text-stuw-slate mt-1">Exibindo todas as peças exclusivas (6 produtos)</p>
+        </div>
+
+        <!-- Controls: Filter Reset & Grid Switcher -->
+        <div class="flex items-center gap-3">
+          <button id="resetFiltersBtn" onclick="resetFilters()" class="hidden text-xs uppercase tracking-wider text-stuw-sage font-semibold hover:underline">
+            Limpar Filtros &times;
+          </button>
+
+          <!-- Grid Switcher: 2 Columns vs 4 Columns -->
+          <div class="flex items-center p-1 bg-white dark:bg-stone-900 rounded-lg border border-stuw-border dark:border-stuw-borderDark">
+            <button onclick="setGridColumns(2)" id="gridBtn2" class="p-1.5 rounded text-stuw-slate hover:text-stuw-obsidian dark:hover:text-stuw-canvas" title="Visualização Editorial Ampla (2 Colunas)">
+              <i data-lucide="columns-2" class="w-4 h-4"></i>
+            </button>
+            <button onclick="setGridColumns(3)" id="gridBtn3" class="p-1.5 rounded bg-stuw-sand dark:bg-stone-800 text-stuw-obsidian dark:text-stuw-canvas font-bold" title="Visualização Padrão (3/4 Colunas)">
+              <i data-lucide="grid" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Cards Grid (Dynamic JS Render) -->
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <!-- Rendered by JavaScript below -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 6. O TOQUE STUW: A CIÊNCIA DO TOQUE (PDP)  -->
+  <!-- ========================================== -->
+  <section id="sensorial" class="py-20 px-4 sm:px-8 lg:px-12 bg-stuw-canvas dark:bg-stuw-obsidian border-b border-stuw-border dark:border-stuw-borderDark">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- Macro Texture Visual -->
+      <div class="lg:col-span-6 relative">
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-stuw-border dark:border-stuw-borderDark aspect-square group">
+          <img src="public/products/fabric-macro.jpg" alt="Macro Texture Microfiber" class="w-full h-full object-cover group-hover:scale-105 silk-transition duration-700">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          
+          <div class="absolute bottom-6 left-6 right-6 text-white space-y-1">
+            <span class="text-[9px] uppercase tracking-[0.25em] font-bold text-stuw-champagne">Escala 1:1 &bull; Engenharia Têxtil</span>
+            <h3 class="font-serif text-2xl font-light">Trama SilkAir™ Micro-Ribbed</h3>
+            <p class="text-xs text-white/80 font-light">Fibra italiana ultrafina 0.08mm com microcanais de ventilação inteligente.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Science of Feel Storytelling -->
+      <div class="lg:col-span-6 space-y-6">
+        <span class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">The Science of Feel</span>
+        <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-stuw-obsidian dark:text-stuw-canvas leading-tight">
+          O tecido que não comprime: <br>
+          <em class="italic font-normal">ele abraça a sua anatomia.</em>
+        </h2>
+        <p class="text-stuw-obsidian/75 dark:text-stone-300 text-sm sm:text-base font-light leading-relaxed">
+          Inspirados pela precisão suíça da On Running e o toque icônico da Lululemon, desenvolvemos nossas próprias fórmulas de tecido. O toque na pele reduz os níveis de cortisol induzidos pelo atrito e melhora a propriocepção durante o treino.
+        </p>
+
+        <!-- Technical Metrics Grid -->
+        <div class="grid grid-cols-2 gap-4 pt-4">
+          <div class="p-4 rounded-2xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark">
+            <span class="text-2xl font-serif font-light text-stuw-obsidian dark:text-stuw-canvas">4-Way</span>
+            <span class="block text-xs font-semibold text-stuw-sage dark:text-stuw-champagne mt-0.5">Elasticidade Tridimensional</span>
+            <p class="text-[11px] text-stuw-slate font-light mt-1">Acompanha a amplitude máxima do yoga sem deformar a peça.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark">
+            <span class="text-2xl font-serif font-light text-stuw-obsidian dark:text-stuw-canvas">0%</span>
+            <span class="block text-xs font-semibold text-stuw-sage dark:text-stuw-champagne mt-0.5">Transparência Garantida</span>
+            <p class="text-[11px] text-stuw-slate font-light mt-1">Densidade de trama testada em agachamentos sob luz intensa.</p>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="openFitAdvisorModal()" class="px-6 py-3.5 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-stuw-champagne"></i>
+            <span>Encontrar Meu Tamanho & Caimento Ideal</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 7. STUDIO-TO-STREET LIFESTYLE (INSTAGRAM)   -->
+  <!-- ========================================== -->
+  <section id="studio-to-street" class="py-20 px-4 sm:px-8 lg:px-12 bg-stuw-sand/50 dark:bg-[#161715] border-b border-stuw-border dark:border-stuw-borderDark">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div>
+          <span class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Studio-to-Street Lifestyle</span>
+          <h2 class="font-serif text-3xl sm:text-4xl text-stuw-obsidian dark:text-stuw-canvas mt-1 font-light">Stuw in Motion &bull; @stuw.company</h2>
+          <p class="text-xs text-stuw-slate mt-1 font-light">A elegância que transita sem esforço do reformer de pilates ao voo internacional.</p>
+        </div>
+        <a href="https://www.instagram.com/stuw.company/reels/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage silk-transition">
+          <i data-lucide="instagram" class="w-4 h-4 text-stuw-sage"></i>
+          <span>Seguir no Instagram</span>
+        </a>
+      </div>
+
+      <!-- Reels & Lifestyle Gallery -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Reel Card 1 -->
+        <div class="group relative rounded-2xl overflow-hidden shadow-lg border border-stuw-border dark:border-stuw-borderDark aspect-[3/4] bg-white dark:bg-stone-900">
+          <img src="public/products/top-sage.jpg" alt="Stuw Pilates Reformer" class="w-full h-full object-cover group-hover:scale-105 silk-transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-between p-4">
+            <div class="flex justify-end">
+              <span class="bg-black/50 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i data-lucide="play" class="w-3 h-3 fill-white"></i> Reel
+              </span>
+            </div>
+            <div class="text-white space-y-1">
+              <span class="text-[9px] uppercase tracking-widest text-stuw-champagne font-semibold">Morning Studio Flow</span>
+              <p class="text-xs font-medium">Top Halter Sage & Legging Sculpt em movimento.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reel Card 2 -->
+        <div class="group relative rounded-2xl overflow-hidden shadow-lg border border-stuw-border dark:border-stuw-borderDark aspect-[3/4] bg-white dark:bg-stone-900">
+          <img src="public/products/bomber-taupe.jpg" alt="Stuw Street & Travel" class="w-full h-full object-cover group-hover:scale-105 silk-transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-between p-4">
+            <div class="flex justify-end">
+              <span class="bg-black/50 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i data-lucide="play" class="w-3 h-3 fill-white"></i> Reel
+              </span>
+            </div>
+            <div class="text-white space-y-1">
+              <span class="text-[9px] uppercase tracking-widest text-stuw-champagne font-semibold">Airport Chic & Street</span>
+              <p class="text-xs font-medium">Jaqueta Bomber FeatherTouch Sandstone.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reel Card 3 -->
+        <div class="group relative rounded-2xl overflow-hidden shadow-lg border border-stuw-border dark:border-stuw-borderDark aspect-[3/4] bg-white dark:bg-stone-900">
+          <img src="public/products/skirt-tennis.jpg" alt="Stuw Racquet Club" class="w-full h-full object-cover group-hover:scale-105 silk-transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-between p-4">
+            <div class="flex justify-end">
+              <span class="bg-black/50 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i data-lucide="play" class="w-3 h-3 fill-white"></i> Reel
+              </span>
+            </div>
+            <div class="text-white space-y-1">
+              <span class="text-[9px] uppercase tracking-widest text-stuw-champagne font-semibold">Racquet Club Tennis</span>
+              <p class="text-xs font-medium">Saia Plissada Court & Top Ribbed em saibro.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reel Card 4 -->
+        <div class="group relative rounded-2xl overflow-hidden shadow-lg border border-stuw-border dark:border-stuw-borderDark aspect-[3/4] bg-white dark:bg-stone-900">
+          <img src="public/products/onesie-mineral.jpg" alt="Stuw One Piece" class="w-full h-full object-cover group-hover:scale-105 silk-transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-between p-4">
+            <div class="flex justify-end">
+              <span class="bg-black/50 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i data-lucide="play" class="w-3 h-3 fill-white"></i> Reel
+              </span>
+            </div>
+            <div class="text-white space-y-1">
+              <span class="text-[9px] uppercase tracking-widest text-stuw-champagne font-semibold">Sanctuary Meditation</span>
+              <p class="text-xs font-medium">Macacão SilkAir Catsuit Deep Mineral.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 8. PROVA SOCIAL & DEPOIMENTOS DE LUXO      -->
+  <!-- ========================================== -->
+  <section class="py-20 px-4 sm:px-8 lg:px-12 bg-stuw-canvas dark:bg-stuw-obsidian border-b border-stuw-border dark:border-stuw-borderDark">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Comunidade & Experiência</span>
+        <h2 class="font-serif text-3xl sm:text-4xl text-stuw-obsidian dark:text-stuw-canvas mt-1 font-light">O que dizem nossas clientes</h2>
+        <p class="text-xs text-stuw-slate mt-1.5 font-light">Avaliações verificadas de praticantes de pilates, ioga e corredoras.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Review 1 -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-4">
+          <div class="flex text-amber-500 text-xs">
+            ★★★★★
+          </div>
+          <p class="text-xs sm:text-sm text-stuw-obsidian/80 dark:text-stone-300 font-light leading-relaxed">
+            "A legging Sculpt superou qualquer modelo da Alo ou Lululemon que já tive. O cós alto realmente não enrola durante a aula de reformer e o tecido tem um toque de seda absurdo."
+          </p>
+          <div class="pt-2 border-t border-stuw-border/60 dark:border-stone-800 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas block">Camila Rezende</span>
+              <span class="text-[10px] text-stuw-slate">1,68m &bull; 58kg &bull; Tamanho P</span>
+            </div>
+            <span class="text-[10px] uppercase font-bold text-stuw-sage bg-stuw-sage/10 px-2 py-0.5 rounded-full">Compradora Verificada</span>
+          </div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-4">
+          <div class="flex text-amber-500 text-xs">
+            ★★★★★
+          </div>
+          <p class="text-xs sm:text-sm text-stuw-obsidian/80 dark:text-stone-300 font-light leading-relaxed">
+            "A jaqueta bomber é uma verdadeira obra de alfaiataria. Eu saio do estúdio e vou direto para o almoço ou aeroporto sem parecer que estou de roupa de academia."
+          </p>
+          <div class="pt-2 border-t border-stuw-border/60 dark:border-stone-800 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas block">Beatriz Albuquerque</span>
+              <span class="text-[10px] text-stuw-slate">1,72m &bull; 62kg &bull; Tamanho M</span>
+            </div>
+            <span class="text-[10px] uppercase font-bold text-stuw-sage bg-stuw-sage/10 px-2 py-0.5 rounded-full">Compradora Verificada</span>
+          </div>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-4">
+          <div class="flex text-amber-500 text-xs">
+            ★★★★★
+          </div>
+          <p class="text-xs sm:text-sm text-stuw-obsidian/80 dark:text-stone-300 font-light leading-relaxed">
+            "O concierge no WhatsApp foi extremamente atencioso, me ajudou a escolher o tamanho correto pelo meu biotipo. A embalagem com o perfume exclusivo tornou a experiência de unboxing mágica."
+          </p>
+          <div class="pt-2 border-t border-stuw-border/60 dark:border-stone-800 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas block">Fernanda Martins</span>
+              <span class="text-[10px] text-stuw-slate">1,63m &bull; 54kg &bull; Tamanho PP</span>
+            </div>
+            <span class="text-[10px] uppercase font-bold text-stuw-sage bg-stuw-sage/10 px-2 py-0.5 rounded-full">Compradora Verificada</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 9. STUW PRIVÉ CLUB & CONCIERGE VIP         -->
+  <!-- ========================================== -->
+  <section id="prive" class="py-20 px-4 sm:px-8 lg:px-12 bg-stuw-obsidian text-stuw-canvas dark:bg-[#0f100e] border-b border-stone-800">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <div class="lg:col-span-7 space-y-6">
+        <span class="text-[10px] uppercase tracking-[0.28em] text-stuw-champagne font-bold">Programa VIP Exclusivo</span>
+        <h2 class="font-serif text-3xl sm:text-5xl font-light leading-tight">
+          Stuw Privé Club: <br>
+          <em class="italic font-normal text-stuw-champagne">Mais que roupas, um santuário.</em>
+        </h2>
+        <p class="text-stone-300 text-sm sm:text-base font-light leading-relaxed max-w-xl">
+          Membros do Stuw Privé têm acesso antecipado de 24h a todos os drops cápsula, convites para masterclasses fechadas de yoga e atendimento prioritário com personal shopper via Concierge WhatsApp.
+        </p>
+
+        <div class="flex flex-wrap gap-4 pt-2">
+          <button onclick="openConciergeModal()" class="px-8 py-3.5 bg-stuw-canvas text-stuw-obsidian rounded-full text-xs uppercase tracking-widest font-semibold hover:bg-stuw-champagne silk-transition flex items-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4 text-stuw-sage"></i>
+            <span>Falar com Concierge VIP</span>
+          </button>
+          <button onclick="openPriveModal()" class="px-7 py-3.5 border border-white/30 text-white rounded-full text-xs uppercase tracking-widest font-semibold hover:bg-white/10 silk-transition">
+            Conhecer Benefícios do Clube
+          </button>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="p-8 rounded-3xl bg-stone-900/80 border border-stone-800 space-y-6">
+          <div class="flex items-center justify-between border-b border-stone-800 pb-4">
+            <span class="font-serif text-xl tracking-widest text-stuw-champagne">STUW PRIVÉ</span>
+            <span class="text-[10px] uppercase tracking-widest text-stone-400">Cartão Black Digital</span>
+          </div>
+          <div class="space-y-3 text-xs text-stone-300">
+            <div class="flex items-center gap-3">
+              <i data-lucide="check-circle" class="w-4 h-4 text-stuw-champagne"></i>
+              <span>Frete Expresso Cortesia Ilimitado</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i data-lucide="check-circle" class="w-4 h-4 text-stuw-champagne"></i>
+              <span>Embalagem Especial com Aroma de Estúdio</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i data-lucide="check-circle" class="w-4 h-4 text-stuw-champagne"></i>
+              <span>Troca Domiciliar com Coleta VIP sem Fila</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i data-lucide="check-circle" class="w-4 h-4 text-stuw-champagne"></i>
+              <span>Acesso a Workshops Privados com Mestres de Yoga</span>
+            </div>
+          </div>
+          <div class="pt-4 border-t border-stone-800 text-[11px] text-stone-400 italic">
+            "Cadastre-se hoje e receba 10% OFF na sua primeira compra com o cupom <strong>PRIVE10</strong>."
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 10. FOOTER INSTITUCIONAL (SITEMAP OFICIAL) -->
+  <!-- ========================================== -->
+  <footer class="bg-stuw-canvas dark:bg-[#111210] py-16 px-4 sm:px-8 lg:px-12 text-stuw-obsidian dark:text-stone-300 border-t border-stuw-border dark:border-stuw-borderDark">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+      
+      <!-- Brand Column -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="flex items-center gap-2">
+          <img src="public/logo.jpg" alt="STUW" class="h-6 w-auto object-contain dark:invert rounded-sm">
+          <span class="text-2xl font-serif tracking-[0.25em] font-light">STUW</span>
+        </div>
+        <p class="text-xs text-stuw-slate font-light max-w-sm leading-relaxed">
+          Activewear de luxo contemporâneo concebido para a harmonia entre corpo e mente. A fusão do minimalismo suíço com a ciência sensorial das fibras.
+        </p>
+        <div class="pt-2 text-xs text-stuw-slate font-light">
+          &copy; 2026 STUW Company. Todos os direitos reservados.
+        </div>
+      </div>
+
+      <!-- Column 1: Atendimento Exclusivo -->
+      <div class="space-y-3 text-xs">
+        <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-stuw-obsidian dark:text-stuw-canvas">Atendimento Exclusivo</p>
+        <ul class="space-y-2 font-light text-stuw-slate">
+          <li><button onclick="openConciergeModal()" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Concierge WhatsApp VIP</button></li>
+          <li><button onclick="openFitAdvisorModal()" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Guia de Caimento & Provador</button></li>
+          <li><a href="#sensorial" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Cuidados com Tecidos Técnicos</a></li>
+          <li><button onclick="alert('Logística Reversa Cortesia: Trocas gratuitas em até 30 dias com coleta domiciliar.')" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Trocas & Devoluções Cortesia</button></li>
+        </ul>
+      </div>
+
+      <!-- Column 2: O Universo Stuw -->
+      <div class="space-y-3 text-xs">
+        <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-stuw-obsidian dark:text-stuw-canvas">Universo Stuw</p>
+        <ul class="space-y-2 font-light text-stuw-slate">
+          <li><a href="#sensorial" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Manifesto da Marca</a></li>
+          <li><a href="#sensorial" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Fibras Sustentáveis & Rastreabilidade</a></li>
+          <li><button onclick="openPriveModal()" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Stuw Privé Club</button></li>
+          <li><a href="https://www.instagram.com/stuw.company/reels/" target="_blank" class="hover:text-stuw-obsidian dark:hover:text-stuw-canvas">Instagram @stuw.company</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Newsletter Privé -->
+      <div class="space-y-3 text-xs">
+        <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-stuw-obsidian dark:text-stuw-canvas">Newsletter Privé</p>
+        <p class="text-[11px] text-stuw-slate font-light">Receba convites para drops fechados e 10% OFF no seu primeiro pedido.</p>
+        <form onsubmit="handleNewsletter(event)" class="space-y-2">
+          <input type="email" id="newsletterEmail" required placeholder="Seu e-mail principal" class="w-full px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark text-xs focus:outline-none focus:border-stuw-sage">
+          <button type="submit" class="w-full py-2.5 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-xl text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition">
+            Cadastrar
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- 11. SLIDE-CART DRAWER (SACOLA FLUTUANTE)   -->
+  <!-- ========================================== -->
+  <div id="sideCartDrawer" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden silk-transition" onclick="closeSideCart()">
+    <div class="absolute top-0 right-0 w-full max-w-md h-full bg-stuw-canvas dark:bg-stuw-obsidian p-6 shadow-2xl flex flex-col justify-between border-l border-stuw-border dark:border-stuw-borderDark silk-transition" onclick="event.stopPropagation()">
+      
+      <!-- Drawer Header -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="shopping-bag" class="w-5 h-5 text-stuw-sage"></i>
+            <h3 class="font-serif text-xl font-light text-stuw-obsidian dark:text-stuw-canvas">Sua Sacola Stuw</h3>
+            <span id="drawerCount" class="text-xs text-stuw-slate font-medium">(0)</span>
+          </div>
+          <button onclick="closeSideCart()" class="p-2 text-stuw-slate hover:text-stuw-obsidian dark:hover:text-stuw-canvas">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Free Shipping Progress Bar (Dynamic Goal R$ 499) -->
+        <div class="p-3.5 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark space-y-2">
+          <div class="flex justify-between text-xs">
+            <span id="shippingBarText" class="font-medium text-stuw-obsidian dark:text-stuw-canvas">Faltam R$ 499,00 para Frete Expresso Cortesia</span>
+            <span class="text-stuw-sage font-bold text-[10px] uppercase">Stuw Privé</span>
+          </div>
+          <div class="w-full h-1.5 bg-stuw-border/70 dark:bg-stone-800 rounded-full overflow-hidden">
+            <div id="shippingProgressBar" class="h-full bg-stuw-sage silk-transition" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Items List Container -->
+      <div id="cartItemsList" class="flex-1 overflow-y-auto py-4 space-y-4 my-2 pr-1">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Drawer Footer & Checkout Action -->
+      <div class="border-t border-stuw-border dark:border-stuw-borderDark pt-4 space-y-3">
+        <!-- Coupon Input -->
+        <div class="flex gap-2">
+          <input type="text" id="couponInput" placeholder="Cupom (ex: PRIVE10)" class="flex-1 px-3 py-2 text-xs rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark uppercase font-medium focus:outline-none focus:border-stuw-sage">
+          <button onclick="applyCoupon()" class="px-4 py-2 bg-stuw-sand dark:bg-stone-800 text-stuw-obsidian dark:text-stuw-canvas border border-stuw-border dark:border-stuw-borderDark rounded-xl text-xs uppercase tracking-wider font-semibold hover:bg-stuw-sage hover:text-white silk-transition">
+            Aplicar
+          </button>
+        </div>
+        <div id="couponAppliedBadge" class="hidden text-[11px] text-stuw-sage font-semibold flex items-center justify-between">
+          <span>Cupom PRIVE10 aplicado (-10%)</span>
+          <button onclick="removeCoupon()" class="text-stuw-slate hover:text-red-500">&times;</button>
+        </div>
+
+        <!-- Totals Calculation -->
+        <div class="space-y-1.5 text-xs text-stuw-slate">
+          <div class="flex justify-between">
+            <span>Subtotal</span>
+            <span id="cartSubtotal" class="font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ 0,00</span>
+          </div>
+          <div id="cartDiscountRow" class="hidden justify-between text-stuw-sage font-medium">
+            <span>Desconto VIP</span>
+            <span id="cartDiscount">- R$ 0,00</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Frete Expresso</span>
+            <span id="cartShipping" class="font-medium text-stuw-obsidian dark:text-stuw-canvas">A calcular</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold text-stuw-obsidian dark:text-stuw-canvas pt-2 border-t border-stuw-border/70 dark:border-stone-800">
+            <span>Total</span>
+            <span id="cartTotal">R$ 0,00</span>
+          </div>
+        </div>
+
+        <!-- Checkout Action Button -->
+        <button onclick="proceedToCheckout()" class="w-full py-4 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition flex items-center justify-center gap-2 shadow-luxury-md haptic-press">
+          <span>Finalizar Compra</span>
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+        </button>
+        <p class="text-[10px] text-center text-stuw-slate font-light">
+          Ambiente Seguro SSL 256-bit &bull; 6x Sem Juros ou 5% OFF no PIX
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 12. PDP MODAL (DETALHES DO PRODUTO)        -->
+  <!-- ========================================== -->
+  <div id="pdpModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden silk-transition flex items-center justify-center p-3 sm:p-6" onclick="closePdpModal()">
+    <div class="bg-stuw-canvas dark:bg-stuw-obsidian w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-2xl border border-stuw-border dark:border-stuw-borderDark overflow-hidden flex flex-col lg:flex-row silk-transition relative" onclick="event.stopPropagation()">
+      
+      <!-- Close Button -->
+      <button onclick="closePdpModal()" class="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-white/80 dark:bg-stone-900/80 backdrop-blur-md text-stuw-obsidian dark:text-stuw-canvas hover:scale-110 silk-transition shadow-sm">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Left Column: Gallery & Macro View -->
+      <div class="lg:w-1/2 p-6 bg-stuw-sand/60 dark:bg-[#191a18] flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-stuw-border dark:border-stuw-borderDark">
+        <div class="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-md border border-stuw-border dark:border-stuw-borderDark">
+          <img id="pdpMainImage" src="" alt="Produto Stuw" class="w-full h-full object-cover">
+          <span id="pdpBadge" class="absolute top-3 left-3 bg-stuw-obsidian text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full">
+            Alta Compressão
+          </span>
+        </div>
+        
+        <!-- Thumbnail Gallery / Macro Zoom Trigger -->
+        <div class="flex items-center gap-3 mt-4">
+          <button onclick="setPdpImageThumb(0)" class="w-14 h-16 rounded-xl overflow-hidden border-2 border-stuw-obsidian dark:border-stuw-canvas">
+            <img id="pdpThumb0" src="" class="w-full h-full object-cover">
+          </button>
+          <button onclick="setPdpImageThumb(1)" class="w-14 h-16 rounded-xl overflow-hidden border border-stuw-border dark:border-stuw-borderDark hover:border-stuw-sage">
+            <img src="public/products/fabric-macro.jpg" class="w-full h-full object-cover" title="Close Macro do Tecido">
+          </button>
+          <span class="text-[11px] text-stuw-slate font-light pl-2">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5 inline mr-1"></i>Clique na miniatura para ver o macro da fibra 1:1
+          </span>
+        </div>
+      </div>
+
+      <!-- Right Column: Specs, Selector, Fit Advisor & Add to Bag -->
+      <div class="lg:w-1/2 p-6 sm:p-8 overflow-y-auto space-y-5">
+        <div>
+          <span id="pdpCategory" class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Leggings & Calças</span>
+          <h2 id="pdpTitle" class="font-serif text-2xl sm:text-3xl text-stuw-obsidian dark:text-stuw-canvas mt-0.5">Legging Sculpt Pure Waist</h2>
+          <div class="flex items-center justify-between mt-2">
+            <div>
+              <span id="pdpPrice" class="text-xl font-bold text-stuw-obsidian dark:text-stuw-canvas">R$ 480,00</span>
+              <span class="text-xs text-stuw-slate font-light block">em até 6x de R$ 80,00 sem juros</span>
+            </div>
+            <div class="flex items-center text-xs text-amber-500 font-semibold">
+              ★★★★★ <span class="text-stuw-slate text-[11px] ml-1">(4.9)</span>
+            </div>
+          </div>
+        </div>
+
+        <p id="pdpDescription" class="text-xs text-stuw-obsidian/75 dark:text-stone-300 font-light leading-relaxed">
+          Desenvolvida com a tecnologia SculptHold™, cós anatômico duplo e compressão uniforme que modela sem restringir o fluxo sanguíneo.
+        </p>
+
+        <!-- Color Selector -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="font-medium text-stuw-obsidian dark:text-stuw-canvas">Cor Oficial:</span>
+            <span id="pdpColorName" class="text-stuw-sage dark:text-stuw-champagne font-semibold">Obsidian Black</span>
+          </div>
+          <div id="pdpColorSwatches" class="flex items-center gap-2">
+            <!-- Swatches generated by JS -->
+          </div>
+        </div>
+
+        <!-- Size Selector with Fit Advisor -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-medium text-stuw-obsidian dark:text-stuw-canvas">Selecione o Tamanho:</span>
+            <button onclick="openFitAdvisorModal()" class="text-stuw-sage dark:text-stuw-champagne font-semibold flex items-center gap-1 hover:underline">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>Descobrir Meu Tamanho</span>
+            </button>
+          </div>
+          <div id="pdpSizeButtons" class="grid grid-cols-5 gap-2">
+            <button onclick="selectPdpSize('PP')" class="size-btn py-2.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-xs font-semibold hover:border-stuw-obsidian">PP</button>
+            <button onclick="selectPdpSize('P')" class="size-btn py-2.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-xs font-semibold hover:border-stuw-obsidian">P</button>
+            <button onclick="selectPdpSize('M')" class="size-btn py-2.5 rounded-xl border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-white dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs font-semibold">M</button>
+            <button onclick="selectPdpSize('G')" class="size-btn py-2.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-xs font-semibold hover:border-stuw-obsidian">G</button>
+            <button onclick="selectPdpSize('GG')" class="size-btn py-2.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-xs font-semibold hover:border-stuw-obsidian">GG</button>
+          </div>
+        </div>
+
+        <!-- Add to Bag CTA -->
+        <div class="pt-2 space-y-3">
+          <button id="pdpAddToCartBtn" onclick="addCurrentPdpToCart()" class="w-full py-4 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition flex items-center justify-center gap-2 shadow-luxury-md haptic-press">
+            <span>Adicionar à Sacola &bull; R$ 480,00</span>
+          </button>
+          <button onclick="togglePdpWishlist()" id="pdpWishlistBtn" class="w-full py-2.5 border border-stuw-border dark:border-stuw-borderDark rounded-full text-xs font-medium flex items-center justify-center gap-2 hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition">
+            <i data-lucide="heart" class="w-3.5 h-3.5 text-stuw-sage"></i>
+            <span>Salvar na Minha Lista de Desejos</span>
+          </button>
+        </div>
+
+        <!-- Complete the Look Cross-Sell in PDP -->
+        <div class="p-4 rounded-2xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark space-y-2">
+          <span class="text-[9px] uppercase tracking-widest text-stuw-sage font-bold">Complete o Look Editorial</span>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <img src="public/products/top-sage.jpg" class="w-10 h-12 rounded-lg object-cover">
+              <div>
+                <span class="text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas block">Top Studio Halter Neck</span>
+                <span class="text-[11px] text-stuw-slate">R$ 320,00</span>
+              </div>
+            </div>
+            <button onclick="addBundleToCart()" class="px-3 py-1.5 bg-stuw-obsidian text-white dark:bg-stuw-canvas dark:text-stuw-obsidian text-[10px] uppercase font-bold tracking-wider rounded-full hover:bg-stuw-sage silk-transition">
+              + Adicionar Look
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 13. PROVADOR VIRTUAL INTELIGENTE (MODAL)   -->
+  <!-- ========================================== -->
+  <div id="fitAdvisorModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden silk-transition flex items-center justify-center p-4" onclick="closeFitAdvisorModal()">
+    <div class="bg-stuw-canvas dark:bg-stuw-obsidian w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-stuw-border dark:border-stuw-borderDark silk-transition space-y-6" onclick="event.stopPropagation()">
+      
+      <div class="flex justify-between items-start border-b border-stuw-border dark:border-stuw-borderDark pb-4">
+        <div>
+          <span class="text-[9px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Inteligência de Caimento</span>
+          <h3 class="font-serif text-2xl font-light text-stuw-obsidian dark:text-stuw-canvas">Provador Virtual Inteligente</h3>
+          <p class="text-xs text-stuw-slate font-light mt-0.5">Recomendação milimétrica baseada no seu biotipo corporal.</p>
+        </div>
+        <button onclick="closeFitAdvisorModal()" class="p-2 text-stuw-slate hover:text-stuw-obsidian dark:hover:text-stuw-canvas">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Fit Form -->
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium mb-1 text-stuw-obsidian dark:text-stuw-canvas">Sua Altura (cm): <span id="heightValue" class="font-bold text-stuw-sage">168 cm</span></label>
+          <input type="range" id="fitHeight" min="150" max="185" value="168" oninput="calculateFitSize()" class="w-full accent-stuw-sage">
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1 text-stuw-obsidian dark:text-stuw-canvas">Seu Peso (kg): <span id="weightValue" class="font-bold text-stuw-sage">58 kg</span></label>
+          <input type="range" id="fitWeight" min="45" max="95" value="58" oninput="calculateFitSize()" class="w-full accent-stuw-sage">
+        </div>
+
+        <div>
+          <label class="block font-medium mb-1 text-stuw-obsidian dark:text-stuw-canvas">Como você prefere o caimento na pele?</label>
+          <div class="grid grid-cols-3 gap-2 mt-1">
+            <button type="button" onclick="setFitPreference('sculpt')" id="fitPrefSculpt" class="fit-pref-btn py-2 px-3 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold text-center">
+              Segunda Pele
+            </button>
+            <button type="button" onclick="setFitPreference('balanced')" id="fitPrefBalanced" class="fit-pref-btn py-2 px-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center">
+              Equilibrado
+            </button>
+            <button type="button" onclick="setFitPreference('relaxed')" id="fitPrefRelaxed" class="fit-pref-btn py-2 px-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center">
+              Confortável
+            </button>
+          </div>
+        </div>
+
+        <!-- Calculated Result Box -->
+        <div class="p-5 rounded-2xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-center space-y-1">
+          <span class="text-[10px] uppercase tracking-widest text-stuw-slate">Recomendação Stuw:</span>
+          <div class="text-3xl font-serif font-bold text-stuw-obsidian dark:text-stuw-canvas">Tamanho <span id="recommendedSizeLabel" class="text-stuw-sage dark:text-stuw-champagne">P</span></div>
+          <p id="fitConfidence" class="text-[11px] text-stuw-slate font-light">96% de assertividade para práticas de yoga e pilates.</p>
+        </div>
+
+        <button onclick="applyRecommendedSize()" class="w-full py-3.5 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage silk-transition">
+          Usar Este Tamanho nas Peças
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 14. ONE-PAGE CHECKOUT TRANSPARENTE         -->
+  <!-- ========================================== -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden silk-transition flex items-center justify-center p-3 sm:p-6" onclick="closeCheckoutModal()">
+    <div class="bg-stuw-canvas dark:bg-stuw-obsidian w-full max-w-4xl max-h-[94vh] rounded-3xl p-6 sm:p-8 shadow-2xl border border-stuw-border dark:border-stuw-borderDark overflow-y-auto silk-transition space-y-6" onclick="event.stopPropagation()">
+      
+      <!-- Checkout Header -->
+      <div class="flex items-center justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase tracking-[0.25em] font-bold text-stuw-sage">Checkout Seguro</span>
+            <span class="text-[10px] bg-stuw-sage/10 text-stuw-sage px-2 py-0.5 rounded-full font-semibold">Criptografia 256-bit</span>
+          </div>
+          <h2 class="font-serif text-2xl sm:text-3xl text-stuw-obsidian dark:text-stuw-canvas font-light mt-0.5">Finalizar Compra Privé</h2>
+        </div>
+        
+        <!-- Fast Demo Button for Instant Client Presentation -->
+        <div class="flex items-center gap-3">
+          <button onclick="fillDemoCheckout()" class="px-3.5 py-1.5 bg-stuw-champagne/20 text-stuw-obsidian dark:text-stuw-champagne border border-stuw-champagne rounded-full text-[10px] uppercase tracking-wider font-bold hover:bg-stuw-champagne hover:text-white silk-transition">
+            ⚡ Preencher Demo (1 Clique)
+          </button>
+          <button onclick="closeCheckoutModal()" class="p-2 text-stuw-slate hover:text-stuw-obsidian dark:hover:text-stuw-canvas">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Checkout 2-Columns Form -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left: Address & Payment Methods -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- 1. Dados da Compradora -->
+          <div class="space-y-3">
+            <h4 class="text-xs uppercase tracking-widest font-bold text-stuw-obsidian dark:text-stuw-canvas flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-[10px] inline-flex items-center justify-center font-bold">1</span>
+              <span>Identificação & Entrega</span>
+            </h4>
+            
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <input type="text" id="chkName" placeholder="Nome Completo" class="col-span-2 px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              <input type="email" id="chkEmail" placeholder="E-mail para rastreamento" class="px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              <input type="tel" id="chkPhone" placeholder="WhatsApp (DDD + Número)" class="px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              <input type="text" id="chkCep" placeholder="CEP (01419-001)" class="px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              <input type="text" id="chkAddress" placeholder="Endereço (Rua, Número, Bairro)" class="col-span-2 px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+            </div>
+          </div>
+
+          <!-- 2. Opção de Presente / Embalagem de Luxo -->
+          <div class="p-3.5 rounded-xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="chkGiftWrap" onchange="toggleGiftWrap()" class="accent-stuw-sage w-4 h-4 rounded">
+              <div>
+                <label for="chkGiftWrap" class="font-medium text-stuw-obsidian dark:text-stuw-canvas cursor-pointer block">Caixa de Luxo Rígida com Aroma de Estúdio</label>
+                <span class="text-[11px] text-stuw-slate font-light">Embalagem especial com fita de algodão e cartão de boas-vindas</span>
+              </div>
+            </div>
+            <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas">+ R$ 35,00</span>
+          </div>
+
+          <!-- 3. Método de Pagamento -->
+          <div class="space-y-3">
+            <h4 class="text-xs uppercase tracking-widest font-bold text-stuw-obsidian dark:text-stuw-canvas flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-[10px] inline-flex items-center justify-center font-bold">2</span>
+              <span>Forma de Pagamento</span>
+            </h4>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <button type="button" onclick="setPaymentMethod('pix')" id="payBtnPix" class="p-3.5 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold flex items-center justify-center gap-2 silk-transition">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+                <span>PIX (5% OFF)</span>
+              </button>
+              <button type="button" onclick="setPaymentMethod('card')" id="payBtnCard" class="p-3.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-stuw-obsidian dark:text-stuw-canvas font-semibold flex items-center justify-center gap-2 silk-transition">
+                <i data-lucide="credit-card" class="w-4 h-4"></i>
+                <span>Cartão de Crédito</span>
+              </button>
+            </div>
+
+            <!-- PIX Dynamic Box -->
+            <div id="paymentBoxPix" class="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-center space-y-3">
+              <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-bold">QR Code PIX Imediato</span>
+              
+              <!-- SVG Visual QR Code -->
+              <div class="w-36 h-36 mx-auto bg-stuw-sand p-2 rounded-xl flex items-center justify-center border border-stuw-border">
+                <svg class="w-full h-full text-stuw-obsidian" viewBox="0 0 100 100" fill="currentColor">
+                  <path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M20,20 h10 v10 h-10 z" />
+                  <path d="M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M70,20 h10 v10 h-10 z" />
+                  <path d="M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M20,70 h10 v10 h-10 z" />
+                  <rect x="45" y="15" width="8" height="25" />
+                  <rect x="45" y="55" width="8" height="30" />
+                  <rect x="60" y="55" width="15" height="15" />
+                  <rect x="80" y="75" width="10" height="10" />
+                  <rect x="65" y="80" width="8" height="10" />
+                  <rect x="25" y="45" width="20" height="8" />
+                </svg>
+              </div>
+
+              <div class="text-[11px] text-stuw-slate">
+                Tempo restante: <span id="pixTimer" class="font-bold text-stuw-obsidian dark:text-stuw-canvas">14:59</span>
+              </div>
+
+              <button onclick="copyPixCode()" id="pixCopyBtn" class="px-4 py-2 bg-stuw-sand dark:bg-stone-800 text-stuw-obsidian dark:text-stuw-canvas rounded-xl text-xs font-semibold hover:bg-stuw-sage hover:text-white silk-transition flex items-center justify-center gap-1.5 mx-auto">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span id="pixCopyText">Copiar Código PIX Copia-e-Cola</span>
+              </button>
+            </div>
+
+            <!-- Credit Card Dynamic Box -->
+            <div id="paymentBoxCard" class="hidden p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark space-y-3 text-xs">
+              <input type="text" id="cardNum" placeholder="Número do Cartão (0000 0000 0000 0000)" class="w-full px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="cardExpiry" placeholder="Validade (MM/AA)" class="px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+                <input type="text" id="cardCvv" placeholder="CVV (3 dígitos)" class="px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              </div>
+              <input type="text" id="cardName" placeholder="Nome Impresso no Cartão" class="w-full px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage">
+              
+              <select id="cardInstallments" class="w-full px-3.5 py-2.5 rounded-xl bg-stuw-sand dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark focus:outline-none focus:border-stuw-sage font-medium">
+                <option value="1">1x à vista (Sem juros)</option>
+                <option value="2">2x sem juros</option>
+                <option value="3">3x sem juros</option>
+                <option value="6" selected>6x sem juros</option>
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right: Order Summary & Place Order -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="p-6 rounded-2xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark space-y-4 text-xs">
+            <h4 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas">Resumo do Pedido</h4>
+            
+            <div id="checkoutItemsList" class="space-y-3 max-h-48 overflow-y-auto pr-1">
+              <!-- Rendered by JS -->
+            </div>
+
+            <div class="pt-3 border-t border-stuw-border dark:border-stone-800 space-y-2">
+              <div class="flex justify-between">
+                <span class="text-stuw-slate">Subtotal</span>
+                <span id="chkSubtotal" class="font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ 0,00</span>
+              </div>
+              <div id="chkDiscountRow" class="hidden justify-between text-stuw-sage font-semibold">
+                <span>Desconto</span>
+                <span id="chkDiscount">- R$ 0,00</span>
+              </div>
+              <div id="chkGiftWrapRow" class="hidden justify-between">
+                <span class="text-stuw-slate">Caixa de Luxo Stuw</span>
+                <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas">+ R$ 35,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-stuw-slate">Frete Expresso Privé</span>
+                <span id="chkShipping" class="font-semibold text-stuw-sage">CORTESIA</span>
+              </div>
+              <div class="flex justify-between text-base font-bold text-stuw-obsidian dark:text-stuw-canvas pt-2 border-t border-stuw-border dark:border-stone-800">
+                <span>Total a Pagar</span>
+                <span id="chkTotal">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- Submit Final Order -->
+            <button onclick="confirmOrder()" class="w-full py-4 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition flex items-center justify-center gap-2 shadow-luxury-md haptic-press">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              <span>Confirmar Pedido & Pagar</span>
+            </button>
+            <p class="text-[10px] text-center text-stuw-slate font-light">
+              Garantia de 30 dias para trocas com logística reversa cortesia.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 15. TELA DE SUCESSO: PEDIDO CONFIRMADO     -->
+  <!-- ========================================== -->
+  <div id="orderSuccessModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden silk-transition flex items-center justify-center p-4">
+    <div class="bg-stuw-canvas dark:bg-stuw-obsidian w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-stuw-border dark:border-stuw-borderDark text-center space-y-6">
+      
+      <div class="w-16 h-16 mx-auto rounded-full bg-stuw-sage/10 text-stuw-sage flex items-center justify-center">
+        <i data-lucide="check" class="w-8 h-8"></i>
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage dark:text-stuw-champagne font-bold">Compra Realizada com Sucesso</span>
+        <h3 class="font-serif text-3xl font-light text-stuw-obsidian dark:text-stuw-canvas">Obrigado pelo seu pedido</h3>
+        <p class="text-xs text-stuw-slate">Código oficial: <strong id="orderSuccessCode" class="text-stuw-obsidian dark:text-stuw-canvas">#STW-2026-8942</strong></p>
+      </div>
+
+      <!-- Tracking Timeline -->
+      <div class="p-5 rounded-2xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left space-y-3 text-xs">
+        <span class="text-[9px] uppercase tracking-widest font-bold text-stuw-sage">Status da Entrega Expressa</span>
+        
+        <div class="space-y-3 pt-1">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-stuw-sage"></span>
+            <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas">Pagamento Aprovado</span>
+            <span class="text-[10px] text-stuw-slate ml-auto">Hoje</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-stuw-champagne animate-pulse"></span>
+            <span class="text-stuw-obsidian/80 dark:text-stone-300">Preparação Artesanal no Atelier</span>
+            <span class="text-[10px] text-stuw-slate ml-auto">Em andamento</span>
+          </div>
+          <div class="flex items-center gap-3 text-stuw-slate">
+            <span class="w-3 h-3 rounded-full bg-stuw-border dark:bg-stone-700"></span>
+            <span>Envio Expresso Luva Branca</span>
+            <span class="text-[10px] ml-auto">2 dias úteis</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="openConciergeModal(); closeOrderSuccessModal();" class="w-full py-3.5 bg-stuw-sage text-white rounded-full text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:bg-stuw-sageDark silk-transition">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Acompanhar com Concierge VIP</span>
+        </button>
+        <button onclick="closeOrderSuccessModal()" class="w-full py-3 text-xs uppercase tracking-widest font-semibold text-stuw-obsidian dark:text-stuw-canvas hover:underline">
+          Continuar Navegando
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 16. CONCIERGE VIP WHATSAPP DRAWER          -->
+  <!-- ========================================== -->
+  <div id="conciergeModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden silk-transition flex items-center justify-center p-4" onclick="closeConciergeModal()">
+    <div class="bg-stuw-canvas dark:bg-stuw-obsidian w-full max-w-md rounded-3xl p-6 shadow-2xl border border-stuw-border dark:border-stuw-borderDark silk-transition space-y-5" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-stuw-sage text-white flex items-center justify-center font-serif text-lg">
+            S
+          </div>
+          <div>
+            <h4 class="font-serif text-lg font-light text-stuw-obsidian dark:text-stuw-canvas">Concierge Stuw Privé</h4>
+            <span class="text-[10px] text-stuw-sage font-semibold uppercase flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-stuw-sage animate-pulse"></span> Personal Shopper Online
+            </span>
+          </div>
+        </div>
+        <button onclick="closeConciergeModal()" class="p-2 text-stuw-slate hover:text-stuw-obsidian dark:hover:text-stuw-canvas">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <p class="text-stuw-obsidian/80 dark:text-stone-300 font-light">
+          Olá! Sou a consultora exclusiva da Stuw. Como posso elevar a sua experiência de bem-estar hoje?
+        </p>
+
+        <div class="space-y-2 pt-2">
+          <button onclick="sendConciergeMsg('Gostaria de ajuda para escolher o tecido ideal para o meu treino.')" class="w-full p-3 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition">
+            1. Dúvidas sobre tecnologias de tecidos (SilkAir vs SculptHold)
+          </button>
+          <button onclick="sendConciergeMsg('Preciso de auxílio para encontrar o tamanho perfeito pelo meu biotipo.')" class="w-full p-3 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition">
+            2. Atendimento personalizado de medidas e biotipo
+          </button>
+          <button onclick="sendConciergeMsg('Gostaria de solicitar uma embalagem personalizada para presente.')" class="w-full p-3 rounded-xl bg-stuw-sand dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark text-left hover:border-stuw-sage silk-transition">
+            3. Encomenda especial para presente ou estúdio
+          </button>
+        </div>
+      </div>
+
+      <a id="conciergeWaLink" href="https://wa.me/5511999999999?text=Ol%C3%A1!%20Gostaria%20de%20atendimento%20exclusivo%20no%20Concierge%20Stuw." target="_blank" class="w-full py-3.5 bg-stuw-sage text-white rounded-full text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 hover:bg-stuw-sageDark silk-transition shadow-luxury-sm">
+        <i data-lucide="message-circle" class="w-4 h-4"></i>
+        <span>Iniciar Conversa no WhatsApp</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 17. JAVASCRIPT: ENGINE DO E-COMMERCE       -->
+  <!-- ========================================== -->
+  <script>
+    // ---------------------------------------------
+    // BASE DE DADOS DOS PRODUTOS REAIS (FOTOS & SPECS)
+    // ---------------------------------------------
+    const PRODUCTS = [
+      {
+        id: 1,
+        title: "Legging Sculpt Pure Waist",
+        category: "Leggings & Calças",
+        fabric: "SculptHold",
+        feelTag: "Alta Compressão 4/4",
+        occasion: "Studio & Mindful",
+        price: 480.00,
+        badge: "Alta Compressão",
+        rating: 4.9,
+        reviewsCount: 128,
+        image: "public/products/legging-sculpt.jpg",
+        description: "Cós anatômico duplo com compressão uniforme que desenha a silhueta sem prender. Desenvolvida para yoga, pilates e alta sustentação com zero transparência.",
+        colors: [
+          { name: "Obsidian Black", hex: "#131413" },
+          { name: "Sage Olive", hex: "#586255" },
+          { name: "Cashmere Dune", hex: "#B8A28E" }
+        ],
+        sizes: ["PP", "P", "M", "G", "GG"]
+      },
+      {
+        id: 2,
+        title: "Top Studio Halter Neck Ribbed",
+        category: "Tops & Sutiãs",
+        fabric: "VelvetNulu",
+        feelTag: "Pele de Pêssego",
+        occasion: "Studio & Mindful",
+        price: 320.00,
+        badge: "Best Seller",
+        rating: 5.0,
+        reviewsCount: 94,
+        image: "public/products/top-sage.jpg",
+        description: "Toque amanteigado irresistível com gola alta halter contemporânea. Bojo removível termosselado e costuras ultrafinas que não marcam sob a roupa.",
+        colors: [
+          { name: "Sage Olive", hex: "#586255" },
+          { name: "Obsidian Black", hex: "#131413" },
+          { name: "Cloud Silk", hex: "#FBF9F5" }
+        ],
+        sizes: ["PP", "P", "M", "G"]
+      },
+      {
+        id: 3,
+        title: "Jaqueta Bomber FeatherTouch Alfaiataria",
+        category: "Alfaiataria Esportiva",
+        fabric: "ShieldAir",
+        feelTag: "Corta-vento UV50+",
+        occasion: "Street & Travel",
+        price: 790.00,
+        badge: "Studio-to-Street",
+        rating: 4.9,
+        reviewsCount: 61,
+        image: "public/products/bomber-taupe.jpg",
+        description: "A essência do Studio-to-Street. Silhueta estruturada com zíper selado oculto, forro respirável e tecido repelente à garoa e vento.",
+        colors: [
+          { name: "Cashmere Dune", hex: "#B8A28E" },
+          { name: "Obsidian Black", hex: "#131413" }
+        ],
+        sizes: ["P", "M", "G"]
+      },
+      {
+        id: 4,
+        title: "Macacão SilkAir One-Piece Catsuit",
+        category: "Macacões & Bodies",
+        fabric: "SilkAir",
+        feelTag: "Toque Seda 0.08mm",
+        occasion: "Studio & Mindful",
+        price: 680.00,
+        badge: "Edição Limitada",
+        rating: 4.8,
+        reviewsCount: 42,
+        image: "public/products/onesie-mineral.jpg",
+        description: "Peça única escultural sem costuras na cintura. Tecido SilkAir™ que desliza na pele e se adapta a qualquer transição de asana com leveza.",
+        colors: [
+          { name: "Deep Mineral", hex: "#2C302E" },
+          { name: "Obsidian Black", hex: "#131413" }
+        ],
+        sizes: ["PP", "P", "M", "G"]
+      },
+      {
+        id: 5,
+        title: "Saia Plissada Court Tennis Skirt",
+        category: "Tennis & Saias",
+        fabric: "SilkAir",
+        feelTag: "Ultraleve Respirável",
+        occasion: "Racquet Club",
+        price: 390.00,
+        badge: "Racquet Club",
+        rating: 4.9,
+        reviewsCount: 77,
+        image: "public/products/skirt-tennis.jpg",
+        description: "Plissado estruturado com shorts interno em compressão leve e bolso anatômico para bolinhas. Inspirada nos clubes de tênis europeus.",
+        colors: [
+          { name: "Cloud Silk", hex: "#FBF9F5" },
+          { name: "Sage Olive", hex: "#586255" }
+        ],
+        sizes: ["PP", "P", "M", "G"]
+      },
+      {
+        id: 6,
+        title: "Meias Técnicas de Compressão Anatomic (Par)",
+        category: "Acessórios & Wellness",
+        fabric: "SculptHold",
+        feelTag: "Recuperação Ativa",
+        occasion: "Street & Travel",
+        price: 89.00,
+        badge: "Essencial",
+        rating: 5.0,
+        reviewsCount: 210,
+        image: "public/products/fabric-macro.jpg",
+        description: "Compressão gradual 15-20mmHg desenvolvida para viagens e pós-treino. Fibras antibacterianas e suporte anatômico de arco plantar.",
+        colors: [
+          { name: "Cloud Silk", hex: "#FBF9F5" },
+          { name: "Obsidian Black", hex: "#131413" }
+        ],
+        sizes: ["Único"]
+      }
+    ];
+
+    // ---------------------------------------------
+    // ESTADO GLOBAL DA APLICAÇÃO (CARRINHO & FILTROS)
+    // ---------------------------------------------
+    let state = {
+      cart: [],
+      wishlist: [],
+      currentFilter: { type: 'all', value: 'all' },
+      activeCoupon: null,
+      giftWrap: false,
+      paymentMethod: 'pix',
+      selectedPdpProduct: null,
+      selectedPdpColor: null,
+      selectedPdpSize: 'M',
+      recommendedSize: 'P',
+      gridColumns: 3
+    };
+
+    // ---------------------------------------------
+    // INICIALIZAÇÃO
+    // ---------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCartFromStorage();
+      renderCatalog();
+      updateCartUI();
+      lucide.createIcons();
+    });
+
+    function saveCartToStorage() {
+      localStorage.setItem('stuw_cart', JSON.stringify(state.cart));
+      localStorage.setItem('stuw_wishlist', JSON.stringify(state.wishlist));
+    }
+
+    function loadCartFromStorage() {
+      const savedCart = localStorage.getItem('stuw_cart');
+      const savedWishlist = localStorage.getItem('stuw_wishlist');
+      if (savedCart) state.cart = JSON.parse(savedCart);
+      if (savedWishlist) state.wishlist = JSON.parse(savedWishlist);
+    }
+
+    // ---------------------------------------------
+    // RENDERIZAÇÃO DO CATÁLOGO (PLP)
+    // ---------------------------------------------
+    function renderCatalog() {
+      const grid = document.getElementById('productGrid');
+      let filtered = PRODUCTS;
+
+      if (state.currentFilter.type === 'category' && state.currentFilter.value !== 'all') {
+        filtered = PRODUCTS.filter(p => p.category === state.currentFilter.value);
+      } else if (state.currentFilter.type === 'fabric') {
+        filtered = PRODUCTS.filter(p => p.fabric.toLowerCase().includes(state.currentFilter.value.toLowerCase()));
+      } else if (state.currentFilter.type === 'occasion') {
+        filtered = PRODUCTS.filter(p => p.occasion.toLowerCase().includes(state.currentFilter.value.toLowerCase()));
+      }
+
+      // Update Filter Label
+      const label = document.getElementById('activeFilterLabel');
+      const resetBtn = document.getElementById('resetFiltersBtn');
+      if (state.currentFilter.type !== 'all') {
+        label.textContent = `Filtro ativo: ${state.currentFilter.value} (${filtered.length} produtos)`;
+        resetBtn.classList.remove('hidden');
+      } else {
+        label.textContent = `Exibindo todas as peças exclusivas (${filtered.length} produtos)`;
+        resetBtn.classList.add('hidden');
+      }
+
+      grid.innerHTML = filtered.map(product => {
+        const isWishlisted = state.wishlist.includes(product.id);
+        return `
+          <div class="bg-white dark:bg-stone-900 rounded-3xl p-4 sm:p-5 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm hover:shadow-luxury-lg silk-transition group flex flex-col justify-between relative">
+            
+            <!-- Product Card Image Box -->
+            <div class="relative aspect-[3/4] rounded-2xl overflow-hidden mb-4 bg-stuw-sand/40 dark:bg-stone-800 cursor-pointer" onclick="quickViewProduct(${product.id})">
+              <span class="absolute top-3 left-3 bg-stuw-obsidian/90 backdrop-blur-md text-stuw-canvas text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-10 shadow-sm">
+                ${product.badge}
+              </span>
+              
+              <button onclick="toggleWishlist(${product.id}, event)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 dark:bg-stone-900/80 backdrop-blur-md flex items-center justify-center z-10 hover:scale-110 silk-transition text-stuw-obsidian dark:text-stuw-canvas shadow-sm">
+                <i data-lucide="heart" class="w-4 h-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}"></i>
+              </button>
+
+              <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover object-top group-hover:scale-105 silk-transition duration-500">
+              
+              <!-- Quick Add Overlay Pill on Hover -->
+              <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 silk-transition z-20 flex gap-1.5 justify-center bg-white/90 dark:bg-stone-900/90 backdrop-blur-md p-2 rounded-2xl border border-white/40 shadow-luxury-md" onclick="event.stopPropagation()">
+                <span class="text-[9px] uppercase font-bold text-stuw-slate self-center mr-1">Tam:</span>
+                ${product.sizes.map(sz => `
+                  <button onclick="quickAddToCart(${product.id}, '${sz}')" class="w-7 h-7 rounded-lg bg-stuw-sand dark:bg-stone-800 text-[10px] font-bold text-stuw-obsidian dark:text-stuw-canvas hover:bg-stuw-obsidian hover:text-white dark:hover:bg-stuw-canvas dark:hover:text-stuw-obsidian silk-transition">
+                    ${sz}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Product Card Details -->
+            <div class="space-y-2">
+              <!-- Swatches -->
+              <div class="flex items-center space-x-2">
+                ${product.colors.map((c, i) => `
+                  <span class="w-3.5 h-3.5 rounded-full ${i === 0 ? 'ring-2 ring-offset-2 ring-stuw-obsidian dark:ring-stuw-canvas' : ''}" style="background-color: ${c.hex}" title="${c.name}"></span>
+                `).join('')}
+                <span class="text-[10px] text-stuw-slate font-medium pl-1">${product.colors[0].name}</span>
+              </div>
+
+              <div class="flex justify-between items-baseline pt-1">
+                <h3 onclick="quickViewProduct(${product.id})" class="font-serif text-lg font-medium text-stuw-obsidian dark:text-stuw-canvas hover:text-stuw-sage cursor-pointer silk-transition">
+                  ${product.title}
+                </h3>
+                <span class="text-sm font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+              </div>
+
+              <p class="text-[11px] text-stuw-slate font-light">${product.feelTag} &bull; ${product.category}</p>
+
+              <!-- Quick View Link -->
+              <div class="pt-2 flex items-center justify-between border-t border-stuw-border/50 dark:border-stone-800 text-xs">
+                <span class="text-amber-500 font-semibold text-[11px]">★★★★★ <span class="text-stuw-slate">(${product.rating})</span></span>
+                <button onclick="quickViewProduct(${product.id})" class="text-[10px] uppercase tracking-widest font-bold text-stuw-sage dark:text-stuw-champagne hover:underline">
+                  Ver Detalhes &rarr;
+                </button>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // ---------------------------------------------
+    // CONTROLES DE FILTROS & TABS
+    // ---------------------------------------------
+    function switchDiscoveryTab(tab) {
+      document.getElementById('tabContentCategory').classList.add('hidden');
+      document.getElementById('tabContentFeel').classList.add('hidden');
+      document.getElementById('tabContentOccasion').classList.add('hidden');
+
+      const btnCat = document.getElementById('tabBtnCategory');
+      const btnFeel = document.getElementById('tabBtnFeel');
+      const btnOcc = document.getElementById('tabBtnOccasion');
+
+      [btnCat, btnFeel, btnOcc].forEach(b => {
+        b.className = "px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider text-stuw-obsidian/70 dark:text-stuw-canvas/70 hover:text-stuw-obsidian silk-transition";
+      });
+
+      const activeClass = "px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian silk-transition";
+
+      if (tab === 'category') {
+        document.getElementById('tabContentCategory').classList.remove('hidden');
+        btnCat.className = activeClass;
+      } else if (tab === 'feel') {
+        document.getElementById('tabContentFeel').classList.remove('hidden');
+        btnFeel.className = activeClass;
+      } else if (tab === 'occasion') {
+        document.getElementById('tabContentOccasion').classList.remove('hidden');
+        btnOcc.className = activeClass;
+      }
+    }
+
+    function setCategoryFilter(cat) {
+      state.currentFilter = { type: 'category', value: cat };
+      renderCatalog();
+      scrollToCatalog();
+    }
+
+    function setFabricFilter(fab) {
+      state.currentFilter = { type: 'fabric', value: fab };
+      renderCatalog();
+      scrollToCatalog();
+    }
+
+    function setOccasionFilter(occ) {
+      state.currentFilter = { type: 'occasion', value: occ };
+      renderCatalog();
+      scrollToCatalog();
+    }
+
+    function resetFilters() {
+      state.currentFilter = { type: 'all', value: 'all' };
+      renderCatalog();
+    }
+
+    function scrollToCatalog() {
+      document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function setGridColumns(cols) {
+      state.gridColumns = cols;
+      const grid = document.getElementById('productGrid');
+      const btn2 = document.getElementById('gridBtn2');
+      const btn3 = document.getElementById('gridBtn3');
+
+      if (cols === 2) {
+        grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-8";
+        btn2.className = "p-1.5 rounded bg-stuw-sand dark:bg-stone-800 text-stuw-obsidian dark:text-stuw-canvas font-bold";
+        btn3.className = "p-1.5 rounded text-stuw-slate hover:text-stuw-obsidian";
+      } else {
+        grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8";
+        btn3.className = "p-1.5 rounded bg-stuw-sand dark:bg-stone-800 text-stuw-obsidian dark:text-stuw-canvas font-bold";
+        btn2.className = "p-1.5 rounded text-stuw-slate hover:text-stuw-obsidian";
+      }
+    }
+
+    // ---------------------------------------------
+    // CARRINHO & SLIDE-CART DRAWER
+    // ---------------------------------------------
+    function quickAddToCart(productId, size) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      const existingIndex = state.cart.findIndex(item => item.id === productId && item.size === size);
+      if (existingIndex > -1) {
+        state.cart[existingIndex].qty += 1;
+      } else {
+        state.cart.push({
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          image: product.image,
+          color: product.colors[0].name,
+          size: size,
+          qty: 1
+        });
+      }
+
+      saveCartToStorage();
+      updateCartUI();
+      openSideCart();
+    }
+
+    function updateCartUI() {
+      const badgeHeader = document.getElementById('cartCountBadge');
+      const drawerCount = document.getElementById('drawerCount');
+      const itemsList = document.getElementById('cartItemsList');
+
+      const totalItems = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      badgeHeader.textContent = totalItems;
+      drawerCount.textContent = `(${totalItems})`;
+
+      if (state.cart.length === 0) {
+        itemsList.innerHTML = `
+          <div class="text-center py-16 space-y-3">
+            <i data-lucide="shopping-bag" class="w-12 h-12 mx-auto text-stuw-slate/50"></i>
+            <p class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas">Sua sacola está vazia</p>
+            <p class="text-xs text-stuw-slate">Explore nossos lançamentos em SilkAir™ e adicione peças exclusivas.</p>
+            <button onclick="closeSideCart(); scrollToCatalog();" class="mt-2 px-6 py-2.5 bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian rounded-full text-xs uppercase tracking-widest font-semibold">
+              Explorar Catálogo
+            </button>
+          </div>
+        `;
+        lucide.createIcons();
+      } else {
+        itemsList.innerHTML = state.cart.map((item, index) => `
+          <div class="flex gap-3 p-3 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark">
+            <img src="${item.image}" alt="${item.title}" class="w-16 h-20 rounded-xl object-cover">
+            <div class="flex-1 flex flex-col justify-between">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="font-serif text-sm font-medium text-stuw-obsidian dark:text-stuw-canvas leading-tight">${item.title}</h4>
+                  <p class="text-[10px] text-stuw-slate font-light">${item.color} &bull; Tam: ${item.size}</p>
+                </div>
+                <button onclick="removeFromCart(${index})" class="text-stuw-slate hover:text-red-500 p-1">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <div class="flex justify-between items-center pt-2">
+                <div class="flex items-center border border-stuw-border dark:border-stone-800 rounded-lg">
+                  <button onclick="changeQty(${index}, -1)" class="px-2 py-0.5 text-xs text-stuw-slate hover:text-stuw-obsidian">-</button>
+                  <span class="px-2 text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas">${item.qty}</span>
+                  <button onclick="changeQty(${index}, 1)" class="px-2 py-0.5 text-xs text-stuw-slate hover:text-stuw-obsidian">+</button>
+                </div>
+                <span class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        lucide.createIcons();
+      }
+
+      // Calculations
+      const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      let discount = 0;
+      if (state.activeCoupon === 'PRIVE10') {
+        discount = subtotal * 0.10;
+        document.getElementById('cartDiscountRow').classList.remove('hidden');
+        document.getElementById('cartDiscountRow').classList.add('flex');
+        document.getElementById('cartDiscount').textContent = `- R$ ${discount.toFixed(2).replace('.', ',')}`;
+      } else {
+        document.getElementById('cartDiscountRow').classList.add('hidden');
+        document.getElementById('cartDiscountRow').classList.remove('flex');
+      }
+
+      // Free shipping threshold: R$ 499,00
+      const threshold = 499.00;
+      const progressBar = document.getElementById('shippingProgressBar');
+      const progressText = document.getElementById('shippingBarText');
+
+      if (subtotal >= threshold) {
+        progressBar.style.width = '100%';
+        progressText.innerHTML = `🎉 <strong>Parabéns!</strong> Você ganhou Frete Expresso Cortesia`;
+        document.getElementById('cartShipping').textContent = 'GRÁTIS';
+        document.getElementById('cartShipping').className = 'font-bold text-stuw-sage';
+      } else {
+        const diff = threshold - subtotal;
+        const pct = Math.min(100, (subtotal / threshold) * 100);
+        progressBar.style.width = `${pct}%`;
+        progressText.textContent = `Faltam R$ ${diff.toFixed(2).replace('.', ',')} para Frete Expresso Cortesia`;
+        document.getElementById('cartShipping').textContent = subtotal === 0 ? 'A calcular' : 'R$ 28,00';
+        document.getElementById('cartShipping').className = 'font-medium text-stuw-obsidian dark:text-stuw-canvas';
+      }
+
+      const shippingVal = subtotal >= threshold || subtotal === 0 ? 0 : 28.00;
+      const total = Math.max(0, subtotal - discount + shippingVal);
+
+      document.getElementById('cartSubtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function changeQty(index, delta) {
+      state.cart[index].qty += delta;
+      if (state.cart[index].qty <= 0) {
+        state.cart.splice(index, 1);
+      }
+      saveCartToStorage();
+      updateCartUI();
+    }
+
+    function removeFromCart(index) {
+      state.cart.splice(index, 1);
+      saveCartToStorage();
+      updateCartUI();
+    }
+
+    function openSideCart() {
+      document.getElementById('sideCartDrawer').classList.remove('hidden');
+      updateCartUI();
+    }
+
+    function closeSideCart() {
+      document.getElementById('sideCartDrawer').classList.add('hidden');
+    }
+
+    function applyCoupon() {
+      const code = document.getElementById('couponInput').value.trim().toUpperCase();
+      if (code === 'PRIVE10') {
+        state.activeCoupon = 'PRIVE10';
+        document.getElementById('couponAppliedBadge').classList.remove('hidden');
+        document.getElementById('couponAppliedBadge').classList.add('flex');
+        updateCartUI();
+      } else {
+        alert('Cupom inválido. Utilize o cupom oficial PRIVE10 para 10% de desconto.');
+      }
+    }
+
+    function removeCoupon() {
+      state.activeCoupon = null;
+      document.getElementById('couponAppliedBadge').classList.add('hidden');
+      document.getElementById('couponAppliedBadge').classList.remove('flex');
+      document.getElementById('couponInput').value = '';
+      updateCartUI();
+    }
+
+    // ---------------------------------------------
+    // PDP MODAL (PRODUCT DETAIL PAGE)
+    // ---------------------------------------------
+    function quickViewProduct(id) {
+      const product = PRODUCTS.find(p => p.id === id);
+      if (!product) return;
+
+      state.selectedPdpProduct = product;
+      state.selectedPdpColor = product.colors[0];
+      state.selectedPdpSize = product.sizes.includes(state.recommendedSize) ? state.recommendedSize : product.sizes[0];
+
+      document.getElementById('pdpMainImage').src = product.image;
+      document.getElementById('pdpThumb0').src = product.image;
+      document.getElementById('pdpBadge').textContent = product.badge;
+      document.getElementById('pdpCategory').textContent = product.category;
+      document.getElementById('pdpTitle').textContent = product.title;
+      document.getElementById('pdpPrice').textContent = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
+      document.getElementById('pdpDescription').textContent = product.description;
+      document.getElementById('pdpColorName').textContent = product.colors[0].name;
+
+      // Swatches
+      const swatches = document.getElementById('pdpColorSwatches');
+      swatches.innerHTML = product.colors.map((c, i) => `
+        <button onclick="selectPdpColor('${c.name}', '${c.hex}')" class="w-6 h-6 rounded-full border-2 ${i === 0 ? 'border-stuw-obsidian dark:border-stuw-canvas scale-110' : 'border-transparent'} silk-transition" style="background-color: ${c.hex}"></button>
+      `).join('');
+
+      // Sizes
+      const sizesContainer = document.getElementById('pdpSizeButtons');
+      sizesContainer.innerHTML = product.sizes.map(sz => `
+        <button onclick="selectPdpSize('${sz}')" class="size-btn py-2.5 rounded-xl border text-xs font-semibold silk-transition ${sz === state.selectedPdpSize ? 'border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-white dark:bg-stuw-canvas dark:text-stuw-obsidian' : 'border-stuw-border dark:border-stuw-borderDark'}">
+          ${sz}
+        </button>
+      `).join('');
+
+      document.getElementById('pdpAddToCartBtn').innerHTML = `
+        <span>Adicionar à Sacola &bull; R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+      `;
+
+      document.getElementById('pdpModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function setPdpImageThumb(index) {
+      if (index === 0) {
+        document.getElementById('pdpMainImage').src = state.selectedPdpProduct.image;
+      } else {
+        document.getElementById('pdpMainImage').src = 'public/products/fabric-macro.jpg';
+      }
+    }
+
+    function selectPdpColor(name, hex) {
+      state.selectedPdpColor = { name, hex };
+      document.getElementById('pdpColorName').textContent = name;
+    }
+
+    function selectPdpSize(sz) {
+      state.selectedPdpSize = sz;
+      const buttons = document.querySelectorAll('.size-btn');
+      buttons.forEach(btn => {
+        if (btn.textContent.trim() === sz) {
+          btn.className = "size-btn py-2.5 rounded-xl border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-white dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs font-semibold silk-transition";
+        } else {
+          btn.className = "size-btn py-2.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-xs font-semibold hover:border-stuw-obsidian silk-transition";
+        }
+      });
+    }
+
+    function addCurrentPdpToCart() {
+      if (!state.selectedPdpProduct) return;
+      quickAddToCart(state.selectedPdpProduct.id, state.selectedPdpSize);
+      closePdpModal();
+    }
+
+    function addBundleToCart() {
+      // Adds Top Halter (id 2) as bundle
+      quickAddToCart(2, 'P');
+      closePdpModal();
+    }
+
+    function closePdpModal() {
+      document.getElementById('pdpModal').classList.add('hidden');
+    }
+
+    // ---------------------------------------------
+    // PROVADOR VIRTUAL INTELIGENTE (FIT ADVISOR)
+    // ---------------------------------------------
+    function openFitAdvisorModal() {
+      document.getElementById('fitAdvisorModal').classList.remove('hidden');
+      calculateFitSize();
+    }
+
+    function closeFitAdvisorModal() {
+      document.getElementById('fitAdvisorModal').classList.add('hidden');
+    }
+
+    function calculateFitSize() {
+      const height = parseInt(document.getElementById('fitHeight').value);
+      const weight = parseInt(document.getElementById('fitWeight').value);
+      document.getElementById('heightValue').textContent = `${height} cm`;
+      document.getElementById('weightValue').textContent = `${weight} kg`;
+
+      // BMI / Bio-measure approximation for activewear
+      const bmi = weight / Math.pow(height / 100, 2);
+      let size = 'P';
+      let confidence = '95%';
+
+      if (bmi < 19.5) {
+        size = 'PP';
+        confidence = '97%';
+      } else if (bmi >= 19.5 && bmi < 23) {
+        size = 'P';
+        confidence = '95%';
+      } else if (bmi >= 23 && bmi < 26.5) {
+        size = 'M';
+        confidence = '94%';
+      } else if (bmi >= 26.5 && bmi < 30) {
+        size = 'G';
+        confidence = '92%';
+      } else {
+        size = 'GG';
+        confidence = '91%';
+      }
+
+      state.recommendedSize = size;
+      document.getElementById('recommendedSizeLabel').textContent = size;
+      document.getElementById('fitConfidence').textContent = `${confidence} de assertividade para seu biotipo com caimento sem transparência.`;
+    }
+
+    function setFitPreference(pref) {
+      document.querySelectorAll('.fit-pref-btn').forEach(b => {
+        b.className = "fit-pref-btn py-2 px-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center";
+      });
+
+      if (pref === 'sculpt') {
+        document.getElementById('fitPrefSculpt').className = "fit-pref-btn py-2 px-3 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold text-center";
+      } else if (pref === 'balanced') {
+        document.getElementById('fitPrefBalanced').className = "fit-pref-btn py-2 px-3 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold text-center";
+      } else {
+        document.getElementById('fitPrefRelaxed').className = "fit-pref-btn py-2 px-3 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold text-center";
+      }
+      calculateFitSize();
+    }
+
+    function applyRecommendedSize() {
+      closeFitAdvisorModal();
+      if (state.selectedPdpProduct) {
+        selectPdpSize(state.recommendedSize);
+      }
+      alert(`Tamanho ${state.recommendedSize} configurado com sucesso como sua preferência de caimento!`);
+    }
+
+    // ---------------------------------------------
+    // CHECKOUT TRANSPARENTE ONE-PAGE
+    // ---------------------------------------------
+    function proceedToCheckout() {
+      if (state.cart.length === 0) {
+        alert('Adicione ao menos uma peça à sacola antes de prosseguir para o checkout.');
+        return;
+      }
+      closeSideCart();
+      updateCheckoutUI();
+      document.getElementById('checkoutModal').classList.remove('hidden');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkoutModal').classList.add('hidden');
+    }
+
+    function updateCheckoutUI() {
+      const itemsList = document.getElementById('checkoutItemsList');
+      itemsList.innerHTML = state.cart.map(item => `
+        <div class="flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <img src="${item.image}" class="w-8 h-10 rounded-lg object-cover">
+            <div>
+              <span class="font-medium text-stuw-obsidian dark:text-stuw-canvas block">${item.title}</span>
+              <span class="text-[10px] text-stuw-slate">Tam: ${item.size} &bull; Qtd: ${item.qty}</span>
+            </div>
+          </div>
+          <span class="font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span>
+        </div>
+      `).join('');
+
+      const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      let discount = 0;
+      if (state.activeCoupon === 'PRIVE10') {
+        discount = subtotal * 0.10;
+        document.getElementById('chkDiscountRow').classList.remove('hidden');
+        document.getElementById('chkDiscountRow').classList.add('flex');
+        document.getElementById('chkDiscount').textContent = `- R$ ${discount.toFixed(2).replace('.', ',')}`;
+      } else {
+        document.getElementById('chkDiscountRow').classList.add('hidden');
+      }
+
+      if (state.giftWrap) {
+        document.getElementById('chkGiftWrapRow').classList.remove('hidden');
+        document.getElementById('chkGiftWrapRow').classList.add('flex');
+      } else {
+        document.getElementById('chkGiftWrapRow').classList.add('hidden');
+      }
+
+      const giftCost = state.giftWrap ? 35.00 : 0;
+      let pixDiscount = state.paymentMethod === 'pix' ? (subtotal - discount) * 0.05 : 0;
+      const total = Math.max(0, subtotal - discount - pixDiscount + giftCost);
+
+      document.getElementById('chkSubtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+      document.getElementById('chkTotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function toggleGiftWrap() {
+      state.giftWrap = document.getElementById('chkGiftWrap').checked;
+      updateCheckoutUI();
+    }
+
+    function setPaymentMethod(method) {
+      state.paymentMethod = method;
+      const btnPix = document.getElementById('payBtnPix');
+      const btnCard = document.getElementById('payBtnCard');
+      const boxPix = document.getElementById('paymentBoxPix');
+      const boxCard = document.getElementById('paymentBoxCard');
+
+      if (method === 'pix') {
+        btnPix.className = "p-3.5 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold flex items-center justify-center gap-2 silk-transition";
+        btnCard.className = "p-3.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-stuw-obsidian dark:text-stuw-canvas font-semibold flex items-center justify-center gap-2 silk-transition";
+        boxPix.classList.remove('hidden');
+        boxCard.classList.add('hidden');
+      } else {
+        btnCard.className = "p-3.5 rounded-xl border-2 border-stuw-sage bg-stuw-sage/10 text-stuw-sage font-bold flex items-center justify-center gap-2 silk-transition";
+        btnPix.className = "p-3.5 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-stuw-obsidian dark:text-stuw-canvas font-semibold flex items-center justify-center gap-2 silk-transition";
+        boxCard.classList.remove('hidden');
+        boxPix.classList.add('hidden');
+      }
+      updateCheckoutUI();
+    }
+
+    function fillDemoCheckout() {
+      document.getElementById('chkName').value = "Mariana Silveira Fontes";
+      document.getElementById('chkEmail').value = "mariana.fontes@privemail.com";
+      document.getElementById('chkPhone').value = "(11) 98765-4321";
+      document.getElementById('chkCep').value = "01419-001";
+      document.getElementById('chkAddress').value = "Rua Oscar Freire, 1120 - Jardins, São Paulo - SP";
+      document.getElementById('chkGiftWrap').checked = true;
+      state.giftWrap = true;
+      updateCheckoutUI();
+    }
+
+    function copyPixCode() {
+      navigator.clipboard.writeText('00020126580014BR.GOV.BCB.PIX0136stuw-company-pix-key-89425204000053039865405480.005802BR5912STUW COMPANY6009SAO PAULO62070503***6304E8A2');
+      const text = document.getElementById('pixCopyText');
+      text.textContent = 'Código Copiado com Sucesso!';
+      setTimeout(() => text.textContent = 'Copiar Código PIX Copia-e-Cola', 3000);
+    }
+
+    function confirmOrder() {
+      const name = document.getElementById('chkName').value.trim() || "Cliente VIP";
+      closeCheckoutModal();
+      
+      const orderCode = `#STW-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      document.getElementById('orderSuccessCode').textContent = orderCode;
+      
+      // Clear Cart
+      state.cart = [];
+      saveCartToStorage();
+      updateCartUI();
+
+      document.getElementById('orderSuccessModal').classList.remove('hidden');
+    }
+
+    function closeOrderSuccessModal() {
+      document.getElementById('orderSuccessModal').classList.add('hidden');
+    }
+
+    // ---------------------------------------------
+    // WISHLIST & AMBIENT THEME
+    // ---------------------------------------------
+    function toggleWishlist(id, e) {
+      if (e) e.stopPropagation();
+      const index = state.wishlist.indexOf(id);
+      if (index > -1) {
+        state.wishlist.splice(index, 1);
+      } else {
+        state.wishlist.push(id);
+      }
+      saveCartToStorage();
+      renderCatalog();
+      updateWishlistBadge();
+    }
+
+    function updateWishlistBadge() {
+      const badge = document.getElementById('wishlistCountBadge');
+      if (state.wishlist.length > 0) {
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        icon.setAttribute('data-lucide', 'moon');
+      } else {
+        html.classList.add('dark');
+        icon.setAttribute('data-lucide', 'sun');
+      }
+      lucide.createIcons();
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    function openConciergeModal() {
+      document.getElementById('conciergeModal').classList.remove('hidden');
+    }
+
+    function closeConciergeModal() {
+      document.getElementById('conciergeModal').classList.add('hidden');
+    }
+
+    function sendConciergeMsg(msg) {
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/5511999999999?text=${encoded}`, '_blank');
+    }
+
+    function openPriveModal() {
+      openConciergeModal();
+    }
+
+    function openSearchModal() {
+      const query = prompt('O que você procura na Stuw? (ex: Legging, Top, SilkAir, Corta-vento)');
+      if (query) {
+        state.currentFilter = { type: 'category', value: query };
+        renderCatalog();
+        scrollToCatalog();
+      }
+    }
+
+    function openWishlistModal() {
+      if (state.wishlist.length === 0) {
+        alert('Sua lista de desejos está vazia. Clique no coração de qualquer peça para salvá-la aqui.');
+      } else {
+        alert(`Você tem ${state.wishlist.length} peça(s) salva(s) nos seus favoritos!`);
+      }
+    }
+
+    function handleNewsletter(e) {
+      e.preventDefault();
+      const email = document.getElementById('newsletterEmail').value;
+      alert(`Obrigado por se inscrever, ${email}! Seu convite para o Stuw Privé Club e o cupom PRIVE10 (10% OFF) foram enviados.`);
+      document.getElementById('newsletterEmail').value = '';
+    }
+  </script>
+
+</body>
+</html>

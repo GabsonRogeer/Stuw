@@ -1,0 +1,85 @@
+import type { CartItem, Product } from '@/types';
+
+export const FREE_SHIPPING_THRESHOLD = 499;
+export const currency = (value: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+export const itemKey = (item: Pick<CartItem, 'id' | 'size' | 'color'>) =>
+  `${item.id}:${item.size}:${item.color}`;
+export const productSlug = (product: Product) => product.slug;
+const round = (value: number) => Math.round(value * 100) / 100;
+
+export function calculateTotals(
+  items: CartItem[],
+  coupon = '',
+  payment: 'pix' | 'card' | null = null,
+  gift = false,
+) {
+  const subtotal = round(items.reduce((sum, item) => sum + item.price * item.qty, 0));
+  const discount = coupon === 'PRIVE10' ? round(subtotal * 0.1) : 0;
+  const pixDiscount = payment === 'pix' ? round((subtotal - discount) * 0.05) : 0;
+  const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 28;
+  const giftCost = gift && items.length > 0 ? 35 : 0;
+  return {
+    subtotal,
+    discount,
+    pixDiscount,
+    shipping,
+    giftCost,
+    total: round(subtotal - discount - pixDiscount + shipping + giftCost),
+  };
+}
+
+export function addCartItem(
+  items: CartItem[],
+  product: Product,
+  size: string,
+  color: string,
+): CartItem[] {
+  if (!product.sizes.includes(size) || !product.colors.some((option) => option.name === color))
+    return items;
+  const newItem: CartItem = {
+    id: product.id,
+    title: product.title,
+    price: product.price,
+    image: product.image,
+    size,
+    color,
+    qty: 1,
+  };
+  const key = itemKey(newItem);
+  return items.some((item) => itemKey(item) === key)
+    ? items.map((item) =>
+        itemKey(item) === key ? { ...item, qty: Math.min(99, item.qty + 1) } : item,
+      )
+    : [...items, newItem];
+}
+
+/** Restores variants using catalog prices, never prices supplied by browser storage. */
+export function restoreCart(value: unknown, products: Product[]): CartItem[] {
+  if (!Array.isArray(value)) return [];
+  const result: CartItem[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const product = products.find((product) => product.id === entry.id);
+    if (
+      !product ||
+      !product.sizes.includes(entry.size) ||
+      !product.colors.some((color) => color.name === entry.color)
+    )
+      continue;
+    if (!Number.isInteger(entry.qty) || entry.qty < 1) continue;
+    const item = {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      size: entry.size as string,
+      color: entry.color as string,
+      qty: Math.min(99, entry.qty),
+    };
+    const previous = result.find((existing) => itemKey(existing) === itemKey(item));
+    if (previous) previous.qty = Math.min(99, previous.qty + item.qty);
+    else result.push(item);
+  }
+  return result;
+}

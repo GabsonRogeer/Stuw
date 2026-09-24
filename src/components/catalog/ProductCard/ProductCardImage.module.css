@@ -1,0 +1,40 @@
+.media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.front,
+.reverse {
+  transition: opacity 400ms var(--ease-silk);
+}
+
+.reverse {
+  opacity: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :global(.product-card):hover .media[data-ready='true'] .reverse {
+    opacity: 1;
+  }
+
+  :global(.product-card):hover .media[data-ready='true'] .front {
+    opacity: 0;
+  }
+}
+
+:global(.product-card) a:focus-visible .media[data-ready='true'] .reverse {
+  opacity: 1;
+}
+
+:global(.product-card) a:focus-visible .media[data-ready='true'] .front {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .front,
+  .reverse {
+    transition: none;
+  }
+}

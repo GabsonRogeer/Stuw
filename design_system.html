@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STUW — Luxury Activewear & Wellness Design System</title>
+  
+  <!-- Google Fonts: Cormorant Garamond (Editorial Serif), Plus Jakarta Sans (Modern Geometric Sans) & JetBrains Mono (Specs) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            stuw: {
+              obsidian: '#131413',
+              obsidianLight: '#1C1D1B',
+              canvas: '#FBF9F5',
+              sand: '#EFECE5',
+              sandLight: '#F5F2EB',
+              sandDark: '#DFDAD0',
+              sage: '#586255',
+              sageLight: '#E8ECE6',
+              sageDark: '#3E463C',
+              champagne: '#B8A28E',
+              champagneLight: '#F3EFEA',
+              border: '#E5E0D7',
+              borderDark: '#2E302D',
+              slate: '#7C827D',
+              verified: '#2D6A4F',
+              verifiedLight: '#E7F2EB'
+            }
+          },
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          boxShadow: {
+            'luxury-sm': '0 4px 20px -2px rgba(19, 20, 19, 0.04)',
+            'luxury-md': '0 12px 32px -4px rgba(19, 20, 19, 0.06)',
+            'luxury-lg': '0 24px 48px -8px rgba(19, 20, 19, 0.08)',
+            'luxury-inner': 'inset 0 1px 3px 0 rgba(19, 20, 19, 0.03)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* CSS Root Variables & Design Tokens */
+    :root {
+      --color-obsidian: #131413;
+      --color-obsidian-light: #1C1D1B;
+      --color-canvas: #FBF9F5;
+      --color-sand: #EFECE5;
+      --color-sand-light: #F5F2EB;
+      --color-sand-dark: #DFDAD0;
+      --color-sage: #586255;
+      --color-sage-light: #E8ECE6;
+      --color-champagne: #B8A28E;
+      --color-border: #E5E0D7;
+      --color-slate: #7C827D;
+      --color-verified: #2D6A4F;
+
+      /* Motion Physics: The Silk Spring Curve */
+      --ease-silk: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-fast: 200ms;
+      --duration-base: 350ms;
+      --duration-smooth: 500ms;
+      --duration-slow: 800ms;
+    }
+
+    /* Dark Mode (Sanctuary Mode) Overrides */
+    .dark {
+      --color-canvas: #131413;
+      --color-sand: #1B1D1A;
+      --color-sand-light: #222521;
+      --color-obsidian: #FBF9F5;
+      --color-border: #2A2D28;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--color-canvas);
+      color: var(--color-obsidian);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color var(--duration-smooth) var(--ease-silk), color var(--duration-smooth) var(--ease-silk);
+    }
+
+    /* Silk Transitions */
+    .silk-transition {
+      transition: all var(--duration-base) var(--ease-silk);
+    }
+
+    .silk-transition-slow {
+      transition: all var(--duration-smooth) var(--ease-silk);
+    }
+
+    /* Glassmorphism Refinado */
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(251, 249, 245, 0.82);
+      border: 1px solid rgba(229, 224, 215, 0.8);
+    }
+
+    .dark .glass-panel {
+      background-color: rgba(19, 20, 19, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-header {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background-color: rgba(251, 249, 245, 0.88);
+    }
+
+    .dark .glass-header {
+      background-color: rgba(19, 20, 19, 0.90);
+    }
+
+    /* Microinteração Haptic Press */
+    .haptic-press:active {
+      transform: scale(0.97);
+    }
+
+    /* Shimmer Skeleton Animado (Toque Seda) */
+    @keyframes silkShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .skeleton-silk {
+      background: linear-gradient(90deg, rgba(239, 236, 229, 0.6) 25%, rgba(251, 249, 245, 0.9) 50%, rgba(239, 236, 229, 0.6) 75%);
+      background-size: 200% 100%;
+      animation: silkShimmer 2.2s infinite ease-in-out;
+    }
+
+    .dark .skeleton-silk {
+      background: linear-gradient(90deg, rgba(28, 29, 27, 0.6) 25%, rgba(45, 47, 43, 0.9) 50%, rgba(28, 29, 27, 0.6) 75%);
+      background-size: 200% 100%;
+      animation: silkShimmer 2.2s infinite ease-in-out;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-slate);
+    }
+
+    /* Code block styling */
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body class="selection:bg-stuw-sage selection:text-white relative">
+
+  <!-- Top Announcement Bar (Trust & Security Message) -->
+  <aside aria-label="Aviso da Marca" class="bg-stuw-obsidian text-stuw-canvas dark:bg-[#0c0d0c] dark:text-stone-300 text-[11px] py-2 px-4 text-center tracking-[0.2em] uppercase font-medium flex items-center justify-center gap-3 border-b border-stone-800">
+    <span class="inline-block w-1.5 h-1.5 rounded-full bg-stuw-sage animate-pulse"></span>
+    <span>STUW DESIGN SYSTEM v1.0 &bull; THE SCIENCE OF FEEL & QUIET LUXURY ARCHITECTURE</span>
+    <span class="hidden md:inline-block text-stuw-champagne">&bull; NORMAS DIGITAIS 2026</span>
+  </aside>
+
+  <!-- Sticky Luxury Navigation Header -->
+  <header class="sticky top-0 z-40 glass-header border-b border-stuw-border dark:border-stuw-borderDark px-6 lg:px-12 py-4 flex items-center justify-between silk-transition">
+    <div class="flex items-center space-x-6">
+      <a href="#inicio" class="group flex items-center gap-3">
+        <span class="text-2xl lg:text-3xl font-light tracking-[0.28em] font-serif uppercase text-stuw-obsidian dark:text-stuw-canvas">STUW</span>
+        <span class="text-[9px] uppercase tracking-[0.2em] text-stuw-sage bg-stuw-sage/10 dark:bg-stuw-sage/20 px-2 py-0.5 rounded-full font-semibold">Design System</span>
+      </a>
+      <span class="hidden lg:inline-block text-xs text-stuw-slate border-l border-stuw-border dark:border-stuw-borderDark pl-4 font-light">
+        Moda Feminina de Alto Padrão &bull; Wellness &bull; Segurança &bull; 60fps
+      </span>
+    </div>
+
+    <!-- Quick Tools / Ambient Mode Switcher -->
+    <div class="flex items-center space-x-3 sm:space-x-4">
+      <button onclick="copyAllTokens()" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium uppercase tracking-wider rounded-full border border-stuw-border dark:border-stuw-borderDark hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition text-stuw-obsidian dark:text-stuw-canvas">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        <span>Copiar Tokens CSS</span>
+      </button>
+
+      <!-- Ambient Theme Switcher (Studio vs Sanctuary) -->
+      <button id="themeToggleBtn" onclick="toggleTheme()" class="px-3 py-1.5 rounded-full bg-stuw-sand dark:bg-stone-800 text-xs font-medium tracking-wider flex items-center gap-2 border border-stuw-border dark:border-stuw-borderDark silk-transition">
+        <span id="themeIcon" class="text-xs">☀️</span>
+        <span id="themeLabel" class="text-[11px] uppercase tracking-wider">Studio Light</span>
+      </button>
+
+      <!-- Cart Drawer Trigger (Interactive Demo) -->
+      <button onclick="toggleSideCart()" class="bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian px-4 py-2 rounded-full text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition flex items-center gap-2 haptic-press shadow-luxury-sm">
+        <span>Sacola Demo</span>
+        <span id="headerCartCount" class="w-4 h-4 rounded-full bg-stuw-champagne text-stuw-obsidian text-[10px] font-bold inline-flex items-center justify-center">2</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Layout Container: Sidebar + Content -->
+  <div class="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8">
+    
+    <!-- Left Sticky Navigation Menu -->
+    <aside class="hidden xl:block w-72 shrink-0">
+      <div class="sticky top-28 space-y-6 text-xs glass-panel p-6 rounded-2xl shadow-luxury-sm">
+        <div class="pb-3 border-b border-stuw-border dark:border-stuw-borderDark">
+          <p class="text-[10px] uppercase tracking-[0.25em] text-stuw-sage font-bold">Sumário do Sistema</p>
+          <p class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas italic mt-0.5">Arquitetura de Elementos</p>
+        </div>
+
+        <nav class="space-y-1 font-medium text-stuw-obsidian/80 dark:text-stone-300">
+          <a href="#manifesto" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>1. Visão & Benchmark</span>
+            <span class="text-[10px] text-stuw-slate">Concorrentes</span>
+          </a>
+          <a href="#cores" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>2. Cores & Tokens Minerais</span>
+            <span class="text-[10px] text-stuw-slate">Paleta</span>
+          </a>
+          <a href="#tipografia" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>3. Tipografia & Escala</span>
+            <span class="text-[10px] text-stuw-slate">Serif + Sans</span>
+          </a>
+          <a href="#superficies" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>4. Espaços, Bordas & Vidro</span>
+            <span class="text-[10px] text-stuw-slate">Glassmorphism</span>
+          </a>
+          <a href="#motion" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>5. Motion Engine (Digital Silk)</span>
+            <span class="text-[10px] text-stuw-slate">Física Bézier</span>
+          </a>
+          <a href="#componentes" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>6. Componentes Atômicos</span>
+            <span class="text-[10px] text-stuw-slate">Botões & Badges</span>
+          </a>
+          <a href="#sensorial" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>7. Indicadores Sensoriais</span>
+            <span class="text-[10px] text-stuw-slate">Compressão & Toque</span>
+          </a>
+          <a href="#seguranca" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>8. Hub de Confiança & Segurança</span>
+            <span class="text-[10px] text-stuw-verified font-semibold">SSL & Selos</span>
+          </a>
+          <a href="#ecommerce" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>9. Padrões de E-Commerce</span>
+            <span class="text-[10px] text-stuw-slate">Cards 3:4 & PDP</span>
+          </a>
+          <a href="#provador" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>10. Provador Inteligente</span>
+            <span class="text-[10px] text-stuw-slate">Biotipo 3D</span>
+          </a>
+          <a href="#codigo" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-stuw-sand dark:hover:bg-stone-800/60 silk-transition">
+            <span>11. Snippets Prontos & Export</span>
+            <span class="text-[10px] text-stuw-slate">CSS / Tailwind</span>
+          </a>
+        </nav>
+
+        <div class="pt-4 border-t border-stuw-border dark:border-stuw-borderDark bg-stuw-sand/40 dark:bg-stone-800/40 -mx-6 -mb-6 p-4 rounded-b-2xl">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-stuw-verified"></span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-stuw-obsidian dark:text-stone-300">Quiet Luxury Verified</span>
+          </div>
+          <p class="text-[11px] text-stuw-slate mt-1 font-light">Sem ruído visual. 100% focado no caimento, segurança e conversão.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0 space-y-20 pb-28">
+
+      <!-- Hero Introduction Banner -->
+      <section id="inicio" class="relative bg-gradient-to-br from-stuw-sand via-stuw-sandLight to-stuw-canvas dark:from-[#1b1c1a] dark:via-[#161715] dark:to-stuw-obsidian rounded-3xl p-8 sm:p-12 lg:p-16 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-md overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-stuw-champagne/15 dark:bg-stuw-champagne/5 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-stuw-sage/10 dark:bg-stuw-sage/5 blur-3xl pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-3xl space-y-6">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-stone-800/70 backdrop-blur-md border border-stuw-border dark:border-stuw-borderDark text-[11px] uppercase tracking-[0.2em] font-semibold text-stuw-sage">
+            <span class="w-1.5 h-1.5 rounded-full bg-stuw-sage"></span>
+            Design System &bull; Activewear & Wellness Feminino
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-light font-serif leading-[1.08] text-stuw-obsidian dark:text-stuw-canvas">
+            A precisão do movimento.<br>
+            <em class="font-normal italic">O luxo da pausa.</em>
+          </h1>
+
+          <p class="text-base sm:text-lg text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed">
+            Uma linguagem de design lapidada para o público feminino de alto padrão. Une a <strong>fluidez sensorial e o status "studio-to-street" da Alo Yoga</strong>, o <strong>rigor científico e o toque tátil da Lululemon</strong>, a <strong>precisão arquitetônica suíça da On Running</strong> e a <strong>engenharia de conversão sem atrito da Gymshark</strong>.
+          </p>
+
+          <div class="flex flex-wrap gap-4 pt-4">
+            <a href="#componentes" class="px-8 py-4 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition shadow-luxury-md haptic-press">
+              Explorar Componentes
+            </a>
+            <a href="#ecommerce" class="px-8 py-4 rounded-full border border-stuw-obsidian dark:border-stuw-canvas text-stuw-obsidian dark:text-stuw-canvas text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-obsidian hover:text-stuw-canvas dark:hover:bg-stuw-canvas dark:hover:text-stuw-obsidian silk-transition haptic-press">
+              Simular E-Commerce
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 1: BENCHMARK & PILARES -->
+      <section id="manifesto" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 01</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Convergência dos Concorrentes de Referência</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Análise das 4 marcas globais líderes</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Card Alo Yoga -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition group border-t-2 border-t-stuw-champagne">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas">Alo Yoga</span>
+              <span class="text-[10px] uppercase tracking-widest text-stuw-champagne font-semibold bg-stuw-champagne/10 px-2 py-0.5 rounded-full">Aspiracional</span>
+            </div>
+            <h3 class="font-serif text-xl text-stuw-obsidian dark:text-stuw-canvas mb-2">Studio-to-Street & Glow</h3>
+            <p class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed mb-4">
+              Apresentação editorial tipo revista, layouts solares com amplo respiro visual e a roupa fitness como símbolo máximo de status e bem-estar.
+            </p>
+            <div class="pt-3 border-t border-stuw-border dark:border-stuw-borderDark text-[11px] text-stuw-sage font-medium flex items-center gap-1.5">
+              <span>✦</span> <span>Absorvido: Editorial de moda & drops cáspula</span>
+            </div>
+          </div>
+
+          <!-- Card Lululemon -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition group border-t-2 border-t-stuw-sage">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas">Lululemon</span>
+              <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-semibold bg-stuw-sage/10 px-2 py-0.5 rounded-full">Sensorial</span>
+            </div>
+            <h3 class="font-serif text-xl text-stuw-obsidian dark:text-stuw-canvas mb-2">The Science of Feel</h3>
+            <p class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed mb-4">
+              Foco inegociável na textura tátil da fibra (toque Nulu / seda), escala métrica de compressão, elasticidade sem transparência e garantia de ajuste.
+            </p>
+            <div class="pt-3 border-t border-stuw-border dark:border-stuw-borderDark text-[11px] text-stuw-sage font-medium flex items-center gap-1.5">
+              <span>✦</span> <span>Absorvido: Medidor de compressão & prova tátil</span>
+            </div>
+          </div>
+
+          <!-- Card On Running -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition group border-t-2 border-t-stuw-obsidian dark:border-t-stuw-canvas">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas">On Running</span>
+              <span class="text-[10px] uppercase tracking-widest text-stuw-obsidian dark:text-stuw-canvas font-semibold bg-stone-200 dark:bg-stone-700 px-2 py-0.5 rounded-full">Arquitetura</span>
+            </div>
+            <h3 class="font-serif text-xl text-stuw-obsidian dark:text-stuw-canvas mb-2">Precisão Suíça & Diatype</h3>
+            <p class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed mb-4">
+              Estilo tipográfico internacional (Swiss Style), grids esculturais de galeria de arte, bordas limpas de 1px e eliminação absoluta de ruído visual.
+            </p>
+            <div class="pt-3 border-t border-stuw-border dark:border-stuw-borderDark text-[11px] text-stuw-sage font-medium flex items-center gap-1.5">
+              <span>✦</span> <span>Absorvido: Rigor de alinhamento & linhas 1px</span>
+            </div>
+          </div>
+
+          <!-- Card Gymshark -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition group border-t-2 border-t-stuw-verified">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas">Gymshark</span>
+              <span class="text-[10px] uppercase tracking-widest text-stuw-verified font-semibold bg-stuw-verified/10 px-2 py-0.5 rounded-full">Conversão</span>
+            </div>
+            <h3 class="font-serif text-xl text-stuw-obsidian dark:text-stuw-canvas mb-2">DTC Sem Atrito</h3>
+            <p class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed mb-4">
+              Seleção instantânea de tamanhos em pílulas, side-cart drawer fluido sem recarregar a tela, barra de frete dinâmico e microinterações táteis.
+            </p>
+            <div class="pt-3 border-t border-stuw-border dark:border-stuw-borderDark text-[11px] text-stuw-sage font-medium flex items-center gap-1.5">
+              <span>✦</span> <span>Absorvido: Side-cart & frete grátis inteligente</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- O Manifesto Quiet Luxury -->
+        <div class="bg-stuw-obsidian text-stuw-canvas dark:bg-[#111210] p-8 sm:p-12 rounded-3xl space-y-6">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-[1px] bg-stuw-champagne"></span>
+            <span class="text-xs uppercase tracking-[0.3em] text-stuw-champagne font-medium">O Conceito Central da STUW</span>
+          </div>
+          <blockquote class="font-serif text-2xl sm:text-3xl font-light italic max-w-4xl leading-relaxed text-stone-100">
+            "A verdadeira sofisticação não precisa gritar. O público de alto padrão reconhece o luxo na sutileza do toque, no silêncio da paleta de cores minerais e na confiança cega de que a roupa esculpe o corpo com zero transparência e total segurança."
+          </blockquote>
+          <div class="flex flex-wrap gap-8 text-xs text-stone-400 font-light pt-2">
+            <div><strong class="text-stuw-canvas block font-semibold">Zero Preto 100% Artificial:</strong> Adotamos o Obsidian Mineral (#131413).</div>
+            <div><strong class="text-stuw-canvas block font-semibold">Zero Branco Hospitalar:</strong> Adotamos o Cloud Silk (#FBF9F5).</div>
+            <div><strong class="text-stuw-canvas block font-semibold">Transição Suave 60fps:</strong> Curva física `cubic-bezier(0.16, 1, 0.3, 1)`.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: PALETA DE CORES & DESIGN TOKENS -->
+      <section id="cores" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 02</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Tokens Cromáticos: Earthy Mineral Luxury</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Clique em qualquer amostra para copiar o código HEX</span>
+        </div>
+
+        <!-- Grid de Cores Principais -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <!-- Cor 1: Obsidian Mineral -->
+          <div onclick="copyColor('#131413', 'Obsidian Mineral')" class="glass-panel p-4 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition cursor-pointer group">
+            <div class="h-28 rounded-xl bg-[#131413] mb-3 shadow-inner relative overflow-hidden flex items-end p-2.5">
+              <span class="text-[9px] uppercase tracking-widest text-white/70 font-mono">AAA 16.5:1</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <p class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">Obsidian Mineral</p>
+              <span class="text-[10px] font-mono text-stuw-slate">#131413</span>
+            </div>
+            <p class="text-[11px] text-stuw-slate mt-1 font-light">Preto mineral aveludado primário. Textos nobres e botões.</p>
+            <div class="mt-2 text-[10px] font-mono text-stuw-sage group-hover:underline">--stuw-obsidian</div>
+          </div>
+
+          <!-- Cor 2: Cloud Silk -->
+          <div onclick="copyColor('#FBF9F5', 'Cloud Silk')" class="glass-panel p-4 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition cursor-pointer group">
+            <div class="h-28 rounded-xl bg-[#FBF9F5] border border-stuw-border mb-3 relative overflow-hidden flex items-end p-2.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#131413]/70 font-mono">Canvas</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <p class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">Cloud Silk</p>
+              <span class="text-[10px] font-mono text-stuw-slate">#FBF9F5</span>
+            </div>
+            <p class="text-[11px] text-stuw-slate mt-1 font-light">Off-white quente e sereno. Elimina a fadiga de tela.</p>
+            <div class="mt-2 text-[10px] font-mono text-stuw-sage group-hover:underline">--stuw-canvas</div>
+          </div>
+
+          <!-- Cor 3: Warm Sandstone -->
+          <div onclick="copyColor('#EFECE5', 'Warm Sandstone')" class="glass-panel p-4 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition cursor-pointer group">
+            <div class="h-28 rounded-xl bg-[#EFECE5] border border-stuw-border mb-3 relative overflow-hidden flex items-end p-2.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#131413]/70 font-mono">Surface</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <p class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">Warm Sandstone</p>
+              <span class="text-[10px] font-mono text-stuw-slate">#EFECE5</span>
+            </div>
+            <p class="text-[11px] text-stuw-slate mt-1 font-light">Superfície tátil para cartões, gavetas e fundos secundários.</p>
+            <div class="mt-2 text-[10px] font-mono text-stuw-sage group-hover:underline">--stuw-sand</div>
+          </div>
+
+          <!-- Cor 4: Sage Botanical -->
+          <div onclick="copyColor('#586255', 'Sage Botanical')" class="glass-panel p-4 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition cursor-pointer group">
+            <div class="h-28 rounded-xl bg-[#586255] mb-3 shadow-inner relative overflow-hidden flex items-end p-2.5">
+              <span class="text-[9px] uppercase tracking-widest text-white/80 font-mono">Wellness</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <p class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">Sage Botanical</p>
+              <span class="text-[10px] font-mono text-stuw-slate">#586255</span>
+            </div>
+            <p class="text-[11px] text-stuw-slate mt-1 font-light">Sálvia orgânica refinada. Sustentabilidade e equilíbrio.</p>
+            <div class="mt-2 text-[10px] font-mono text-stuw-sage group-hover:underline">--stuw-sage</div>
+          </div>
+
+          <!-- Cor 5: Cashmere Bronze -->
+          <div onclick="copyColor('#B8A28E', 'Cashmere Bronze')" class="glass-panel p-4 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition cursor-pointer group">
+            <div class="h-28 rounded-xl bg-[#B8A28E] mb-3 shadow-inner relative overflow-hidden flex items-end p-2.5">
+              <span class="text-[9px] uppercase tracking-widest text-white/90 font-mono">Gold Luxury</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <p class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">Cashmere Bronze</p>
+              <span class="text-[10px] font-mono text-stuw-slate">#B8A28E</span>
+            </div>
+            <p class="text-[11px] text-stuw-slate mt-1 font-light">Dourado champanhe mineral. Edições limitadas e selos VIP.</p>
+            <div class="mt-2 text-[10px] font-mono text-stuw-sage group-hover:underline">--stuw-champagne</div>
+          </div>
+
+          <!-- Cor 6: Stone Contour -->
+          <div onclick="copyColor('#E5E0D7', 'Stone Contour')" class="glass-panel p-4 rounded-2xl shadow-luxury-sm hover:shadow-luxury-md silk-transition cursor-pointer group">
+            <div class="h-28 rounded-xl bg-[#E5E0D7] mb-3 relative overflow-hidden flex items-end p-2.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#131413]/70 font-mono">Border 1px</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <p class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">Stone Contour</p>
+              <span class="text-[10px] font-mono text-stuw-slate">#E5E0D7</span>
+            </div>
+            <p class="text-[11px] text-stuw-slate mt-1 font-light">Linha estrutural suave. Separação de blocos sem poluir.</p>
+            <div class="mt-2 text-[10px] font-mono text-stuw-sage group-hover:underline">--stuw-border</div>
+          </div>
+        </div>
+
+        <!-- Cores Funcionais de Segurança & Confiança -->
+        <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stuw-obsidian dark:text-stuw-canvas mb-4">Cores de Feedback & Confiança Feminina</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div onclick="copyColor('#2D6A4F', 'Verified Emerald')" class="p-3 rounded-xl bg-[#E7F2EB] dark:bg-emerald-950/40 border border-[#2D6A4F]/30 flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-3">
+                <span class="w-4 h-4 rounded-full bg-[#2D6A4F]"></span>
+                <div>
+                  <div class="text-xs font-bold text-[#2D6A4F] dark:text-emerald-400">Verified Emerald (#2D6A4F)</div>
+                  <div class="text-[10px] text-stone-600 dark:text-stone-300">Certificado SSL, Oeko-Tex & Troca Grátis</div>
+                </div>
+              </div>
+              <span class="text-[10px] font-mono text-[#2D6A4F]">Copiar</span>
+            </div>
+
+            <div onclick="copyColor('#9E6D38', 'Soft Amber')" class="p-3 rounded-xl bg-[#FBF5EC] dark:bg-amber-950/40 border border-[#9E6D38]/30 flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-3">
+                <span class="w-4 h-4 rounded-full bg-[#9E6D38]"></span>
+                <div>
+                  <div class="text-xs font-bold text-[#9E6D38] dark:text-amber-400">Amber Reserve (#9E6D38)</div>
+                  <div class="text-[10px] text-stone-600 dark:text-stone-300">Últimas Unidades em Estoque</div>
+                </div>
+              </div>
+              <span class="text-[10px] font-mono text-[#9E6D38]">Copiar</span>
+            </div>
+
+            <div onclick="copyColor('#8A3C38', 'Discreet Alert')" class="p-3 rounded-xl bg-[#F9ECEB] dark:bg-red-950/40 border border-[#8A3C38]/30 flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-3">
+                <span class="w-4 h-4 rounded-full bg-[#8A3C38]"></span>
+                <div>
+                  <div class="text-xs font-bold text-[#8A3C38] dark:text-red-400">Discreet Alert (#8A3C38)</div>
+                  <div class="text-[10px] text-stone-600 dark:text-stone-300">Campos Obrigatórios / Avisos Suaves</div>
+                </div>
+              </div>
+              <span class="text-[10px] font-mono text-[#8A3C38]">Copiar</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: TIPOGRAFIA & ESCALA MODULAR -->
+      <section id="tipografia" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 03</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Hierarquia Tipográfica: Dual-Type System</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Cormorant Garamond (Editorial) + Plus Jakarta Sans (Interface)</span>
+        </div>
+
+        <!-- Interative Typography Sandbox -->
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-luxury-sm space-y-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-stuw-border dark:border-stuw-borderDark">
+            <span class="text-xs font-semibold uppercase tracking-[0.2em] text-stuw-sage">Testador Interativo de Tipografia</span>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <label for="typeSizeSlider" class="text-xs text-stuw-slate">Tamanho:</label>
+              <input type="range" id="typeSizeSlider" min="16" max="64" value="36" oninput="updateLiveType(this.value)" class="w-36 accent-stuw-obsidian dark:accent-stuw-canvas cursor-pointer">
+              <span id="liveSizeDisplay" class="text-xs font-mono text-stuw-slate w-12 text-right">36px</span>
+            </div>
+          </div>
+
+          <!-- Input para digitação ao vivo -->
+          <div>
+            <label for="customTypeInput" class="text-[11px] uppercase tracking-wider text-stuw-slate block mb-1 font-medium">Digite uma frase para testar ambas as famílias:</label>
+            <input type="text" id="customTypeInput" value="A precisão do movimento. O luxo da pausa." oninput="updateLiveText(this.value)" class="w-full bg-stuw-sand/60 dark:bg-stone-800/60 border border-stuw-border dark:border-stuw-borderDark rounded-xl px-4 py-2.5 text-sm text-stuw-obsidian dark:text-stuw-canvas focus:outline-none focus:ring-1 focus:ring-stuw-obsidian dark:focus:ring-stuw-canvas silk-transition">
+          </div>
+
+          <!-- Live Visualizations -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+            <!-- Coluna 1: Cormorant Garamond -->
+            <div class="p-6 rounded-2xl bg-stuw-canvas dark:bg-[#181917] border border-stuw-border dark:border-stuw-borderDark space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-serif italic text-stuw-champagne text-base">Cormorant Garamond</span>
+                <span class="text-[10px] uppercase tracking-widest text-stuw-slate font-medium">Headlines & Storytelling</span>
+              </div>
+              <div id="serifPreview" class="font-serif font-light text-stuw-obsidian dark:text-stuw-canvas leading-tight transition-all" style="font-size: 36px;">
+                A precisão do movimento. O luxo da pausa.
+              </div>
+              <p class="text-[11px] text-stuw-slate font-light pt-2">
+                Ideal para manifesto da marca, nomes de coleções cápsula, citações sensoriais e lookbook de alta costura.
+              </p>
+            </div>
+
+            <!-- Coluna 2: Plus Jakarta Sans -->
+            <div class="p-6 rounded-2xl bg-stuw-canvas dark:bg-[#181917] border border-stuw-border dark:border-stuw-borderDark space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-sans font-semibold text-stuw-sage">Plus Jakarta Sans</span>
+                <span class="text-[10px] uppercase tracking-widest text-stuw-slate font-medium">UI, Catálogo & PDP</span>
+              </div>
+              <div id="sansPreview" class="font-sans font-normal text-stuw-obsidian dark:text-stuw-canvas leading-snug transition-all" style="font-size: 36px;">
+                A precisão do movimento. O luxo da pausa.
+              </div>
+              <p class="text-[11px] text-stuw-slate font-light pt-2">
+                Clareza impecável inspirada na tipografia suíça (On Running Diatype). Utilizada em preços, botões, especificações e filtros técnicos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela da Escala Tipográfica Oficial -->
+        <div class="glass-panel rounded-2xl overflow-hidden shadow-luxury-sm">
+          <div class="p-4 bg-stuw-sand/40 dark:bg-stone-800/40 border-b border-stuw-border dark:border-stuw-borderDark text-xs font-semibold uppercase tracking-[0.2em] text-stuw-obsidian dark:text-stuw-canvas">
+            Escala Tipográfica do E-Commerce STUW
+          </div>
+          <div class="divide-y divide-stuw-border dark:divide-stuw-borderDark text-xs">
+            <div class="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="w-48 shrink-0">
+                <span class="font-mono font-semibold text-stuw-sage">Display Hero (64px)</span>
+                <span class="text-[10px] text-stuw-slate block">Serif 300 &bull; Leading 1.05</span>
+              </div>
+              <div class="font-serif text-4xl sm:text-5xl lg:text-6xl text-stuw-obsidian dark:text-stuw-canvas font-light italic">
+                Seda pura & movimento.
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="w-48 shrink-0">
+                <span class="font-mono font-semibold text-stuw-sage">Heading 1 (36px)</span>
+                <span class="text-[10px] text-stuw-slate block">Serif 400 &bull; Leading 1.15</span>
+              </div>
+              <div class="font-serif text-3xl sm:text-4xl text-stuw-obsidian dark:text-stuw-canvas font-normal">
+                Coleção Cápsula SilkAir 2026
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="w-48 shrink-0">
+                <span class="font-mono font-semibold text-stuw-sage">Heading 2 (24px)</span>
+                <span class="text-[10px] text-stuw-slate block">Sans 600 &bull; Leading 1.25</span>
+              </div>
+              <div class="font-sans text-xl sm:text-2xl font-semibold text-stuw-obsidian dark:text-stuw-canvas tracking-tight">
+                Legging Sculpt Cós Alto Duplo Anatomical
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="w-48 shrink-0">
+                <span class="font-mono font-semibold text-stuw-sage">Body Standard (15px)</span>
+                <span class="text-[10px] text-stuw-slate block">Sans 400 &bull; Leading 1.6</span>
+              </div>
+              <div class="text-sm text-stuw-obsidian/80 dark:text-stone-300 font-light max-w-2xl leading-relaxed">
+                Desenvolvida com a tecnologia de fibra Nulu-feel italiana. Oferece compressão graduada que modela o abdômen sem comprimir os movimentos naturais da prática de yoga e pilates.
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="w-48 shrink-0">
+                <span class="font-mono font-semibold text-stuw-sage">Eyebrow / Pill (11px)</span>
+                <span class="text-[10px] text-stuw-slate block">Sans 700 &bull; Tracking 0.25em</span>
+              </div>
+              <div class="text-[11px] uppercase tracking-[0.25em] font-semibold text-stuw-sage bg-stuw-sage/10 px-3 py-1 rounded-full inline-block">
+                ALTA COMPRESSÃO 4/4 &bull; ZERO TRANSPARÊNCIA
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: SUPERFÍCIES, BORDAS & VIDRO -->
+      <section id="superficies" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 04</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Superfícies, Bordas & Glassmorphism</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Eliminação de sombras pretas duras em prol de elevação difusa</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Nível 1: Flat Sand Surface -->
+          <div class="p-6 rounded-2xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark space-y-3">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-stuw-slate">Nível 01 &bull; Flat Surface</span>
+            <h3 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas">Warm Sandstone Card</h3>
+            <p class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed">
+              Superfície opaca acolhedora com textura mineral. Ideal para blocos de depoimentos e seções de fundo secundárias.
+            </p>
+            <div class="text-[10px] font-mono text-stuw-slate pt-2 border-t border-stuw-border dark:border-stuw-borderDark">
+              border: 1px solid #E5E0D7; background: #EFECE5;
+            </div>
+          </div>
+
+          <!-- Nível 2: Frosted Glass Panel -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-md space-y-3 relative overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-stuw-champagne/20 blur-xl"></div>
+            <span class="text-[10px] font-mono uppercase tracking-widest text-stuw-champagne font-semibold">Nível 02 &bull; Frosted Glass</span>
+            <h3 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas">Painel Translúcido 20px</h3>
+            <p class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed">
+              Simula vidro fosco de estúdio arquitetônico. O conteúdo inferior passa suavemente com saturação de 180%.
+            </p>
+            <div class="text-[10px] font-mono text-stuw-slate pt-2 border-t border-stuw-border dark:border-stuw-borderDark">
+              backdrop-filter: blur(20px) saturate(180%);
+            </div>
+          </div>
+
+          <!-- Nível 3: Obsidian Floating Pill -->
+          <div class="p-6 rounded-2xl bg-stuw-obsidian text-stuw-canvas dark:bg-[#161715] shadow-luxury-lg space-y-3 border border-stone-800">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-stuw-sage font-semibold">Nível 03 &bull; Deep Floating</span>
+            <h3 class="font-serif text-lg text-stuw-canvas">Obsidian Deep Elevation</h3>
+            <p class="text-xs text-stone-300 font-light leading-relaxed">
+              Destaque de maior prioridade na página. Usado para o Side-Cart, modais VIP e toasts de confirmação segura.
+            </p>
+            <div class="text-[10px] font-mono text-stone-400 pt-2 border-t border-stone-800">
+              box-shadow: 0 24px 48px -8px rgba(19, 20, 19, 0.08);
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: MOTION ENGINE (DIGITAL SILK) -->
+      <section id="motion" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 05</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Motion Engine: A Curva Física da Seda</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">cubic-bezier(0.16, 1, 0.3, 1) &bull; Resposta tátil a 60fps</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Demo 1: Botão com Haptic Magnético -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm flex flex-col justify-between items-center text-center space-y-4">
+            <div>
+              <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-semibold">Microinteração 01</span>
+              <h4 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas mt-1">Haptic Press & Feedback</h4>
+              <p class="text-xs text-stuw-slate font-light mt-1">Sinta o recuo tátil de 0.97x ao pressionar o botão.</p>
+            </div>
+            <button class="px-8 py-3.5 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage silk-transition haptic-press shadow-luxury-sm">
+              Pressione para Sentir
+            </button>
+            <span class="text-[10px] font-mono text-stuw-slate">transform: scale(0.97);</span>
+          </div>
+
+          <!-- Demo 2: Skeleton Shimmer Seda -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm flex flex-col justify-between space-y-4">
+            <div class="text-center">
+              <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-semibold">Microinteração 02</span>
+              <h4 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas mt-1">Silk Shimmer Loader</h4>
+              <p class="text-xs text-stuw-slate font-light mt-1">Transição orgânica suave enquanto os dados carregam.</p>
+            </div>
+            <div class="space-y-2.5 p-3 bg-stuw-canvas dark:bg-stone-900 rounded-xl border border-stuw-border dark:border-stuw-borderDark">
+              <div class="h-4 w-3/4 rounded-full skeleton-silk"></div>
+              <div class="h-3 w-full rounded-full skeleton-silk"></div>
+              <div class="h-3 w-1/2 rounded-full skeleton-silk"></div>
+            </div>
+            <span class="text-[10px] font-mono text-stuw-slate text-center">gradient-flow 2.2s infinite</span>
+          </div>
+
+          <!-- Demo 3: Accordion de Caimento Suave -->
+          <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm flex flex-col justify-between space-y-4">
+            <div class="text-center">
+              <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-semibold">Microinteração 03</span>
+              <h4 class="font-serif text-lg text-stuw-obsidian dark:text-stuw-canvas mt-1">Fluid Disclosure</h4>
+              <p class="text-xs text-stuw-slate font-light mt-1">Expansão de detalhes técnicos sem saltos de layout.</p>
+            </div>
+            <div class="border border-stuw-border dark:border-stuw-borderDark rounded-xl overflow-hidden text-xs">
+              <button onclick="toggleAccordion('motionAccordion')" class="w-full p-3 bg-stuw-sand/50 dark:bg-stone-800/50 flex justify-between items-center text-stuw-obsidian dark:text-stuw-canvas font-medium">
+                <span>Composição Têxtil Nulu™</span>
+                <span id="motionAccordionIcon" class="silk-transition font-mono">+</span>
+              </button>
+              <div id="motionAccordion" class="hidden p-3 bg-stuw-canvas dark:bg-stone-900 text-stuw-slate font-light text-[11px] leading-relaxed border-t border-stuw-border dark:border-stuw-borderDark">
+                81% Microfibra de Poliamida Ultra-Fina e 19% Elastano Lycra® com certificação OEKO-TEX Standard 100.
+              </div>
+            </div>
+            <span class="text-[10px] font-mono text-stuw-slate text-center">cubic-bezier(0.16, 1, 0.3, 1)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: COMPONENTES ATÔMICOS (BOTÕES & BADGES) -->
+      <section id="componentes" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 06</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Componentes Atômicos de Interface</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Botões, pílulas de tamanho e badges de status</span>
+        </div>
+
+        <!-- Suíte de Botões -->
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-luxury-sm space-y-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stuw-sage">Família de Botões de Alta Conversão</p>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
+            <!-- Botão Primário -->
+            <div class="space-y-2 text-center">
+              <span class="text-[10px] text-stuw-slate uppercase tracking-wider block">Primário (Conversão Máxima)</span>
+              <button class="w-full py-3.5 px-6 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage dark:hover:bg-stuw-champagne silk-transition haptic-press shadow-luxury-sm">
+                Adicionar à Sacola
+              </button>
+            </div>
+
+            <!-- Botão Secundário -->
+            <div class="space-y-2 text-center">
+              <span class="text-[10px] text-stuw-slate uppercase tracking-wider block">Secundário (Contorno Mineral)</span>
+              <button class="w-full py-3.5 px-6 rounded-full border border-stuw-obsidian dark:border-stuw-canvas text-stuw-obsidian dark:text-stuw-canvas text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sand dark:hover:bg-stone-800 silk-transition haptic-press">
+                Guia de Biotipos
+              </button>
+            </div>
+
+            <!-- Botão Wellness Sage -->
+            <div class="space-y-2 text-center">
+              <span class="text-[10px] text-stuw-slate uppercase tracking-wider block">Wellness (Estúdio & Yoga)</span>
+              <button class="w-full py-3.5 px-6 rounded-full bg-stuw-sage text-white text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sageDark silk-transition haptic-press shadow-luxury-sm">
+                Agendar Concierge
+              </button>
+            </div>
+
+            <!-- Botão Ghost com Ícone -->
+            <div class="space-y-2 text-center">
+              <span class="text-[10px] text-stuw-slate uppercase tracking-wider block">Ghost / Ação Mínima</span>
+              <button class="w-full py-3.5 px-6 rounded-full text-stuw-obsidian dark:text-stuw-canvas text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sand/60 dark:hover:bg-stone-800/60 silk-transition flex items-center justify-center gap-2">
+                <span>Ver Lookbook</span>
+                <span>&rarr;</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Seletores de Tamanho Ágeis (Pill Selectors - Benchmark Gymshark) -->
+          <div class="pt-6 border-t border-stuw-border dark:border-stuw-borderDark space-y-3">
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs font-semibold uppercase tracking-[0.2em] text-stuw-obsidian dark:text-stuw-canvas">Pílulas de Seleção Rápida de Tamanho</span>
+              <span class="text-xs text-stuw-slate font-light">Tamanho selecionado: <strong id="selectedSizeLabel" class="text-stuw-obsidian dark:text-stuw-canvas">M</strong></span>
+            </div>
+
+            <div class="flex flex-wrap gap-2.5">
+              <button onclick="selectSize('PP')" class="size-pill w-12 h-12 rounded-xl border border-stuw-border dark:border-stuw-borderDark bg-stuw-canvas dark:bg-stone-900 text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas hover:border-stuw-obsidian silk-transition haptic-press">PP</button>
+              <button onclick="selectSize('P')" class="size-pill w-12 h-12 rounded-xl border border-stuw-border dark:border-stuw-borderDark bg-stuw-canvas dark:bg-stone-900 text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas hover:border-stuw-obsidian silk-transition haptic-press">P</button>
+              <button onclick="selectSize('M')" class="size-pill w-12 h-12 rounded-xl border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs font-semibold silk-transition haptic-press shadow-sm">M</button>
+              <button onclick="selectSize('G')" class="size-pill w-12 h-12 rounded-xl border border-stuw-border dark:border-stuw-borderDark bg-stuw-canvas dark:bg-stone-900 text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas hover:border-stuw-obsidian silk-transition haptic-press">G</button>
+              <button onclick="selectSize('GG')" class="size-pill w-12 h-12 rounded-xl border border-stuw-border dark:border-stuw-borderDark bg-stuw-canvas dark:bg-stone-900 text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas hover:border-stuw-obsidian silk-transition haptic-press">GG</button>
+              <div class="flex items-center pl-3 text-[11px] text-stuw-slate font-light">
+                <span class="w-1.5 h-1.5 rounded-full bg-stuw-verified mr-1.5"></span>
+                <span>Caimento anatômico fiel à tabela brasileira</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Badges & Tags de Identificação Nobre -->
+        <div class="glass-panel p-6 rounded-2xl shadow-luxury-sm space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stuw-sage">Badges de Especificação e Coleção</p>
+          <div class="flex flex-wrap gap-3">
+            <span class="px-3.5 py-1.5 rounded-full bg-stuw-obsidian text-stuw-canvas text-[10px] uppercase tracking-[0.2em] font-semibold">
+              Edição Limitada 2026
+            </span>
+            <span class="px-3.5 py-1.5 rounded-full bg-stuw-sage/15 text-stuw-sage text-[10px] uppercase tracking-[0.2em] font-bold">
+              Toque SilkAir™ 0.08mm
+            </span>
+            <span class="px-3.5 py-1.5 rounded-full bg-stuw-champagne/20 text-[#856b53] dark:text-amber-200 text-[10px] uppercase tracking-[0.2em] font-bold">
+              ★ Best-Seller Studio
+            </span>
+            <span class="px-3.5 py-1.5 rounded-full bg-stuw-sand dark:bg-stone-800 text-stuw-obsidian dark:text-stuw-canvas border border-stuw-border dark:border-stuw-borderDark text-[10px] uppercase tracking-[0.2em] font-semibold">
+              Zero Transparência Garantida
+            </span>
+            <span class="px-3.5 py-1.5 rounded-full bg-stuw-verified/15 text-stuw-verified text-[10px] uppercase tracking-[0.2em] font-bold flex items-center gap-1.5">
+              <span>✓</span> <span>OEKO-TEX Standard 100</span>
+            </span>
+            <span class="px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-[10px] uppercase tracking-[0.2em] font-bold">
+              Proteção UV 50+ Solar
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7: INDICADORES SENSORIAIS & COMPRESSÃO (LULULEMON / ON) -->
+      <section id="sensorial" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 07</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Indicadores Sensoriais de Compressão & Toque</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Transparência técnica absoluta para a cliente</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Medidor de Compressão Interativo (Lululemon Benchmark) -->
+          <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-luxury-sm space-y-6">
+            <div class="flex justify-between items-baseline">
+              <div>
+                <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-semibold">Medidor Sensorial</span>
+                <h3 class="font-serif text-2xl text-stuw-obsidian dark:text-stuw-canvas mt-0.5">Nível de Compressão Corporal</h3>
+              </div>
+              <span id="compressionValueBadge" class="text-xs font-bold text-stuw-sage uppercase tracking-wider bg-stuw-sage/10 px-3 py-1 rounded-full">
+                Nível 3 &bull; Compressão Modeladora
+              </span>
+            </div>
+
+            <!-- Seletor do Nível de 1 a 4 -->
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="setCompression(1)" class="comp-btn p-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center silk-transition hover:border-stuw-obsidian">
+                <span class="block text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">1</span>
+                <span class="text-[10px] text-stuw-slate">Segunda Pele</span>
+              </button>
+              <button onclick="setCompression(2)" class="comp-btn p-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center silk-transition hover:border-stuw-obsidian">
+                <span class="block text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">2</span>
+                <span class="text-[10px] text-stuw-slate">Suave / Yoga</span>
+              </button>
+              <button onclick="setCompression(3)" class="comp-btn p-3 rounded-xl border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-center silk-transition">
+                <span class="block text-xs font-bold">3</span>
+                <span class="text-[10px]">Modeladora</span>
+              </button>
+              <button onclick="setCompression(4)" class="comp-btn p-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center silk-transition hover:border-stuw-obsidian">
+                <span class="block text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">4</span>
+                <span class="text-[10px] text-stuw-slate">Sculpt Extremo</span>
+              </button>
+            </div>
+
+            <!-- Barra Visual de Graduação -->
+            <div class="space-y-2">
+              <div class="w-full bg-stuw-sand dark:bg-stone-800 h-2.5 rounded-full overflow-hidden p-0.5">
+                <div id="compressionMeterBar" class="h-full bg-gradient-to-r from-stuw-champagne via-stuw-sage to-stuw-obsidian rounded-full silk-transition" style="width: 75%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stuw-slate font-mono">
+                <span>Relaxamento Total</span>
+                <span>Hiper Sustentação</span>
+              </div>
+            </div>
+
+            <p id="compressionDesc" class="text-xs text-stuw-obsidian/70 dark:text-stone-300 font-light leading-relaxed bg-stuw-canvas dark:bg-stone-900 p-4 rounded-xl border border-stuw-border dark:border-stuw-borderDark">
+              <strong>Nível 3 (Modeladora):</strong> Ideal para pilates dinâmico, musculação e corridas leves. Cós anatômico duplo que segura o abdômen sem enrolar durante o movimento.
+            </p>
+          </div>
+
+          <!-- Matriz das 4 Fibras Assinatura STUW -->
+          <div class="glass-panel p-6 sm:p-8 rounded-2xl shadow-luxury-sm space-y-4">
+            <div>
+              <span class="text-[10px] uppercase tracking-widest text-stuw-sage font-semibold">Tecnologia Têxtil</span>
+              <h3 class="font-serif text-2xl text-stuw-obsidian dark:text-stuw-canvas mt-0.5">As 4 Fibras Exclusivas</h3>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3.5 rounded-xl bg-stuw-canvas dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex justify-between items-center">
+                <div>
+                  <div class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">SilkAir™ (0.08mm)</div>
+                  <div class="text-[11px] text-stuw-slate font-light">Toque de seda pura, secagem em 12min, peso pluma.</div>
+                </div>
+                <span class="text-xs font-serif italic text-stuw-sage font-medium">Studio / Yoga</span>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-stuw-canvas dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex justify-between items-center">
+                <div>
+                  <div class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">SculptHold™ (240 GSM)</div>
+                  <div class="text-[11px] text-stuw-slate font-light">Alta densidade anatômica com zero transparência comprovada.</div>
+                </div>
+                <span class="text-xs font-serif italic text-stuw-sage font-medium">Performance</span>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-stuw-canvas dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex justify-between items-center">
+                <div>
+                  <div class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">VelvetNulu™ (Toque Pêssego)</div>
+                  <div class="text-[11px] text-stuw-slate font-light">Acabamento aveludado mate com maciez incomparável.</div>
+                </div>
+                <span class="text-xs font-serif italic text-stuw-sage font-medium">All Day Comfort</span>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-stuw-canvas dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex justify-between items-center">
+                <div>
+                  <div class="text-xs font-bold text-stuw-obsidian dark:text-stuw-canvas">ShieldAir™ (Térmico & UV50+)</div>
+                  <div class="text-[11px] text-stuw-slate font-light">Corta-vento repelente à água com forro respirável.</div>
+                </div>
+                <span class="text-xs font-serif italic text-stuw-sage font-medium">Street & Travel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8: HUB DE CONFIANÇA & SEGURANÇA FEMININA -->
+      <section id="seguranca" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-verified font-semibold">Seção 08 &bull; Pilar Crítico</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Hub de Confiança & Segurança da Mulher</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Selos e garantias que eliminam qualquer incerteza na compra</span>
+        </div>
+
+        <!-- Painel de Garantias e Segurança -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Selo 1: Criptografia Bancária -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-3">
+            <div class="w-10 h-10 rounded-full bg-stuw-verifiedLight dark:bg-emerald-950/60 flex items-center justify-center text-stuw-verified">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h3 class="font-bold text-sm text-stuw-obsidian dark:text-stuw-canvas">Criptografia 256-Bit SSL</h3>
+            <p class="text-xs text-stuw-slate font-light leading-relaxed">
+              Gateway com certificação PCI-DSS Level 1. Seus dados de cartão nunca são armazenados em servidores abertos.
+            </p>
+            <span class="inline-block text-[10px] text-stuw-verified font-semibold uppercase tracking-wider">Transação Protegida</span>
+          </div>
+
+          <!-- Selo 2: Primeira Troca Grátis 30 Dias -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-3">
+            <div class="w-10 h-10 rounded-full bg-stuw-champagneLight dark:bg-amber-950/60 flex items-center justify-center text-stuw-champagne">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </div>
+            <h3 class="font-bold text-sm text-stuw-obsidian dark:text-stuw-canvas">Primeira Troca Cortesia</h3>
+            <p class="text-xs text-stuw-slate font-light leading-relaxed">
+              30 dias corridos para experimentar com calma no conforto da sua casa. Logística reversa coletada em domicílio.
+            </p>
+            <span class="inline-block text-[10px] text-stuw-champagne font-semibold uppercase tracking-wider">Zero Burocracia</span>
+          </div>
+
+          <!-- Selo 3: Fibras Hipoalergênicas Oeko-Tex -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-3">
+            <div class="w-10 h-10 rounded-full bg-stuw-sageLight dark:bg-stone-800 flex items-center justify-center text-stuw-sage">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <h3 class="font-bold text-sm text-stuw-obsidian dark:text-stuw-canvas">OEKO-TEX® Standard 100</h3>
+            <p class="text-xs text-stuw-slate font-light leading-relaxed">
+              Certificação internacional de que o tecido é livre de produtos químicos agressivos, sendo 100% seguro para a pele íntima.
+            </p>
+            <span class="inline-block text-[10px] text-stuw-sage font-semibold uppercase tracking-wider">Segurança Dermatológica</span>
+          </div>
+
+          <!-- Selo 4: Concierge VIP & WhatsApp Humanizado -->
+          <div class="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark shadow-luxury-sm space-y-3">
+            <div class="w-10 h-10 rounded-full bg-stuw-sand dark:bg-stone-800 flex items-center justify-center text-stuw-obsidian dark:text-stuw-canvas">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            </div>
+            <h3 class="font-bold text-sm text-stuw-obsidian dark:text-stuw-canvas">Concierge VIP Stuw</h3>
+            <p class="text-xs text-stuw-slate font-light leading-relaxed">
+              Atendimento exclusivo com consultoras de estilo em São Paulo para orientações personalizadas de fit e combinações.
+            </p>
+            <span class="inline-block text-[10px] text-stuw-obsidian dark:text-stuw-canvas font-semibold uppercase tracking-wider">Atendimento Humano</span>
+          </div>
+        </div>
+
+        <!-- Faixa de Transparência de Dados & Privacidade -->
+        <div class="p-6 rounded-2xl bg-stuw-sand/60 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🔒</span>
+            <div class="text-xs">
+              <strong class="text-stuw-obsidian dark:text-stuw-canvas block font-semibold">Privacidade Silenciosa: Seus Dados São Sagrados</strong>
+              <span class="text-stuw-slate font-light">Nunca compartilhamos seu histórico com redes de anúncios invasivos. Apenas notificações de lançamentos que você solicitar.</span>
+            </div>
+          </div>
+          <button class="shrink-0 px-4 py-2 text-xs rounded-full border border-stuw-border dark:border-stuw-borderDark hover:bg-white dark:hover:bg-stone-800 silk-transition text-stuw-obsidian dark:text-stuw-canvas font-medium">
+            Ver Política de Privacidade Completa
+          </button>
+        </div>
+      </section>
+
+      <!-- SECTION 9: PADRÕES DE E-COMMERCE (CARDS 3:4 & SWATCHES) -->
+      <section id="ecommerce" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 09</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Componentes de E-Commerce: O Card Editorial 3:4</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Alternância de ângulo, swatches ao vivo e quick-add</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Card de Produto Interativo 1 -->
+          <div class="glass-panel rounded-2xl p-4 shadow-luxury-sm hover:shadow-luxury-lg silk-transition group flex flex-col justify-between relative">
+            <div class="relative aspect-[3/4] bg-stuw-sand/60 dark:bg-stone-900 rounded-xl overflow-hidden mb-4 border border-stuw-border/60 dark:border-stuw-borderDark flex items-center justify-center p-6">
+              
+              <!-- Badges de Topo -->
+              <span class="absolute top-3 left-3 bg-stuw-obsidian text-stuw-canvas text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-10">
+                Alta Compressão
+              </span>
+              <span class="absolute top-3 right-3 bg-white/90 dark:bg-stone-800/90 text-stuw-obsidian dark:text-stuw-canvas text-[10px] font-serif italic px-2 py-0.5 rounded-full z-10">
+                SilkAir™
+              </span>
+
+              <!-- Mockup Visual Dinâmico com Troca de Cor -->
+              <div id="demoCard1Visual" class="w-full h-full flex flex-col items-center justify-center text-center silk-transition">
+                <div id="demoCard1Circle" class="w-28 h-28 rounded-full bg-[#131413] flex items-center justify-center text-white text-3xl font-serif italic shadow-luxury-md group-hover:scale-105 silk-transition">
+                  S
+                </div>
+                <span class="text-[11px] text-stuw-slate uppercase tracking-wider mt-4">Passe o mouse para ângulo dorsal</span>
+              </div>
+
+              <!-- Quick Add Drawer Flutuante -->
+              <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 silk-transition">
+                <button onclick="addToBag('Legging Sculpt Pure Waist', 480)" class="w-full py-3 bg-stuw-obsidian/95 dark:bg-white/95 text-white dark:text-stuw-obsidian backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-widest hover:bg-stuw-sage silk-transition shadow-luxury-md">
+                  + Adicionar Rápido (R$ 480)
+                </button>
+              </div>
+            </div>
+
+            <!-- Informações & Swatches de Cor -->
+            <div class="space-y-2 pt-1">
+              <div class="flex items-center space-x-2">
+                <button onclick="changeDemoColor('demoCard1Circle', '#131413', 'demoCard1Label', 'Obsidian Black')" class="w-4 h-4 rounded-full bg-[#131413] ring-2 ring-offset-2 ring-stuw-obsidian dark:ring-offset-stone-900"></button>
+                <button onclick="changeDemoColor('demoCard1Circle', '#586255', 'demoCard1Label', 'Sage Botanical')" class="w-4 h-4 rounded-full bg-[#586255] hover:scale-110 silk-transition"></button>
+                <button onclick="changeDemoColor('demoCard1Circle', '#B8A28E', 'demoCard1Label', 'Cashmere Dune')" class="w-4 h-4 rounded-full bg-[#B8A28E] hover:scale-110 silk-transition"></button>
+                <span id="demoCard1Label" class="text-[11px] text-stuw-slate font-medium pl-1">Obsidian Black</span>
+              </div>
+
+              <div class="flex justify-between items-baseline pt-1">
+                <h3 class="font-medium text-sm text-stuw-obsidian dark:text-stuw-canvas">Legging Sculpt Pure Waist</h3>
+                <span class="text-sm font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ 480,00</span>
+              </div>
+              <p class="text-xs text-stuw-slate font-light">Cós anatômico duplo &bull; Efeito esculpido &bull; Zero transparência</p>
+            </div>
+          </div>
+
+          <!-- Card de Produto Interativo 2 -->
+          <div class="glass-panel rounded-2xl p-4 shadow-luxury-sm hover:shadow-luxury-lg silk-transition group flex flex-col justify-between relative">
+            <div class="relative aspect-[3/4] bg-stuw-sand/60 dark:bg-stone-900 rounded-xl overflow-hidden mb-4 border border-stuw-border/60 dark:border-stuw-borderDark flex items-center justify-center p-6">
+              
+              <span class="absolute top-3 left-3 bg-stuw-sage text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-10">
+                Toque Nulu
+              </span>
+              <span class="absolute top-3 right-3 bg-white/90 dark:bg-stone-800/90 text-stuw-obsidian dark:text-stuw-canvas text-[10px] font-serif italic px-2 py-0.5 rounded-full z-10">
+                Sustentação Média
+              </span>
+
+              <div id="demoCard2Visual" class="w-full h-full flex flex-col items-center justify-center text-center silk-transition">
+                <div id="demoCard2Circle" class="w-28 h-28 rounded-full bg-[#586255] flex items-center justify-center text-white text-3xl font-serif italic shadow-luxury-md group-hover:scale-105 silk-transition">
+                  T
+                </div>
+                <span class="text-[11px] text-stuw-slate uppercase tracking-wider mt-4">Alças ultrafinas antialérgicas</span>
+              </div>
+
+              <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 silk-transition">
+                <button onclick="addToBag('Top Halter Neck Studio', 320)" class="w-full py-3 bg-stuw-obsidian/95 dark:bg-white/95 text-white dark:text-stuw-obsidian backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-widest hover:bg-stuw-sage silk-transition shadow-luxury-md">
+                  + Adicionar Rápido (R$ 320)
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <div class="flex items-center space-x-2">
+                <button onclick="changeDemoColor('demoCard2Circle', '#586255', 'demoCard2Label', 'Sage Botanical')" class="w-4 h-4 rounded-full bg-[#586255] ring-2 ring-offset-2 ring-stuw-sage dark:ring-offset-stone-900"></button>
+                <button onclick="changeDemoColor('demoCard2Circle', '#131413', 'demoCard2Label', 'Obsidian Black')" class="w-4 h-4 rounded-full bg-[#131413] hover:scale-110 silk-transition"></button>
+                <span id="demoCard2Label" class="text-[11px] text-stuw-slate font-medium pl-1">Sage Botanical</span>
+              </div>
+
+              <div class="flex justify-between items-baseline pt-1">
+                <h3 class="font-medium text-sm text-stuw-obsidian dark:text-stuw-canvas">Top Halter Neck Studio</h3>
+                <span class="text-sm font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ 320,00</span>
+              </div>
+              <p class="text-xs text-stuw-slate font-light">Costura selada a laser &bull; Bojo removível transpirável</p>
+            </div>
+          </div>
+
+          <!-- Card de Produto Interativo 3 -->
+          <div class="glass-panel rounded-2xl p-4 shadow-luxury-sm hover:shadow-luxury-lg silk-transition group flex flex-col justify-between relative">
+            <div class="relative aspect-[3/4] bg-stuw-sand/60 dark:bg-stone-900 rounded-xl overflow-hidden mb-4 border border-stuw-border/60 dark:border-stuw-borderDark flex items-center justify-center p-6">
+              
+              <span class="absolute top-3 left-3 bg-stuw-champagne text-stuw-obsidian text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-10">
+                Studio-to-Street
+              </span>
+              <span class="absolute top-3 right-3 bg-white/90 dark:bg-stone-800/90 text-stuw-obsidian dark:text-stuw-canvas text-[10px] font-serif italic px-2 py-0.5 rounded-full z-10">
+                ShieldAir™
+              </span>
+
+              <div id="demoCard3Visual" class="w-full h-full flex flex-col items-center justify-center text-center silk-transition">
+                <div id="demoCard3Circle" class="w-28 h-28 rounded-full bg-[#B8A28E] flex items-center justify-center text-stuw-obsidian text-3xl font-serif italic shadow-luxury-md group-hover:scale-105 silk-transition">
+                  J
+                </div>
+                <span class="text-[11px] text-stuw-slate uppercase tracking-wider mt-4">Alfaiataria esportiva térmica</span>
+              </div>
+
+              <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transform translate-y-3 group-hover:translate-y-0 silk-transition">
+                <button onclick="addToBag('Jaqueta Bomber FeatherTouch', 790)" class="w-full py-3 bg-stuw-obsidian/95 dark:bg-white/95 text-white dark:text-stuw-obsidian backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-widest hover:bg-stuw-sage silk-transition shadow-luxury-md">
+                  + Adicionar Rápido (R$ 790)
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <div class="flex items-center space-x-2">
+                <button onclick="changeDemoColor('demoCard3Circle', '#B8A28E', 'demoCard3Label', 'Cashmere Dune')" class="w-4 h-4 rounded-full bg-[#B8A28E] ring-2 ring-offset-2 ring-stuw-champagne dark:ring-offset-stone-900"></button>
+                <button onclick="changeDemoColor('demoCard3Circle', '#131413', 'demoCard3Label', 'Obsidian Black')" class="w-4 h-4 rounded-full bg-[#131413] hover:scale-110 silk-transition"></button>
+                <span id="demoCard3Label" class="text-[11px] text-stuw-slate font-medium pl-1">Cashmere Dune</span>
+              </div>
+
+              <div class="flex justify-between items-baseline pt-1">
+                <h3 class="font-medium text-sm text-stuw-obsidian dark:text-stuw-canvas">Jaqueta Bomber FeatherTouch</h3>
+                <span class="text-sm font-semibold text-stuw-obsidian dark:text-stuw-canvas">R$ 790,00</span>
+              </div>
+              <p class="text-xs text-stuw-slate font-light">Corta-vento ultraleve &bull; Zíper selado &bull; Proteção solar UV50+</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 10: PROVADOR INTELIGENTE (BIOTIPO 3D) -->
+      <section id="provador" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 10</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Provador Virtual Inteligente de Biotipo</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Recomendação personalizada para eliminar devoluções e insegurança</span>
+        </div>
+
+        <div class="glass-panel p-6 sm:p-10 rounded-3xl shadow-luxury-md max-w-4xl mx-auto space-y-8">
+          <div class="text-center max-w-xl mx-auto space-y-2">
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Precisão Antropométrica</span>
+            <h3 class="text-2xl font-serif text-stuw-obsidian dark:text-stuw-canvas">Descubra seu Tamanho Exato em 10 Segundos</h3>
+            <p class="text-xs text-stuw-slate font-light">Com base nas curvas de elasticidade do tecido italiano e na sua preferência de ajuste.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <!-- Altura -->
+            <div class="space-y-2">
+              <label for="inputAltura" class="text-xs font-semibold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas block">Altura (cm)</label>
+              <input type="number" id="inputAltura" value="168" oninput="calculateSize()" class="w-full bg-stuw-sand/70 dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark rounded-xl px-4 py-3 text-sm text-stuw-obsidian dark:text-stuw-canvas focus:outline-none focus:ring-1 focus:ring-stuw-obsidian">
+            </div>
+
+            <!-- Peso -->
+            <div class="space-y-2">
+              <label for="inputPeso" class="text-xs font-semibold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas block">Peso (kg)</label>
+              <input type="number" id="inputPeso" value="62" oninput="calculateSize()" class="w-full bg-stuw-sand/70 dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark rounded-xl px-4 py-3 text-sm text-stuw-obsidian dark:text-stuw-canvas focus:outline-none focus:ring-1 focus:ring-stuw-obsidian">
+            </div>
+
+            <!-- Preferência de Ajuste -->
+            <div class="space-y-2">
+              <label for="selectFit" class="text-xs font-semibold uppercase tracking-wider text-stuw-obsidian dark:text-stuw-canvas block">Ajuste Desejado</label>
+              <select id="selectFit" onchange="calculateSize()" class="w-full bg-stuw-sand/70 dark:bg-stone-800 border border-stuw-border dark:border-stuw-borderDark rounded-xl px-4 py-3 text-sm text-stuw-obsidian dark:text-stuw-canvas focus:outline-none focus:ring-1 focus:ring-stuw-obsidian cursor-pointer">
+                <option value="modelador">Compressão Alta (Modeladora)</option>
+                <option value="confortavel">Conforto Natural (Studio)</option>
+                <option value="relaxado">Solto / Casual Lounge</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Resultado do Provador -->
+          <div class="p-6 rounded-2xl bg-stuw-canvas dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="space-y-1 text-center sm:text-left">
+              <span class="text-[10px] uppercase tracking-widest text-stuw-verified font-bold flex items-center gap-1.5 justify-center sm:justify-start">
+                <span class="w-2 h-2 rounded-full bg-stuw-verified"></span> Recomendação Calculada
+              </span>
+              <h4 class="text-xl font-serif text-stuw-obsidian dark:text-stuw-canvas">
+                Seu tamanho recomendado é <span id="provadorResultadoTamanho" class="text-2xl font-bold text-stuw-obsidian dark:text-stuw-canvas font-sans underline decoration-stuw-sage">M</span>
+              </h4>
+              <p id="provadorResultadoExplicacao" class="text-xs text-stuw-slate font-light">
+                Com base em 168cm e 62kg, o tamanho M oferece sustentação de 240 GSM com compressão ideal sem marcas na cintura.
+              </p>
+            </div>
+
+            <button onclick="showToast('Tamanho M pré-selecionado na sua conta')" class="shrink-0 px-6 py-3.5 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs uppercase tracking-widest font-semibold hover:bg-stuw-sage silk-transition haptic-press">
+              Fixar Meu Tamanho
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 11: SNIPPETS DE CÓDIGO & EXPORT PRONTO -->
+      <section id="codigo" class="space-y-8 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-stuw-border dark:border-stuw-borderDark pb-4 gap-2">
+          <div>
+            <span class="text-xs uppercase tracking-[0.25em] text-stuw-sage font-semibold">Seção 11</span>
+            <h2 class="text-3xl font-serif text-stuw-obsidian dark:text-stuw-canvas mt-1">Exportação de Código & Classes Prontas</h2>
+          </div>
+          <span class="text-xs text-stuw-slate font-light">Copie e cole diretamente no seu projeto Next.js / Tailwind</span>
+        </div>
+
+        <div class="glass-panel rounded-2xl overflow-hidden shadow-luxury-sm">
+          <!-- Abas de Código -->
+          <div class="flex border-b border-stuw-border dark:border-stuw-borderDark bg-stuw-sand/40 dark:bg-stone-800/40 text-xs font-semibold uppercase tracking-wider">
+            <button onclick="switchTab('tabTailwind')" id="btnTabTailwind" class="tab-btn py-3 px-6 border-b-2 border-stuw-obsidian dark:border-stuw-canvas text-stuw-obsidian dark:text-stuw-canvas silk-transition">
+              Tailwind Config
+            </button>
+            <button onclick="switchTab('tabCSS')" id="btnTabCSS" class="tab-btn py-3 px-6 border-b-2 border-transparent text-stuw-slate hover:text-stuw-obsidian silk-transition">
+              CSS Variables & Motion
+            </button>
+            <button onclick="switchTab('tabCardHTML')" id="btnTabCardHTML" class="tab-btn py-3 px-6 border-b-2 border-transparent text-stuw-slate hover:text-stuw-obsidian silk-transition">
+              HTML Card 3:4
+            </button>
+          </div>
+
+          <!-- Conteúdo Aba 1: Tailwind Config -->
+          <div id="tabTailwind" class="p-6 bg-stuw-obsidian text-stone-300 relative">
+            <button onclick="copySnippet('snippetTailwind')" class="absolute top-4 right-4 text-xs font-mono uppercase tracking-wider bg-stone-800 hover:bg-stone-700 text-stone-200 px-3 py-1.5 rounded-lg silk-transition border border-stone-700">
+              Copiar Config
+            </button>
+            <pre><code id="snippetTailwind">// tailwind.config.js - STUW Design System 2026
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        stuw: {
+          obsidian: '#131413',      // Preto Mineral Nobre
+          canvas: '#FBF9F5',        // Cloud Silk Off-White
+          sand: '#EFECE5',          // Warm Sandstone
+          sage: '#586255',          // Verde Sálvia Botânico
+          champagne: '#B8A28E',     // Cashmere Bronze
+          border: '#E5E0D7',        // Stone Contour 1px
+          verified: '#2D6A4F'       // Selo de Segurança & Confiança
+        }
+      },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+        sans: ['Plus Jakarta Sans', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
+      },
+      transitionTimingFunction: {
+        silk: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      }
+    }
+  }
+}</code></pre>
+          </div>
+
+          <!-- Conteúdo Aba 2: CSS Variables -->
+          <div id="tabCSS" class="p-6 bg-stuw-obsidian text-stone-300 relative hidden">
+            <button onclick="copySnippet('snippetCSS')" class="absolute top-4 right-4 text-xs font-mono uppercase tracking-wider bg-stone-800 hover:bg-stone-700 text-stone-200 px-3 py-1.5 rounded-lg silk-transition border border-stone-700">
+              Copiar CSS
+            </button>
+            <pre><code id="snippetCSS">/* STUW Design Tokens & Motion Physics */
+:root {
+  --stuw-obsidian: #131413;
+  --stuw-canvas: #FBF9F5;
+  --stuw-sand: #EFECE5;
+  --stuw-sage: #586255;
+  --stuw-champagne: #B8A28E;
+  --stuw-border: #E5E0D7;
+  --ease-silk: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.silk-transition {
+  transition: all 400ms var(--ease-silk);
+}
+
+.glass-panel {
+  backdrop-filter: blur(20px) saturate(180%);
+  background-color: rgba(251, 249, 245, 0.85);
+  border: 1px solid rgba(229, 224, 215, 0.8);
+}</code></pre>
+          </div>
+
+          <!-- Conteúdo Aba 3: HTML Card 3:4 -->
+          <div id="tabCardHTML" class="p-6 bg-stuw-obsidian text-stone-300 relative hidden">
+            <button onclick="copySnippet('snippetCardHTML')" class="absolute top-4 right-4 text-xs font-mono uppercase tracking-wider bg-stone-800 hover:bg-stone-700 text-stone-200 px-3 py-1.5 rounded-lg silk-transition border border-stone-700">
+              Copiar HTML
+            </button>
+            <pre><code id="snippetCardHTML">&lt;div class="group relative rounded-2xl p-4 bg-white border border-[#E5E0D7] shadow-sm hover:shadow-xl transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]"&gt;
+  &lt;div class="relative aspect-[3/4] bg-[#FBF9F5] rounded-xl overflow-hidden mb-4"&gt;
+    &lt;span class="absolute top-3 left-3 bg-[#131413] text-white text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full"&gt;
+      Alta Compressão
+    &lt;/span&gt;
+    &lt;button class="absolute bottom-3 left-3 right-3 py-3 bg-[#131413]/90 text-white rounded-full text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300"&gt;
+      + Adicionar Rápido
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;h3 class="font-medium text-sm text-[#131413]"&gt;Legging Sculpt Pure Waist&lt;/h3&gt;
+  &lt;p class="text-xs text-[#131413]/60 font-light"&gt;Cós anatômico duplo &bull; Zero transparência&lt;/p&gt;
+  &lt;span class="text-sm font-semibold text-[#131413] block mt-1"&gt;R$ 480,00&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- INTERACTIVE SIDE-CART DRAWER COMPONENT (BENCHMARK GYMSHARK & ALO) -->
+  <div id="sideCartDrawer" class="fixed inset-0 z-50 bg-stuw-obsidian/50 backdrop-blur-sm hidden silk-transition" onclick="handleDrawerBackdropClick(event)">
+    <div id="sideCartPanel" class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-stuw-canvas dark:bg-[#141513] shadow-2xl p-6 sm:p-8 flex flex-col justify-between border-l border-stuw-border dark:border-stuw-borderDark silk-transition">
+      
+      <!-- Topo do Carrinho -->
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-stuw-border dark:border-stuw-borderDark">
+          <div class="flex items-center gap-2">
+            <span class="font-serif text-2xl text-stuw-obsidian dark:text-stuw-canvas">Sua Sacola Stuw</span>
+            <span id="cartDrawerBadge" class="text-xs bg-stuw-sage/15 text-stuw-sage px-2 py-0.5 rounded-full font-bold">2 Itens</span>
+          </div>
+          <button onclick="toggleSideCart()" class="text-stuw-obsidian dark:text-stuw-canvas text-2xl font-light hover:text-stuw-sage">&times;</button>
+        </div>
+
+        <!-- Barra Dinâmica de Frete Cortesia -->
+        <div class="mt-4 p-4 rounded-xl bg-stuw-sand/70 dark:bg-stone-900 border border-stuw-border dark:border-stuw-borderDark space-y-2">
+          <div class="flex justify-between text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas">
+            <span id="shippingBarStatus">Parabéns! Você tem Frete Cortesia</span>
+            <span id="shippingBarPercent" class="text-stuw-verified font-bold">100%</span>
+          </div>
+          <div class="w-full bg-stuw-border dark:bg-stone-800 h-2 rounded-full overflow-hidden">
+            <div id="shippingProgressBar" class="h-full bg-stuw-verified rounded-full silk-transition" style="width: 100%;"></div>
+          </div>
+          <p class="text-[10px] text-stuw-slate font-light">Envio expresso para todo o Brasil com embalagem perfumada sustentável.</p>
+        </div>
+
+        <!-- Lista de Produtos no Carrinho -->
+        <div id="cartItemList" class="mt-6 space-y-4 max-h-[40vh] overflow-y-auto pr-1">
+          <!-- Item 1 -->
+          <div class="flex gap-4 p-3 bg-white dark:bg-stone-900 rounded-xl border border-stuw-border dark:border-stuw-borderDark">
+            <div class="w-16 h-20 bg-stuw-obsidian rounded-lg flex items-center justify-center text-white font-serif italic text-xl">S</div>
+            <div class="flex-1 text-xs space-y-1">
+              <div class="flex justify-between">
+                <h4 class="font-bold text-stuw-obsidian dark:text-stuw-canvas">Legging Sculpt Pure Waist</h4>
+                <button onclick="removeCartItem(0)" class="text-stuw-slate hover:text-red-500 text-xs">&times;</button>
+              </div>
+              <p class="text-stuw-slate">Obsidian Black &bull; Tam: M</p>
+              <div class="flex justify-between items-center pt-2">
+                <span class="font-semibold text-sm text-stuw-obsidian dark:text-stuw-canvas">R$ 480,00</span>
+                <span class="text-[10px] text-stuw-sage uppercase font-bold tracking-wider">Qtd: 1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="flex gap-4 p-3 bg-white dark:bg-stone-900 rounded-xl border border-stuw-border dark:border-stuw-borderDark">
+            <div class="w-16 h-20 bg-stuw-sage rounded-lg flex items-center justify-center text-white font-serif italic text-xl">T</div>
+            <div class="flex-1 text-xs space-y-1">
+              <div class="flex justify-between">
+                <h4 class="font-bold text-stuw-obsidian dark:text-stuw-canvas">Top Halter Neck Studio</h4>
+                <button onclick="removeCartItem(1)" class="text-stuw-slate hover:text-red-500 text-xs">&times;</button>
+              </div>
+              <p class="text-stuw-slate">Sage Botanical &bull; Tam: M</p>
+              <div class="flex justify-between items-center pt-2">
+                <span class="font-semibold text-sm text-stuw-obsidian dark:text-stuw-canvas">R$ 320,00</span>
+                <span class="text-[10px] text-stuw-sage uppercase font-bold tracking-wider">Qtd: 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé do Carrinho com Selos de Segurança -->
+      <div class="border-t border-stuw-border dark:border-stuw-borderDark pt-4 space-y-4">
+        <div class="space-y-1.5 text-xs">
+          <div class="flex justify-between text-stuw-slate">
+            <span>Subtotal</span>
+            <span id="cartDrawerSubtotal" class="text-stuw-obsidian dark:text-stuw-canvas font-semibold">R$ 800,00</span>
+          </div>
+          <div class="flex justify-between text-stuw-slate">
+            <span>Frete Expresso Cortesia</span>
+            <span class="text-stuw-verified font-bold">GRÁTIS</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold text-stuw-obsidian dark:text-stuw-canvas pt-2 border-t border-stuw-border/50">
+            <span>Total Estimado</span>
+            <span id="cartDrawerTotal">R$ 800,00</span>
+          </div>
+        </div>
+
+        <button onclick="checkoutSimulation()" class="w-full py-4 rounded-full bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs uppercase tracking-[0.2em] font-semibold hover:bg-stuw-sage silk-transition shadow-luxury-md haptic-press">
+          Finalizar Compra 100% Segura
+        </button>
+
+        <!-- Selos de Confiança Embutidos no Rodapé -->
+        <div class="flex items-center justify-center gap-4 text-[10px] text-stuw-slate pt-1">
+          <span class="flex items-center gap-1">🔒 SSL 256-Bit</span>
+          <span>&bull;</span>
+          <span class="flex items-center gap-1">🔄 Troca 30D Grátis</span>
+          <span>&bull;</span>
+          <span class="flex items-center gap-1">🌿 Oeko-Tex 100</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notification Toast Flutuante -->
+  <div id="stuwToast" class="fixed bottom-6 right-6 z-50 bg-stuw-obsidian text-stuw-canvas dark:bg-white dark:text-stuw-obsidian px-5 py-3.5 rounded-full text-xs tracking-wider uppercase font-semibold shadow-luxury-lg opacity-0 pointer-events-none silk-transition flex items-center gap-3">
+    <span class="w-2 h-2 rounded-full bg-stuw-sage"></span>
+    <span id="stuwToastMsg">Item adicionado com sucesso</span>
+  </div>
+
+  <!-- Footer com Identidade e Copyright -->
+  <footer class="bg-stuw-obsidian text-stuw-canvas dark:bg-[#0e0f0d] py-16 px-6 lg:px-12 border-t border-stone-800">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-xs text-stone-400">
+      <div class="text-center md:text-left space-y-2">
+        <span class="text-3xl font-light font-serif tracking-[0.3em] uppercase text-stuw-canvas">STUW</span>
+        <p class="font-light text-[11px] text-stone-400 max-w-sm">
+          A fusão entre a engenharia biomecânica suíça, a estética editorial de estúdio e a ciência sensorial do toque. Feita para a mulher de alto padrão.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-8 text-[11px] uppercase tracking-widest">
+        <a href="#manifesto" class="hover:text-stuw-canvas silk-transition">Visão</a>
+        <a href="#cores" class="hover:text-stuw-canvas silk-transition">Cores</a>
+        <a href="#tipografia" class="hover:text-stuw-canvas silk-transition">Tipografia</a>
+        <a href="#sensorial" class="hover:text-stuw-canvas silk-transition">Sensorial</a>
+        <a href="#seguranca" class="hover:text-stuw-canvas silk-transition">Segurança</a>
+        <a href="#codigo" class="hover:text-stuw-canvas silk-transition">Código</a>
+      </div>
+
+      <div class="text-[11px] text-stone-400 text-center md:text-right font-light">
+        STUW Activewear &bull; Todos os direitos reservados &copy; 2026<br>
+        <span class="text-stuw-champagne">Quiet Luxury Digital System v1.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactivity Scripts -->
+  <script>
+    // State Store
+    let cartItems = [
+      { title: 'Legging Sculpt Pure Waist', price: 480, color: 'Obsidian Black', size: 'M' },
+      { title: 'Top Halter Neck Studio', price: 320, color: 'Sage Botanical', size: 'M' }
+    ];
+
+    // Theme Switcher (Studio Light vs Sanctuary Dark)
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      
+      if (isDark) {
+        icon.innerText = '🌙';
+        label.innerText = 'Sanctuary Dark';
+      } else {
+        icon.innerText = '☀️';
+        label.innerText = 'Studio Light';
+      }
+      showToast(`Modo alterado para ${label.innerText}`);
+    }
+
+    // Copy Color with Feedback Toast
+    function copyColor(hex, name) {
+      navigator.clipboard.writeText(hex);
+      showToast(`${name} (${hex}) copiado para a área de transferência!`);
+    }
+
+    // Copy CSS Snippet
+    function copySnippet(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        navigator.clipboard.writeText(el.innerText);
+        showToast('Código copiado com sucesso!');
+      }
+    }
+
+    // Copy All Tokens
+    function copyAllTokens() {
+      const tokens = `:root {
+  --stuw-obsidian: #131413;
+  --stuw-canvas: #FBF9F5;
+  --stuw-sand: #EFECE5;
+  --stuw-sage: #586255;
+  --stuw-champagne: #B8A28E;
+  --stuw-border: #E5E0D7;
+  --ease-silk: cubic-bezier(0.16, 1, 0.3, 1);
+}`;
+      navigator.clipboard.writeText(tokens);
+      showToast('Todos os tokens CSS copiados!');
+    }
+
+    // Live Typography Controls
+    function updateLiveSize(val) {
+      document.getElementById('liveSizeDisplay').innerText = val + 'px';
+      document.getElementById('serifPreview').style.fontSize = val + 'px';
+      document.getElementById('sansPreview').style.fontSize = val + 'px';
+    }
+
+    function updateLiveText(txt) {
+      const textToUse = txt.trim() === '' ? 'A precisão do movimento.' : txt;
+      document.getElementById('serifPreview').innerText = textToUse;
+      document.getElementById('sansPreview').innerText = textToUse;
+    }
+
+    // Accordion Toggle
+    function toggleAccordion(id) {
+      const panel = document.getElementById(id);
+      const icon = document.getElementById(id + 'Icon');
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        if (icon) icon.innerText = '−';
+      } else {
+        panel.classList.add('hidden');
+        if (icon) icon.innerText = '+';
+      }
+    }
+
+    // Size Selection
+    function selectSize(sz) {
+      document.getElementById('selectedSizeLabel').innerText = sz;
+      document.querySelectorAll('.size-pill').forEach(btn => {
+        if (btn.innerText === sz) {
+          btn.className = "size-pill w-12 h-12 rounded-xl border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-xs font-semibold silk-transition haptic-press shadow-sm";
+        } else {
+          btn.className = "size-pill w-12 h-12 rounded-xl border border-stuw-border dark:border-stuw-borderDark bg-stuw-canvas dark:bg-stone-900 text-xs font-semibold text-stuw-obsidian dark:text-stuw-canvas hover:border-stuw-obsidian silk-transition haptic-press";
+        }
+      });
+      showToast(`Tamanho ${sz} selecionado`);
+    }
+
+    // Dynamic Color Swatcher on Cards
+    function changeDemoColor(circleId, hex, labelId, labelText) {
+      const circle = document.getElementById(circleId);
+      const label = document.getElementById(labelId);
+      if (circle) circle.style.backgroundColor = hex;
+      if (label) label.innerText = labelText;
+      showToast(`Cor alterada para ${labelText}`);
+    }
+
+    // Compression Meter
+    function setCompression(level) {
+      const bar = document.getElementById('compressionMeterBar');
+      const badge = document.getElementById('compressionValueBadge');
+      const desc = document.getElementById('compressionDesc');
+      
+      const widths = { 1: '25%', 2: '50%', 3: '75%', 4: '100%' };
+      const labels = {
+        1: 'Nível 1 • Segunda Pele Ultrafina',
+        2: 'Nível 2 • Suave / Mindful Yoga',
+        3: 'Nível 3 • Compressão Modeladora',
+        4: 'Nível 4 • Sculpt Extremo / High-Impact'
+      };
+      const texts = {
+        1: '<strong>Nível 1 (Segunda Pele):</strong> Toque macio como seda (SilkAir™). Ideal para descanso, viagens, meditação e autocuidado.',
+        2: '<strong>Nível 2 (Suave):</strong> Sustentação leve sem apertar. Recomendada para sessões tranquilas de yoga, pilates de solo e alongamento.',
+        3: '<strong>Nível 3 (Modeladora):</strong> Compressão anatômica equilibrada de 240 GSM. Modela a linha da cintura e coxas com liberdade total de movimento.',
+        4: '<strong>Nível 4 (Sculpt Extremo):</strong> Alta engenharia para corrida de rua, HIIT e cross-training. Segura e estabiliza a musculatura reduzindo a fadiga.'
+      };
+
+      bar.style.width = widths[level];
+      badge.innerHTML = labels[level];
+      desc.innerHTML = texts[level];
+
+      document.querySelectorAll('.comp-btn').forEach((btn, idx) => {
+        if (idx + 1 === level) {
+          btn.className = "comp-btn p-3 rounded-xl border-2 border-stuw-obsidian dark:border-stuw-canvas bg-stuw-obsidian text-stuw-canvas dark:bg-stuw-canvas dark:text-stuw-obsidian text-center silk-transition";
+        } else {
+          btn.className = "comp-btn p-3 rounded-xl border border-stuw-border dark:border-stuw-borderDark text-center silk-transition hover:border-stuw-obsidian";
+        }
+      });
+    }
+
+    // Provador Inteligente Algorithm
+    function calculateSize() {
+      const alt = parseInt(document.getElementById('inputAltura').value) || 165;
+      const peso = parseInt(document.getElementById('inputPeso').value) || 60;
+      const fit = document.getElementById('selectFit').value;
+
+      let size = 'M';
+      let reason = '';
+
+      const bmi = peso / ((alt / 100) * (alt / 100));
+
+      if (bmi < 19) {
+        size = fit === 'relaxado' ? 'P' : 'PP';
+      } else if (bmi >= 19 && bmi < 23) {
+        size = fit === 'modelador' ? 'P' : 'M';
+      } else if (bmi >= 23 && bmi < 27) {
+        size = fit === 'modelador' ? 'M' : 'G';
+      } else {
+        size = fit === 'modelador' ? 'G' : 'GG';
+      }
+
+      document.getElementById('provadorResultadoTamanho').innerText = size;
+      document.getElementById('provadorResultadoExplicacao').innerText = 
+        `Para ${alt}cm e ${peso}kg no caimento '${fit}', o tamanho ${size} confere suporte anatômico perfeito com elasticidade 4-way sem marcas na pele.`;
+    }
+
+    // Side-Cart Functions
+    function toggleSideCart() {
+      const drawer = document.getElementById('sideCartDrawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    function handleDrawerBackdropClick(e) {
+      if (e.target.id === 'sideCartDrawer') {
+        toggleSideCart();
+      }
+    }
+
+    function addToBag(title, price) {
+      cartItems.push({ title, price, color: 'Obsidian Black', size: 'M' });
+      renderCart();
+      showToast(`${title} adicionado à sacola!`);
+      toggleSideCart();
+    }
+
+    function removeCartItem(index) {
+      cartItems.splice(index, 1);
+      renderCart();
+      showToast('Item removido da sacola');
+    }
+
+    function renderCart() {
+      const list = document.getElementById('cartItemList');
+      const badge = document.getElementById('cartDrawerBadge');
+      const headerCount = document.getElementById('headerCartCount');
+      const subtotalEl = document.getElementById('cartDrawerSubtotal');
+      const totalEl = document.getElementById('cartDrawerTotal');
+
+      headerCount.innerText = cartItems.length;
+      badge.innerText = `${cartItems.length} ${cartItems.length === 1 ? 'Item' : 'Itens'}`;
+
+      let subtotal = 0;
+      list.innerHTML = '';
+
+      if (cartItems.length === 0) {
+        list.innerHTML = '<div class="py-12 text-center text-stuw-slate text-xs">Sua sacola está vazia. Adicione itens acima.</div>';
+      } else {
+        cartItems.forEach((item, idx) => {
+          subtotal += item.price;
+          const div = document.createElement('div');
+          div.className = "flex gap-4 p-3 bg-white dark:bg-stone-900 rounded-xl border border-stuw-border dark:border-stuw-borderDark";
+          div.innerHTML = `
+            <div class="w-16 h-20 bg-stuw-obsidian rounded-lg flex items-center justify-center text-white font-serif italic text-xl">${item.title.charAt(0)}</div>
+            <div class="flex-1 text-xs space-y-1">
+              <div class="flex justify-between">
+                <h4 class="font-bold text-stuw-obsidian dark:text-stuw-canvas">${item.title}</h4>
+                <button onclick="removeCartItem(${idx})" class="text-stuw-slate hover:text-red-500 text-xs font-bold">&times;</button>
+              </div>
+              <p class="text-stuw-slate">${item.color} &bull; Tam: ${item.size}</p>
+              <div class="flex justify-between items-center pt-2">
+                <span class="font-semibold text-sm text-stuw-obsidian dark:text-stuw-canvas">R$ ${item.price},00</span>
+                <span class="text-[10px] text-stuw-sage uppercase font-bold tracking-wider">Qtd: 1</span>
+              </div>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      subtotalEl.innerText = `R$ ${subtotal},00`;
+      totalEl.innerText = `R$ ${subtotal},00`;
+
+      // Free shipping progress logic (Free shipping threshold: R$ 400)
+      const threshold = 400;
+      const percent = Math.min(100, Math.round((subtotal / threshold) * 100));
+      const bar = document.getElementById('shippingProgressBar');
+      const status = document.getElementById('shippingBarStatus');
+      const pctBadge = document.getElementById('shippingBarPercent');
+
+      bar.style.width = percent + '%';
+      pctBadge.innerText = percent + '%';
+
+      if (subtotal >= threshold) {
+        status.innerText = 'Parabéns! Você tem Frete Cortesia';
+        pctBadge.className = 'text-stuw-verified font-bold';
+      } else {
+        const remaining = threshold - subtotal;
+        status.innerText = `Adicione R$ ${remaining},00 para Frete Cortesia`;
+        pctBadge.className = 'text-stuw-champagne font-bold';
+      }
+    }
+
+    function checkoutSimulation() {
+      showToast('Iniciando Checkout com Criptografia 256-Bit SSL...');
+    }
+
+    // Code Tabs Switcher
+    function switchTab(tabId) {
+      document.getElementById('tabTailwind').classList.add('hidden');
+      document.getElementById('tabCSS').classList.add('hidden');
+      document.getElementById('tabCardHTML').classList.add('hidden');
+
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-stuw-obsidian', 'dark:border-stuw-canvas', 'text-stuw-obsidian', 'dark:text-stuw-canvas');
+        btn.classList.add('border-transparent', 'text-stuw-slate');
+      });
+
+      if (tabId === 'tabTailwind') {
+        document.getElementById('btnTabTailwind').classList.add('border-stuw-obsidian', 'dark:border-stuw-canvas', 'text-stuw-obsidian', 'dark:text-stuw-canvas');
+      } else if (tabId === 'tabCSS') {
+        document.getElementById('btnTabCSS').classList.add('border-stuw-obsidian', 'dark:border-stuw-canvas', 'text-stuw-obsidian', 'dark:text-stuw-canvas');
+      } else if (tabId === 'tabCardHTML') {
+        document.getElementById('btnTabCardHTML').classList.add('border-stuw-obsidian', 'dark:border-stuw-canvas', 'text-stuw-obsidian', 'dark:text-stuw-canvas');
+      }
+    }
+
+    // Toast Notification System
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('stuwToast');
+      const toastMsg = document.getElementById('stuwToastMsg');
+      toastMsg.innerText = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 3200);
+    }
+  </script>
+</body>
+</html>
