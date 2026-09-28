@@ -4,12 +4,16 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CreditCard, Gift, QrCode } from 'lucide-react';
 import { useCheckout } from '@/providers/checkout-provider';
+import { useCart } from '@/providers/cart-provider';
+import { validateCoupon } from '@/app/actions/coupon';
 import { isTaxDocumentValid } from '@/services/checkout';
 import { currency } from '@/lib/commerce';
 import { CheckoutContactSummary } from '@/components/checkout/CheckoutContactSummary/CheckoutContactSummary';
 import { Button } from '@/components/ui/button/button';
 
 export function CheckoutPayment() {
+  const { coupon, setCoupon } = useCart();
+  const [validating, setValidating] = useState(false);
   const {
     gift,
     setGift,
@@ -32,13 +36,38 @@ export function CheckoutPayment() {
       <h1 className="font-serif text-3xl mb-6">Pagamento</h1>
       <form
         method="post"
-        onSubmit={(event) => {
+        aria-busy={validating}
+        inert={validating}
+        onSubmit={async (event) => {
           event.preventDefault();
+          if (validating) return;
+          setError('');
           if (!isTaxDocumentValid(taxDocument)) {
             setDocumentError('Informe um CPF ou CNPJ válido.');
             const input = event.currentTarget.elements.namedItem('taxDocument');
             if (input instanceof HTMLInputElement) input.focus();
             return;
+          }
+          if (coupon) {
+            setValidating(true);
+            try {
+              const result = await validateCoupon(coupon.code);
+              if (!result.coupon) {
+                setCoupon(null);
+                setError(result.error ?? 'O cupom não está mais disponível. Revise o total.');
+                return;
+              }
+              if (result.coupon.percent !== coupon.percent) {
+                setCoupon(result.coupon);
+                setError('O desconto do cupom mudou. Revise o total antes de continuar.');
+                return;
+              }
+            } catch {
+              setError('Não foi possível validar o cupom. Tente novamente.');
+              return;
+            } finally {
+              setValidating(false);
+            }
           }
           if (!completeDemo())
             setError('Revise as informações, o frete e a forma de pagamento para continuar.');
@@ -179,7 +208,7 @@ export function CheckoutPayment() {
             disabled={!payment}
             className="rounded-xl w-full sm:w-auto !normal-case !tracking-normal !py-4"
           >
-            Concluir demonstração
+            {validating ? 'Validando cupom…' : 'Concluir demonstração'}
           </Button>
         </div>
         <p className="text-[11px] text-stuw-slate">

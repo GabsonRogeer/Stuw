@@ -5,16 +5,32 @@ import { LifestyleSection } from '@/components/home/LifestyleSection/LifestyleSe
 import { ProductGrid } from '@/components/catalog/ProductGrid/ProductGrid';
 import { getProducts } from '@/services/product-service';
 import { ProductDiscovery } from '@/components/product/ProductDiscovery/ProductDiscovery';
+import { getPublishedBanner } from '@/repositories/banners';
+import { ManagedBanner } from '@/components/home/ManagedBanner/ManagedBanner';
+import { bannerImageUrl } from '@/services/banners';
+
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const products = await getProducts();
+  const [products, banner] = await Promise.all([getProducts(), getPublishedBanner()]);
   const featuredProducts = [
     ...products.filter((product) => product.featured),
     ...products.filter((product) => !product.featured),
   ].slice(0, 8);
   return (
     <>
-      <HeroSection />
+      {banner ? (
+        <ManagedBanner
+          title={banner.title}
+          subtitle={banner.subtitle}
+          description={banner.description}
+          link={banner.link}
+          desktop={bannerImageUrl(banner.desktop_path)}
+          mobile={bannerImageUrl(banner.mobile_path)}
+        />
+      ) : (
+        <HeroSection />
+      )}
       <section id="catalogo" className="page-container py-16 sm:py-24">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>

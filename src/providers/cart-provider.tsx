@@ -4,11 +4,12 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
 import { usePersistentState } from '@/hooks/use-persistent-state';
 import { addCartItem, calculateTotals, itemKey, restoreCart } from '@/lib/commerce';
 import type { CartItem, Product } from '@/types';
+import type { AppliedCoupon } from '@/services/coupons';
 
 function useCartState(products: Product[]) {
   const validateCart = useCallback((value: unknown) => restoreCart(value, products), [products]);
   const [items, setItems, ready] = usePersistentState<CartItem[]>('stuw_cart', [], validateCart);
-  const [coupon, setCoupon] = useState('');
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const addItem = (product: Product, size: string, color = product.colors[0].name) =>
     setItems((items) => addCartItem(items, product, size, color));
   const changeQuantity = (key: string, delta: number) =>
@@ -23,7 +24,7 @@ function useCartState(products: Product[]) {
     setItems((items) => items.filter((item) => itemKey(item) !== key));
   const clear = () => {
     setItems([]);
-    setCoupon('');
+    setCoupon(null);
   };
   return {
     items,

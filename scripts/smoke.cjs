@@ -1,8 +1,20 @@
 const assert = require('node:assert/strict');
 const base = process.env.SMOKE_URL || 'http://localhost:3000';
 const cases = [
-  ['/', 200, 'A precisão do movimento.'],
+  ['/', 200, 'Essenciais em movimento.'],
   ['/login', 200, 'Fazer login'],
+  ['/cadastro', 200, 'Confirmação de senha'],
+  ['/conta', 200, 'Fazer login'],
+  ['/conta/enderecos', 200, 'Fazer login'],
+  ['/conta/compras', 200, 'Fazer login'],
+  ['/conta/wishlist', 200, 'Fazer login'],
+  ['/admin', 200, 'Fazer login'],
+  ['/admin/cupons', 200, 'Fazer login'],
+  ['/admin/banners', 200, 'Fazer login'],
+  ['/admin/pedidos', 200, 'Fazer login'],
+  ['/admin/relatorios', 200, 'Fazer login'],
+  ['/auth/callback', 200, 'Não foi possível abrir sua sessão.'],
+  ['/auth/confirm?type=recovery&token_hash=invalid', 200, 'Não foi possível abrir sua sessão.'],
   ['/produtos', 200, 'A coleção STUW'],
   ['/produtos?busca=macacao', 200, 'Macacão SilkAir'],
   ['/produtos?busca=inexistente', 200, 'Nenhuma peça nesta seleção.'],

@@ -1,4 +1,5 @@
 import type { CartItem, Product } from '@/types';
+import type { AppliedCoupon } from '@/services/coupons';
 
 export const FREE_SHIPPING_THRESHOLD = 499;
 export const currency = (value: number) =>
@@ -10,14 +11,12 @@ const round = (value: number) => Math.round(value * 100) / 100;
 
 export function calculateTotals(
   items: CartItem[],
-  coupon = '',
+  coupon: string | AppliedCoupon | null = '',
   payment: 'pix' | 'card' | null = null,
   gift = false,
   shippingPrice?: number,
 ) {
   const subtotal = round(items.reduce((sum, item) => sum + item.price * item.qty, 0));
-  const discount = coupon === 'PRIVE10' ? round(subtotal * 0.1) : 0;
-  const pixDiscount = payment === 'pix' ? round((subtotal - discount) * 0.05) : 0;
   const shipping =
     subtotal === 0
       ? 0
@@ -27,6 +26,22 @@ export function calculateTotals(
           ? 0
           : 28;
   const giftCost = gift && items.length > 0 ? 35 : 0;
+  // Strings support legacy demo callers; the storefront uses validated objects.
+  const rate =
+    typeof coupon === 'object' &&
+    coupon &&
+    Number.isFinite(coupon.percent) &&
+    coupon.percent > 0 &&
+    coupon.percent <= 100
+      ? coupon.percent / 100
+      : 0;
+  const discount = rate
+    ? round((subtotal + shipping + giftCost) * rate)
+    : coupon === 'PRIVE10'
+      ? round(subtotal * 0.1)
+      : 0;
+  const merchandiseDiscount = rate ? round(subtotal * rate) : discount;
+  const pixDiscount = payment === 'pix' ? round((subtotal - merchandiseDiscount) * 0.05) : 0;
   return {
     subtotal,
     discount,

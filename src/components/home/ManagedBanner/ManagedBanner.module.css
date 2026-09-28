@@ -1,0 +1,57 @@
+.banner {
+  display: grid;
+}
+.copy {
+  padding: 3rem 1.5rem;
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.title {
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+.media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  order: 1;
+}
+.media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.desktop {
+  grid-template-columns: 1fr 1fr;
+}
+.desktop .copy {
+  order: 1;
+  padding: 3rem;
+}
+.desktop .media {
+  order: 2;
+  min-height: 480px;
+  aspect-ratio: auto;
+}
+@media (min-width: 768px) {
+  .responsive {
+    grid-template-columns: 1fr 1fr;
+  }
+  .responsive .copy {
+    order: 1;
+    padding: clamp(3rem, 6vw, 6rem);
+  }
+  .responsive .media {
+    order: 2;
+    min-height: 620px;
+    aspect-ratio: auto;
+  }
+}

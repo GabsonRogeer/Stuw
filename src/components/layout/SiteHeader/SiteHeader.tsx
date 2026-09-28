@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { categories, activityCategories } from '@/data/navigation';
 import { Modal } from '@/components/ui/modal/modal';
 
-export function SiteHeader() {
+export function SiteHeader({ compact = false }: { compact?: boolean }) {
   const { count } = useCart();
   const { ids } = useWishlist();
   const { setPanel } = useStorefront();
@@ -20,12 +20,20 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 glass-header border-b border-stuw-border dark:border-stuw-borderDark">
       <div className="page-container h-20 flex items-center justify-between relative gap-3">
         <div className="flex gap-1 items-center">
-          <button aria-label="Abrir menu" className="p-2 lg:hidden" onClick={() => setMobile(true)}>
-            <Menu size={20} />
-          </button>
-          <Link href="/produtos" className="hidden lg:block text-xs tracking-widest uppercase">
-            Activewear & Wellness
-          </Link>
+          {!compact && (
+            <button
+              aria-label="Abrir menu"
+              className="p-2 lg:hidden"
+              onClick={() => setMobile(true)}
+            >
+              <Menu size={20} />
+            </button>
+          )}
+          {!compact && (
+            <Link href="/produtos" className="hidden lg:block text-xs tracking-widest uppercase">
+              Activewear & Wellness
+            </Link>
+          )}
           <button
             aria-label="Buscar produtos"
             className="p-2 lg:hidden"
@@ -82,31 +90,33 @@ export function SiteHeader() {
           </button>
         </div>
       </div>
-      <nav
-        aria-label="Categorias"
-        className="hidden lg:flex items-center gap-6 px-8 pb-5 overflow-x-auto whitespace-nowrap text-[11px] tracking-wider"
-      >
-        <Link href="/produtos">Ver tudo</Link>
-        {categories.map((category) => (
-          <Link
-            key={category.value}
-            href={`/produtos?categoria=${encodeURIComponent(category.value)}`}
-            className="hover:text-stuw-sage"
-          >
-            {category.label}
-          </Link>
-        ))}
-        {activityCategories.map((category) => (
-          <Link
-            key={category.value}
-            href={`/produtos?categoria=${encodeURIComponent(category.value)}`}
-            className="hover:text-stuw-sage"
-          >
-            {category.label}
-          </Link>
-        ))}
-        <Link href="/#sensorial">O toque STUW</Link>
-      </nav>
+      {!compact && (
+        <nav
+          aria-label="Categorias"
+          className="hidden lg:flex items-center gap-6 px-8 pb-5 overflow-x-auto whitespace-nowrap text-[11px] tracking-wider"
+        >
+          <Link href="/produtos">Ver tudo</Link>
+          {categories.map((category) => (
+            <Link
+              key={category.value}
+              href={`/produtos?categoria=${encodeURIComponent(category.value)}`}
+              className="hover:text-stuw-sage"
+            >
+              {category.label}
+            </Link>
+          ))}
+          {activityCategories.map((category) => (
+            <Link
+              key={category.value}
+              href={`/produtos?categoria=${encodeURIComponent(category.value)}`}
+              className="hover:text-stuw-sage"
+            >
+              {category.label}
+            </Link>
+          ))}
+          <Link href="/#sensorial">O toque STUW</Link>
+        </nav>
+      )}
       {mobile && (
         <Modal title="Explorar STUW" onClose={() => setMobile(false)} drawer>
           <nav aria-label="Menu mobile" className="flex flex-col gap-6 text-sm">
