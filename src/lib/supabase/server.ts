@@ -6,8 +6,10 @@ import type { Database } from '@/types/database';
 import { getSupabaseConfig } from './config';
 
 export async function createClient() {
-  const { url, key } = getSupabaseConfig();
+  // Establish request-time rendering before reading the server configuration.
+  // Authenticated pages depend on this request's cookies, not build-time data.
   const cookieStore = await cookies();
+  const { url, key } = getSupabaseConfig();
 
   return createServerClient<Database>(url, key, {
     cookies: {
