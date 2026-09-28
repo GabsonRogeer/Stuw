@@ -149,6 +149,8 @@ test('checkout login returns only to the allowlisted checkout route', async () =
   await assert.rejects(() => api.login({}, checkoutForm), /REDIRECT:\/checkout\/information/);
   checkoutForm.set('next', 'https://evil.example');
   await assert.rejects(() => api.login({}, checkoutForm), /REDIRECT:\/conta/);
+  checkoutForm.set('next', 'atacado');
+  await assert.rejects(() => api.login({}, checkoutForm), /REDIRECT:\/atacado\/cotacao/);
 });
 
 test('logout reports failures and only redirects after successful sign-out', async () => {

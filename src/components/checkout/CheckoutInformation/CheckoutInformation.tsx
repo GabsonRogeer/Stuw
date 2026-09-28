@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useCheckout } from '@/providers/checkout-provider';
 import { useStorefront } from '@/providers/storefront-provider';
-import { BRAZIL_STATES, DEMO_INFORMATION } from '@/services/checkout';
+import { BRAZIL_STATES } from '@/services/checkout';
 import { Button } from '@/components/ui/button/button';
 
 const addressFields = [
@@ -34,7 +34,15 @@ const addressFields = [
 ] as const;
 
 export function CheckoutInformation() {
-  const { information, updateInformation, submitInformation } = useCheckout();
+  const {
+    information,
+    updateInformation,
+    submitInformation,
+    addresses,
+    selectedAddressId,
+    selectAddress,
+    profileLoadError,
+  } = useCheckout();
   const { setPanel } = useStorefront();
   const router = useRouter();
   const [error, setError] = useState('');
@@ -51,13 +59,6 @@ export function CheckoutInformation() {
       <section>
         <div className="flex justify-between items-center gap-4 mb-5">
           <h1 className="font-serif text-3xl">Contato</h1>
-          <button
-            type="button"
-            onClick={() => updateInformation(DEMO_INFORMATION)}
-            className="underline text-xs"
-          >
-            Preencher demonstração
-          </button>
         </div>
         <label className="block text-xs space-y-2">
           <span>E-mail</span>
@@ -67,10 +68,19 @@ export function CheckoutInformation() {
             autoComplete="email"
             name="email"
             value={information.email}
-            onChange={(event) => updateInformation({ email: event.target.value })}
+            readOnly
             className="field"
           />
         </label>
+        <p className="text-xs text-stuw-slate mt-2">
+          E-mail da sua conta. Revise os dados de entrega antes de continuar.
+        </p>
+        {profileLoadError && (
+          <p role="alert" className="text-sm mt-4">
+            Não foi possível carregar todos os dados cadastrados. Você pode preencher as informações
+            abaixo manualmente.
+          </p>
+        )}
         <div className="space-y-3 mt-5">
           <label className="flex items-start gap-3 text-xs">
             <input
@@ -94,6 +104,31 @@ export function CheckoutInformation() {
       </section>
       <section>
         <h2 className="font-serif text-2xl mb-5">Endereço de entrega</h2>
+        {addresses.length > 0 && (
+          <label className="block text-xs space-y-2 mb-5">
+            <span>Endereços cadastrados</span>
+            <select
+              className="field"
+              value={selectedAddressId}
+              onChange={(event) => {
+                selectAddress(event.target.value);
+                setError('');
+              }}
+            >
+              <option value="">Preencher outro endereço / endereço personalizado</option>
+              {addresses.map((address) => (
+                <option key={address.id} value={address.id}>
+                  {address.label} — {address.street}, {address.number} · {address.city}/
+                  {address.state}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <p className="text-xs text-stuw-slate mb-5">
+          Você pode ajustar os campos para esta compra. Alterações aqui não modificam os endereços
+          salvos na sua conta.
+        </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="text-xs space-y-2 sm:col-span-2">
             <span>País / Região</span>
@@ -179,7 +214,7 @@ export function CheckoutInformation() {
         </Button>
       </div>
       <p className="text-[11px] text-stuw-slate">
-        Checkout de demonstração. Nenhum pedido ou dado será enviado.
+        Pedido de teste: os dados serão salvos ao finalizar, sem cobrança ou envio de mercadoria.
       </p>
     </form>
   );

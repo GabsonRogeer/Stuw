@@ -17,13 +17,15 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string }>;
 }) {
-  const next = (await searchParams).next === 'checkout' ? 'checkout' : '';
+  const requested = (await searchParams).next;
+  const next = requested === 'checkout' || requested === 'atacado' ? requested : '';
   if (isSupabaseConfigured()) {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (user) redirect(next ? '/checkout/information' : '/conta');
+    if (user)
+      redirect(next === 'atacado' ? '/atacado/cotacao' : next ? '/checkout/information' : '/conta');
   }
   return (
     <div className="min-h-svh flex flex-col items-center px-5 py-10 sm:py-16">

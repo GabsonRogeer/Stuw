@@ -87,9 +87,45 @@ export type Order = {
   revision: number;
   updated_at: string;
 };
+export type WholesaleSettings = { id: boolean; minimum_quantity: number; whatsapp_number: string };
+export type WholesaleQuote = {
+  id: string;
+  user_id: string;
+  request_key: string;
+  number: string;
+  status: string;
+  customer_name: string;
+  customer_email: string;
+  phone: string;
+  company: string;
+  cnpj: string;
+  notes: string;
+  items: import('@/services/wholesale').WholesaleLine[];
+  quantity: number;
+  minimum_quantity: number;
+  revision: number;
+  created_at: string;
+  updated_at: string;
+};
+export type QuoteEvent = {
+  id: string;
+  quote_id: string;
+  actor_id: string | null;
+  status: string;
+  note: string;
+  created_at: string;
+};
 export type Database = {
   public: {
     Tables: {
+      wholesale_settings: {
+        Row: WholesaleSettings;
+        Insert: never;
+        Update: { minimum_quantity?: number; whatsapp_number?: string };
+        Relationships: [];
+      };
+      wholesale_quotes: { Row: WholesaleQuote; Insert: never; Update: never; Relationships: [] };
+      wholesale_quote_events: { Row: QuoteEvent; Insert: never; Update: never; Relationships: [] };
       banner_drafts: {
         Row: Banner;
         Insert: Omit<Banner, 'revision' | 'updated_at'>;
@@ -130,6 +166,16 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      create_wholesale_quote: { Args: { request: unknown }; Returns: string };
+      update_wholesale_quote: {
+        Args: {
+          input_id: string;
+          expected_revision: number;
+          next_status: string;
+          input_note: string;
+        };
+        Returns: undefined;
+      };
       create_demo_order: { Args: { request: unknown }; Returns: string };
       update_order: {
         Args: {

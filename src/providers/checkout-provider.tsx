@@ -13,10 +13,25 @@ import {
   type PaymentMethod,
 } from '@/services/checkout';
 import { quoteShipping } from '@/services/shipping';
+import {
+  applyCheckoutAddress,
+  initialCheckoutInformation,
+  type CheckoutAddress,
+  type CheckoutProfile,
+} from '@/services/checkout-profile';
 
-function useCheckoutState() {
+type CheckoutProfileProps = {
+  email: string;
+  profile: CheckoutProfile | null;
+  addresses: CheckoutAddress[];
+  loadError: boolean;
+};
+function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProfileProps) {
   const { items, ready, coupon, clear } = useCart();
-  const [information, setInformation] = useState<CheckoutInformation>(EMPTY_INFORMATION);
+  const [information, setInformation] = useState<CheckoutInformation>(() =>
+    initialCheckoutInformation(email, profile, addresses[0] ?? null),
+  );
+  const [selectedAddressId, setSelectedAddressId] = useState(addresses[0]?.id ?? '');
   const [informationSubmitted, setInformationSubmitted] = useState(false);
   const [selection, setSelection] = useState<{ id: string; context: string } | null>(null);
   const [payment, setPayment] = useState<PaymentMethod | null>(null);
@@ -92,10 +107,40 @@ function useCheckoutState() {
     ready,
     items,
     information,
+    addresses,
+    selectedAddressId,
+    profileLoadError: loadError,
+    selectAddress: (id: string) => {
+      const address = addresses.find((entry) => entry.id === id);
+      if (id && !address) return;
+      setSelectedAddressId(id);
+      setInformation((current) =>
+        applyCheckoutAddress(current, address ?? null, profile?.full_name ?? ''),
+      );
+      setInformationSubmitted(false);
+      setSelection(null);
+    },
     informationValid,
     submitInformation,
-    updateInformation: (patch: Partial<CheckoutInformation>) =>
-      setInformation((current) => ({ ...current, ...patch })),
+    updateInformation: (patch: Partial<CheckoutInformation>) => {
+      if (
+        Object.keys(patch).some((key) =>
+          [
+            'firstName',
+            'lastName',
+            'postalCode',
+            'street',
+            'number',
+            'complement',
+            'district',
+            'city',
+            'state',
+          ].includes(key),
+        )
+      )
+        setSelectedAddressId('');
+      setInformation((current) => ({ ...current, ...patch, email }));
+    },
     shippingOptions,
     shipping,
     selectShipping: (id: string) => {
@@ -117,8 +162,15 @@ function useCheckoutState() {
   };
 }
 const CheckoutContext = createContext<ReturnType<typeof useCheckoutState> | null>(null);
-export function CheckoutProvider({ children }: { children: ReactNode }) {
-  return <CheckoutContext.Provider value={useCheckoutState()}>{children}</CheckoutContext.Provider>;
+export function CheckoutProvider({
+  children,
+  ...profile
+}: CheckoutProfileProps & { children: ReactNode }) {
+  return (
+    <CheckoutContext.Provider value={useCheckoutState(profile)}>
+      {children}
+    </CheckoutContext.Provider>
+  );
 }
 export function useCheckout() {
   const context = useContext(CheckoutContext);

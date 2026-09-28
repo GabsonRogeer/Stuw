@@ -13,5 +13,6 @@ export const config = {
     '/conta/:path*',
     '/auth/:path*',
     '/checkout/:path*',
+    '/atacado/:path*',
   ],
 };

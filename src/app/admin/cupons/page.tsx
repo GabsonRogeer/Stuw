@@ -71,7 +71,10 @@ export default async function CouponsPage({
                       {coupon.percent}% de desconto · {labels[couponStatus(coupon, now)]}
                     </p>
                     <p className="text-xs text-stuw-slate mt-2">
-                      {coupon.used_count} de {coupon.max_uses} utilizações · Expira em{' '}
+                      {coupon.max_uses === 0
+                        ? `${coupon.used_count} utilizações · Ilimitado`
+                        : `${coupon.used_count} de ${coupon.max_uses} utilizações`}{' '}
+                      · Expira em{' '}
                       {new Date(coupon.expires_at).toLocaleString('pt-BR', {
                         timeZone: 'America/Sao_Paulo',
                       })}

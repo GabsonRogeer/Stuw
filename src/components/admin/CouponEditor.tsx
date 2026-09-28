@@ -44,13 +44,16 @@ export function CouponEditor({ coupon }: { coupon?: Coupon }) {
           <input
             type="number"
             name="max_uses"
-            min={Math.max(1, coupon?.used_count ?? 0)}
+            min="0"
             max="1000000000"
             step="1"
             required
             defaultValue={coupon?.max_uses ?? ''}
             className={field}
           />
+          <span className="text-xs text-stuw-slate block mt-2">
+            Use 0 para utilizações ilimitadas até a data de validade.
+          </span>
         </label>
         <label className="text-sm">
           Válido até

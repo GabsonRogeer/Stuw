@@ -47,12 +47,24 @@ test('coupon validation normalizes codes and expires at the end of the Brasilia 
     { percent: '101' },
     { percent: 'NaN' },
     { percent: '1.001' },
-    { max_uses: '0' },
+    { max_uses: '-1' },
+    { max_uses: '' },
     { max_uses: '1.5' },
     { expires_on: '2026-02-30' },
     { expires_on: '2026-09-27' },
   ])
     assert.ok(coupons.parseCoupon(form(patch), now).error);
+});
+
+test('zero means unlimited but still respects expiry and activation', () => {
+  assert.equal(coupons.parseCoupon(form({ max_uses: '0' }), now).value.max_uses, 0);
+  const missing = form();
+  missing.delete('max_uses');
+  assert.ok(coupons.parseCoupon(missing, now).error);
+  const coupon = { active: true, expires_at: '2026-09-28T12:00:01Z', used_count: 500, max_uses: 0 };
+  assert.equal(coupons.couponStatus(coupon, now), 'active');
+  assert.equal(coupons.couponStatus({ ...coupon, active: false }, now), 'inactive');
+  assert.equal(coupons.couponStatus(coupon, now + 1000), 'expired');
 });
 test('availability distinguishes inactive, expired and exhausted codes with exact boundaries', () => {
   const coupon = { active: true, expires_at: '2026-09-28T12:00:01Z', used_count: 1, max_uses: 2 };
@@ -124,6 +136,7 @@ test('duplicate coupon codes return an actionable error rather than success', as
 test('reactivation refuses expired or exhausted coupons', async () => {
   for (const record of [
     { expires_at: '2000-01-01', used_count: 0, max_uses: 5 },
+    { expires_at: '2000-01-01', used_count: 10, max_uses: 0 },
     { expires_at: '2099-01-01', used_count: 5, max_uses: 5 },
   ]) {
     const query = {
@@ -138,4 +151,25 @@ test('reactivation refuses expired or exhausted coupons', async () => {
       /Edite a validade/,
     );
   }
+});
+
+test('unlimited coupons with previous uses can be reactivated', async () => {
+  let updated = false;
+  const query = {
+    select: () => query,
+    eq: () => query,
+    maybeSingle: async () => ({
+      data: { id: 'id', expires_at: '2099-01-01', used_count: 50, max_uses: 0 },
+    }),
+    update: () => {
+      updated = true;
+      return query;
+    },
+  };
+  const result = await actions({ from: () => query }).toggleCoupon(
+    {},
+    form({ id: 'id', active: 'true' }),
+  );
+  assert.ok(result.message);
+  assert.equal(updated, true);
 });

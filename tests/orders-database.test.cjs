@@ -18,9 +18,17 @@ test('Postgres: orders, atomic totals, coupon limits, idempotency, RLS and audit
       '20260928135940_account_area.sql',
       '20260928141620_coupons.sql',
       '20260928154600_orders_management.sql',
+      '20260928184320_unlimited_coupons.sql',
+      '20260928185642_wholesale_quotes.sql',
     ])
       await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/migrations', file), 'utf8'));
-    for (const file of ['account.sql', 'coupons.sql', 'orders.sql'])
+    for (const file of [
+      'account.sql',
+      'coupons.sql',
+      'orders.sql',
+      'unlimited-coupons.sql',
+      'wholesale.sql',
+    ])
       await db.exec(fs.readFileSync(path.join(__dirname, '../supabase/tests', file), 'utf8'));
   } finally {
     await db.close();

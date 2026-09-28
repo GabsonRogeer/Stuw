@@ -18,7 +18,7 @@ localmente; a publishable key não autoriza aplicar DDL no banco remoto.
 
 - Código normalizado em maiúsculas, único, de 3 a 32 caracteres.
 - Percentual maior que zero e até 100%, com até duas casas decimais.
-- Limite de utilizações obrigatório e inteiro, nunca menor que o número já usado.
+- Limite de utilizações obrigatório e inteiro: **0 significa ilimitado**; valores positivos não podem ser menores que o número já usado. A contagem continua sendo registrada nos cupons ilimitados, que respeitam a data de validade e a desativação manual.
 - Validade inclusiva até 23h59m59s999 da data selecionada, horário de Brasília
   (UTC−03 nesta implementação). O instante é armazenado em UTC.
 - Filtros: ativo/disponível, inativo, expirado e limite atingido. Inativo prevalece

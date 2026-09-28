@@ -7,6 +7,7 @@ const links = [
   ['/conta', 'Dados pessoais', UserRound],
   ['/conta/enderecos', 'Endereços de entrega', MapPin],
   ['/conta/compras', 'Minhas compras', ShoppingBag],
+  ['/conta/cotacoes', 'Minhas cotações', ShoppingBag],
   ['/conta/wishlist', 'Wishlist', Heart],
 ] as const;
 export function AccountNav({
@@ -35,10 +36,14 @@ export function AccountNav({
           <Link
             key={href}
             href={href}
-            aria-current={pathname === href ? 'page' : undefined}
+            aria-current={
+              pathname === href || (href !== '/conta' && pathname.startsWith(href + '/'))
+                ? 'page'
+                : undefined
+            }
             className={
               'flex items-center gap-3 rounded-md px-4 py-3 text-sm border-l-2 ' +
-              (pathname === href
+              (pathname === href || (href !== '/conta' && pathname.startsWith(href + '/'))
                 ? 'border-stuw-sage bg-stuw-sand dark:bg-stone-800 font-medium'
                 : 'border-transparent hover:bg-stuw-sand/50 dark:hover:bg-stone-800')
             }

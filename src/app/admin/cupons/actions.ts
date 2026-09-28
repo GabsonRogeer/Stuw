@@ -17,7 +17,7 @@ export async function saveCoupon(_state: CouponState, form: FormData): Promise<C
     if (error?.code === '23514')
       return {
         error:
-          'Confira os valores. O limite de usos não pode ser menor que a quantidade já utilizada.',
+          'Confira os valores. Use 0 para ilimitado ou um limite igual ou maior que a quantidade já utilizada.',
       };
     if (error || !data) return { error: 'Não foi possível salvar o cupom. Tente novamente.' };
     revalidatePath('/admin/cupons');
@@ -38,7 +38,10 @@ export async function toggleCoupon(_state: CouponState, form: FormData): Promise
         .eq('id', id)
         .maybeSingle();
       if (error || !data) return { error: 'Não foi possível consultar o cupom.' };
-      if (Date.parse(data.expires_at) <= Date.now() || data.used_count >= data.max_uses)
+      if (
+        Date.parse(data.expires_at) <= Date.now() ||
+        (data.max_uses > 0 && data.used_count >= data.max_uses)
+      )
         return { error: 'Edite a validade ou o limite de usos antes de reativar este cupom.' };
     }
     const { data, error } = await supabase

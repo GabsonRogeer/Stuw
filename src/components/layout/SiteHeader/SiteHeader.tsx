@@ -96,6 +96,7 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
           className="hidden lg:flex items-center gap-6 px-8 pb-5 overflow-x-auto whitespace-nowrap text-[11px] tracking-wider"
         >
           <Link href="/produtos">Ver tudo</Link>
+          <Link href="/atacado">Atacado</Link>
           {categories.map((category) => (
             <Link
               key={category.value}
@@ -120,6 +121,9 @@ export function SiteHeader({ compact = false }: { compact?: boolean }) {
       {mobile && (
         <Modal title="Explorar STUW" onClose={() => setMobile(false)} drawer>
           <nav aria-label="Menu mobile" className="flex flex-col gap-6 text-sm">
+            <Link href="/atacado" onClick={() => setMobile(false)}>
+              Atacado
+            </Link>
             <Link href="/produtos" onClick={() => setMobile(false)}>
               Ver coleção
             </Link>

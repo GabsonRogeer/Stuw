@@ -18,6 +18,9 @@ export function SiteFooter() {
         </div>
         <div className="space-y-3">
           <h2 className="eyebrow mb-4">Explorar</h2>
+          <Link className="block" href="/atacado">
+            Atacado
+          </Link>
           <Link className="block" href="/produtos">
             Coleção
           </Link>

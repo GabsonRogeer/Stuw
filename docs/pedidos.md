@@ -7,6 +7,7 @@ Execute `supabase/migrations/20260928154600_orders_management.sql` no SQL Editor
 ## Fluxo
 
 - Checkout exige login; após autenticar, retorna para informações. A sacola é mantida no navegador.
+- O formulário é preenchido com e-mail da sessão, nome/telefone do perfil e o primeiro endereço cadastrado (ordem de criação). O destinatário do endereço prevalece no nome de entrega. É possível escolher outro endereço ou preencher manualmente; alterações valem apenas para a compra. A navegação entre etapas mantém a edição. Falhas na consulta permitem preenchimento manual. Não há seleção automática de consentimento de marketing.
 - Finalizar registra um pedido **de teste**, vinculado ao `auth.uid()`, em uma transação. O carrinho só é limpo após confirmação do registro. Repetir a tentativa com a mesma chave retorna o mesmo pedido.
 - `/conta/compras` lista compras e abre os detalhes. RLS isola pedidos e histórico entre usuários.
 - `/admin/pedidos` tem busca, filtros por status/tipo e paginação. Detalhes incluem itens, cliente, endereço, descontos, frete, rastreio e histórico.

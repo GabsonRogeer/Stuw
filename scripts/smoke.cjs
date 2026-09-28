@@ -13,6 +13,12 @@ const cases = [
   ['/admin/banners', 200, 'Fazer login'],
   ['/admin/pedidos', 200, 'Fazer login'],
   ['/admin/relatorios', 200, 'Fazer login'],
+  ['/atacado', 200, 'Atacado STUW'],
+  ['/atacado/cotacao', 200, 'Fazer login'],
+  ['/conta/cotacoes', 200, 'Fazer login'],
+  ['/conta/cotacoes/00000000-0000-0000-0000-000000000001', 200, 'Fazer login'],
+  ['/admin/atacado', 200, 'Fazer login'],
+  ['/admin/atacado/00000000-0000-0000-0000-000000000001', 200, 'Fazer login'],
   ['/auth/callback', 200, 'Não foi possível abrir sua sessão.'],
   ['/auth/confirm?type=recovery&token_hash=invalid', 200, 'Não foi possível abrir sua sessão.'],
   ['/produtos', 200, 'A coleção STUW'],
@@ -47,8 +53,28 @@ const cases = [
     const response = await fetch(base + route);
     assert.equal(response.status, status, route);
     if (text) {
-      const html = await response.text();
+      let html = await response.text();
+      // Routes under a loading boundary may stream Next.js' redirect as a meta tag.
+      const streamedRedirect = html.match(
+        /<meta id="__next-page-redirect"[^>]*content="\d+;url=([^"]+)"/,
+      )?.[1];
+      if (streamedRedirect) {
+        const destination = new URL(streamedRedirect.replaceAll('&amp;', '&'), base);
+        assert.equal(destination.origin, new URL(base).origin, 'Redirect must stay on the store');
+        const redirected = await fetch(destination);
+        assert.equal(redirected.status, status, route);
+        html = await redirected.text();
+      }
       assert.ok(html.includes(text), `Missing content: ${route}`);
+      if (route === '/atacado') {
+        const cards = html.match(/<article\b[\s\S]*?<\/article>/g) ?? [];
+        assert.ok(cards.length > 0, 'Wholesale catalog must show products');
+        assert.ok(
+          cards.every((card) => !card.includes('R$')),
+          'Wholesale cards must not show retail prices',
+        );
+        assert.ok(html.includes('Adicionar à cotação'));
+      }
       if (route === '/produtos/stuw-mocha-sculpt-set') {
         const gallery = html.match(
           /<section aria-label="Galeria de STUW Mocha Sculpt Set"[\s\S]*?<\/section>/,
