@@ -4,16 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CreditCard, Gift, QrCode } from 'lucide-react';
 import { useCheckout } from '@/providers/checkout-provider';
-import { useCart } from '@/providers/cart-provider';
-import { validateCoupon } from '@/app/actions/coupon';
 import { isTaxDocumentValid } from '@/services/checkout';
 import { currency } from '@/lib/commerce';
 import { CheckoutContactSummary } from '@/components/checkout/CheckoutContactSummary/CheckoutContactSummary';
 import { Button } from '@/components/ui/button/button';
 
 export function CheckoutPayment() {
-  const { coupon, setCoupon } = useCart();
   const [validating, setValidating] = useState(false);
+  const [loginRequired, setLoginRequired] = useState(false);
   const {
     gift,
     setGift,
@@ -48,29 +46,14 @@ export function CheckoutPayment() {
             if (input instanceof HTMLInputElement) input.focus();
             return;
           }
-          if (coupon) {
-            setValidating(true);
-            try {
-              const result = await validateCoupon(coupon.code);
-              if (!result.coupon) {
-                setCoupon(null);
-                setError(result.error ?? 'O cupom não está mais disponível. Revise o total.');
-                return;
-              }
-              if (result.coupon.percent !== coupon.percent) {
-                setCoupon(result.coupon);
-                setError('O desconto do cupom mudou. Revise o total antes de continuar.');
-                return;
-              }
-            } catch {
-              setError('Não foi possível validar o cupom. Tente novamente.');
-              return;
-            } finally {
-              setValidating(false);
-            }
+          setValidating(true);
+          try {
+            const result = await completeDemo();
+            setError(result.error ?? '');
+            setLoginRequired(Boolean(result.loginRequired));
+          } finally {
+            setValidating(false);
           }
-          if (!completeDemo())
-            setError('Revise as informações, o frete e a forma de pagamento para continuar.');
         }}
         className="space-y-8"
       >
@@ -199,20 +182,29 @@ export function CheckoutPayment() {
             {error}
           </p>
         )}
+        {loginRequired && (
+          <p className="text-sm">
+            <Link href="/login?next=checkout" target="_blank" className="underline">
+              Entrar na conta em outra aba
+            </Link>
+            . Depois, retorne e conclua o pedido.
+          </p>
+        )}
         <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-5">
           <Link href="/checkout/shipping" className="inline-flex items-center gap-2 text-xs">
             <ArrowLeft size={14} /> Voltar para o frete
           </Link>
           <Button
             type="submit"
-            disabled={!payment}
+            disabled={!payment || validating}
             className="rounded-xl w-full sm:w-auto !normal-case !tracking-normal !py-4"
           >
-            {validating ? 'Validando cupom…' : 'Concluir demonstração'}
+            {validating ? 'Salvando pedido…' : 'Registrar pedido de teste'}
           </Button>
         </div>
         <p className="text-[11px] text-stuw-slate">
-          Nenhuma cobrança, nota fiscal ou pedido real será gerado nesta demonstração.
+          O pedido de teste será salvo em sua conta. Não haverá cobrança, emissão de nota fiscal ou
+          envio de mercadoria.
         </p>
       </form>
     </div>

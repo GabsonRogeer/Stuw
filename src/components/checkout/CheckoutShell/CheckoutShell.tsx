@@ -86,10 +86,10 @@ export function CheckoutShell({ children }: { children: ReactNode }) {
               Simulação {order.code} · {currency(order.total)}
             </p>
             <p className="text-xs text-stuw-slate">
-              Nenhuma cobrança foi realizada ou pedido enviado.
+              Pedido de teste salvo na sua conta. Nenhuma cobrança ou envio será realizado.
             </p>
-            <Link href="/produtos" className="inline-block underline text-sm">
-              Voltar à coleção
+            <Link href={`/conta/compras/${order.id}`} className="inline-block underline text-sm">
+              Acompanhar meu pedido
             </Link>
           </section>
         ) : !items.length ? (

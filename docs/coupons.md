@@ -1,8 +1,8 @@
 # Administração de cupons
 
 O painel usa um layout compartilhado com navegação lateral. `/admin` direciona
-para `/admin/cupons`. Banners, Pedidos e Relatórios têm páginas protegidas que
-indicam as próximas etapas, sem apresentar dados fictícios.
+para `/admin/cupons`. Banners e Pedidos também estão implementados; Relatórios
+permanece como próxima etapa.
 
 ## Aplicar no Supabase
 
@@ -43,16 +43,15 @@ O antigo PRIVE10 não é mais aplicado automaticamente pela interface; para usá
 cadastre-o no painel. A função de cálculo mantém compatibilidade com chamadas
 legadas dos testes demonstrativos, mas a vitrine só recebe objetos validados.
 
-## Contador e integração futura de pedidos
+## Contador e pedidos
 
 O contador é protegido: administradores editam o limite, não a quantidade utilizada.
-A demonstração não gera pedido e não consome utilizações. Por isso um cupom novo
-fica com zero usos até a integração real de pedidos ser ligada.
+Após a migração de pedidos, o checkout registra pedidos de teste e consome
+utilizações. Use cupons próprios para testes. Veja [Pedidos](pedidos.md).
 
 `record_coupon_use(code, order_id)` é reservada a `service_role`, nunca ao navegador
-ou a administradores autenticados. Para a futura integração: criar um pedido
-pendente com total validado no servidor (produtos + frete + embalagem), registrar
-o uso e obter o desconto, depois aplicar PIX e criar a cobrança. A função bloqueia
+ou a administradores autenticados. A função privada é chamada internamente pela
+transação do checkout, após calcular o total com o catálogo confiável. A função bloqueia
 o pedido e o cupom, revalida disponibilidade, registra um uso por pedido, incrementa
 o contador e reduz o total do pedido na mesma transação. Repetições retornam o
 desconto original sem consumir novamente. Outro código no mesmo pedido é recusado.
@@ -60,7 +59,7 @@ desconto original sem consumir novamente. Outro código no mesmo pedido é recus
 O registro guarda percentual e valores originais para auditoria. O consumo ocorre
 ao registrar o uso no pedido pendente; cancelamentos não devolvem usos nesta base.
 Definir reservas, expiração de pedidos e devolução de usos antes da integração de
-pagamento. A função é preparada, mas não é chamada pelo checkout demonstrativo.
+pagamento. Pedidos de teste não geram cobranças.
 
 ## Proteção
 
@@ -68,4 +67,4 @@ Todas as páginas, ações de gravação e consultas administrativas verificam
 `requireAdmin`. RLS restringe as tabelas a administradores, grants limitam as
 colunas editáveis e constraints reforçam percentuais/limites. Clientes e visitantes
 podem consultar somente um código exato disponível pela função de lookup. Essa
-consulta pública é deliberada para checkout sem login; não exponha `private` na API.
+consulta pública é deliberada para a sacola sem login; finalizar exige conta. Não exponha `private` na API.

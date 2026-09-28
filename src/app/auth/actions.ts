@@ -16,6 +16,7 @@ export async function login(_state: AuthState, form: FormData): Promise<AuthStat
     if (error) return { error: authErrorMessage(error.code) };
     const { data: admin } = await supabase.rpc('is_admin');
     if (admin === true) destination = '/admin';
+    if (form.get('next') === 'checkout') destination = '/checkout/information';
   } catch {
     return { error: authErrorMessage() };
   }

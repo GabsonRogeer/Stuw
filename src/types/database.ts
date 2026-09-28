@@ -41,13 +41,51 @@ type Profile = {
   created_at: string;
   updated_at: string;
 };
-type Order = {
+export type OrderItem = {
+  id: number;
+  title: string;
+  image: string;
+  size: string;
+  color: string;
+  qty: number;
+  price_cents: number;
+};
+export type OrderEvent = {
+  id: string;
+  order_id: string;
+  actor_id: string | null;
+  status: string;
+  note: string;
+  created_at: string;
+};
+export type Order = {
   id: string;
   user_id: string;
   number: string;
   status: string;
   total_cents: number;
   created_at: string;
+  is_demo: boolean;
+  request_key: string | null;
+  customer_name: string;
+  customer_email: string;
+  delivery: Record<string, string>;
+  items: OrderItem[];
+  payment_method: string;
+  installments: number;
+  gift: boolean;
+  subtotal_cents: number;
+  shipping_cents: number;
+  gift_cents: number;
+  discount_cents: number;
+  pix_discount_cents: number;
+  coupon_code: string;
+  shipping_name: string;
+  shipping_estimate: string;
+  tracking_code: string;
+  carrier: string;
+  revision: number;
+  updated_at: string;
 };
 export type Database = {
   public: {
@@ -84,13 +122,25 @@ export type Database = {
       };
       orders: {
         Row: Order;
-        Insert: Omit<Order, 'id' | 'created_at'>;
+        Insert: never;
         Update: never;
         Relationships: [];
       };
+      order_events: { Row: OrderEvent; Insert: never; Update: never; Relationships: [] };
     };
     Views: { [_ in never]: never };
     Functions: {
+      create_demo_order: { Args: { request: unknown }; Returns: string };
+      update_order: {
+        Args: {
+          input_id: string;
+          expected_revision: number;
+          next_status: string;
+          input_carrier: string;
+          input_tracking: string;
+        };
+        Returns: undefined;
+      };
       publish_home_banner: { Args: { expected_revision: number }; Returns: undefined };
       unpublish_home_banner: { Args: Record<string, never>; Returns: undefined };
       lookup_coupon: {

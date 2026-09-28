@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
+import { placeOrder } from '@/app/actions/order';
 import { useCart } from '@/providers/cart-provider';
 import { calculateTotals } from '@/lib/commerce';
 import {
@@ -23,7 +24,9 @@ function useCheckoutState() {
   const [giftWrap, setGiftWrap] = useState(false);
   const [taxDocument, setTaxDocument] = useState('');
   const [installments, setInstallments] = useState(1);
-  const [order, setOrder] = useState<{ code: string; total: number } | null>(null);
+  const [order, setOrder] = useState<{ id: string; code: string; total: number } | null>(null);
+  const requestKey = useRef<string | null>(null);
+  const submitting = useRef(false);
   const informationValid = informationSubmitted && isInformationValid(information);
   const subtotal = calculateTotals(items).subtotal;
   const shippingOptions = quoteShipping({ postalCode: information.postalCode, subtotal });
@@ -39,7 +42,8 @@ function useCheckoutState() {
     setInformationSubmitted(true);
     return true;
   }
-  function completeDemo() {
+  async function completeDemo(): Promise<{ error?: string; loginRequired?: boolean }> {
+    if (submitting.current) return { error: 'O pedido já está sendo registrado.' };
     if (
       order ||
       !ready ||
@@ -49,21 +53,40 @@ function useCheckoutState() {
       !payment ||
       !isTaxDocumentValid(taxDocument)
     )
-      return false;
-    setOrder({
-      code: `DEMO-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
-      total: totals.total,
-    });
-    setInformation(EMPTY_INFORMATION);
-    setInformationSubmitted(false);
-    setSelection(null);
-    setTaxDocument('');
-    setGift(false);
-    setGiftWrap(false);
-    setPayment(null);
-    setInstallments(1);
-    clear();
-    return true;
+      return { error: 'Revise as informações, o frete e o pagamento.' };
+    submitting.current = true;
+    requestKey.current ??= crypto.randomUUID();
+    try {
+      const result = await placeOrder({
+        key: requestKey.current,
+        information,
+        items: items.map(({ id, size, color, qty }) => ({ id, size, color, qty })),
+        shipping: shipping.id,
+        payment,
+        installments,
+        gift,
+        giftWrap,
+        taxDocument,
+        coupon: coupon?.code ?? '',
+        expectedTotal: Math.round(totals.total * 100),
+      });
+      if (!result.order) return result;
+      setOrder(result.order);
+      setInformation(EMPTY_INFORMATION);
+      setInformationSubmitted(false);
+      setSelection(null);
+      setTaxDocument('');
+      setGift(false);
+      setGiftWrap(false);
+      setPayment(null);
+      setInstallments(1);
+      clear();
+      return {};
+    } catch {
+      return { error: 'Não foi possível salvar. Tente novamente.' };
+    } finally {
+      submitting.current = false;
+    }
   }
   return {
     ready,

@@ -12,7 +12,7 @@ export default async function OrdersPage() {
   const { supabase, user } = await requireAccount();
   const { data, error } = await supabase
     .from('orders')
-    .select('id,number,status,total_cents,created_at')
+    .select('id,number,status,total_cents,created_at,is_demo')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -39,7 +39,12 @@ export default async function OrdersPage() {
               className="border border-stuw-border dark:border-stuw-borderDark rounded-lg p-5 flex flex-wrap justify-between gap-4"
             >
               <div>
-                <h3 className="font-medium">Pedido {order.number}</h3>
+                <h3 className="font-medium break-all">
+                  <Link href={`/conta/compras/${order.id}`} className="underline">
+                    Pedido {order.number}
+                  </Link>
+                </h3>
+                {order.is_demo && <p className="text-xs mt-2">Pedido de teste</p>}
                 <p className="text-xs text-stuw-slate mt-2">
                   {new Date(order.created_at).toLocaleDateString('pt-BR', {
                     timeZone: 'America/Sao_Paulo',

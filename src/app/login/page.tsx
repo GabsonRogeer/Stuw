@@ -12,13 +12,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const next = (await searchParams).next === 'checkout' ? 'checkout' : '';
   if (isSupabaseConfigured()) {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (user) redirect('/conta');
+    if (user) redirect(next ? '/checkout/information' : '/conta');
   }
   return (
     <div className="min-h-svh flex flex-col items-center px-5 py-10 sm:py-16">
@@ -46,7 +51,12 @@ export default async function LoginPage() {
             </h1>
             <p className="text-sm text-stuw-slate mt-3">Seu espaço na STUW.</p>
           </div>
-          <LoginForm />
+          {next && (
+            <p className="text-sm mb-5">
+              Entre na sua conta para registrar e acompanhar sua compra.
+            </p>
+          )}
+          <LoginForm next={next} />
         </section>
         <div className="text-center mt-7">
           <Link

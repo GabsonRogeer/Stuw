@@ -49,7 +49,7 @@ Copie `.env.example` para `.env.local` se precisar configurar o número oficial 
 
 ## Próximas integrações do roadmap
 
-Banco, conta, estoque, cálculo de frete real, gateway PIX/cartão, webhooks, pedidos e administração ainda não estão integrados. O checkout não cobra, não armazena dados pessoais e não envia pedidos. Newsletter e tabela de medidas aguardam serviço e conteúdo oficiais.
+Conta, cupons, banners e pedidos usam Supabase. Após aplicar as migrações, o checkout salva pedidos de teste na conta do usuário e no painel administrativo, incluindo endereço e itens. Veja [configuração de pedidos](docs/pedidos.md). Estoque, frete real, gateway PIX/cartão, webhooks e Olist aguardam integração: não há cobrança, emissão de nota fiscal ou envio de mercadoria. Newsletter e tabela de medidas aguardam serviço e conteúdo oficiais.
 
 ## Referências preservadas
 

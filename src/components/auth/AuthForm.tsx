@@ -8,7 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { usePersonalization } from '@/providers/personalization-provider';
 const fieldClass =
   'w-full h-12 rounded-md border border-stuw-border dark:border-stuw-borderDark bg-transparent px-4 text-sm';
-export function AuthForm({ signup = false }: { signup?: boolean }) {
+export function AuthForm({ signup = false, next = '' }: { signup?: boolean; next?: string }) {
   useTheme();
   const { ready, openSettings } = usePersonalization();
   const [state, action, pending] = useActionState<AuthState, FormData>(
@@ -35,6 +35,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
       }}
     >
       <fieldset disabled={pending || !ready} className="space-y-5 disabled:opacity-60">
+        <input type="hidden" name="next" value={next} />
         {signup && (
           <div>
             <label htmlFor="auth-name" className="block text-sm mb-2">

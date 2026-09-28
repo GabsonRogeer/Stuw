@@ -139,6 +139,18 @@ test('login preserves generic credential errors and handles network failures', a
   assert.equal((await failing.login({}, form())).error, validation.authErrorMessage());
 });
 
+test('checkout login returns only to the allowlisted checkout route', async () => {
+  const api = actions({
+    auth: { signInWithPassword: async () => ({ error: null }) },
+    rpc: async () => ({ data: false }),
+  });
+  const checkoutForm = form();
+  checkoutForm.set('next', 'checkout');
+  await assert.rejects(() => api.login({}, checkoutForm), /REDIRECT:\/checkout\/information/);
+  checkoutForm.set('next', 'https://evil.example');
+  await assert.rejects(() => api.login({}, checkoutForm), /REDIRECT:\/conta/);
+});
+
 test('logout reports failures and only redirects after successful sign-out', async () => {
   const failing = actions({ auth: { signOut: async () => ({ error: new Error('Offline') }) } });
   assert.ok((await failing.logout()).error);

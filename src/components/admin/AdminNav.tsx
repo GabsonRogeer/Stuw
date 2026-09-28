@@ -6,7 +6,7 @@ import { LogoutButton } from '@/components/auth/LogoutButton';
 const links = [
   ['/admin/cupons', 'Cupons', TicketPercent, false],
   ['/admin/banners', 'Banners', Image, false],
-  ['/admin/pedidos', 'Pedidos', ShoppingBag, true],
+  ['/admin/pedidos', 'Pedidos', ShoppingBag, false],
   ['/admin/relatorios', 'Relatórios', ChartNoAxesCombined, true],
 ] as const;
 export function AdminNav({ superAdmin }: { superAdmin: boolean }) {
