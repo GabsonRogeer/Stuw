@@ -44,7 +44,9 @@ export function WishlistDialog({
                 />
                 <div className="text-xs">
                   <p>{product.title}</p>
-                  <p className="mt-2 text-stuw-slate">{currency(product.price)}</p>
+                  <p className="mt-2 text-stuw-slate">
+                    {product.price === null ? 'Em breve' : currency(product.price)}
+                  </p>
                 </div>
               </Link>
               <button

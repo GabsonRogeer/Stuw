@@ -10,7 +10,7 @@ compiledModule._compile(
   __filename,
 );
 const quote = (value) => "'" + value.replaceAll("'", "''") + "'";
-const rows = compiledModule.exports.PRODUCTS.map(
+const rows = compiledModule.exports.PRODUCTS.filter((p) => p.price !== null).map(
   (p) =>
     `(${p.id},${quote(
       JSON.stringify({

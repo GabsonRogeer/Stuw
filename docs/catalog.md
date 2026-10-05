@@ -1,5 +1,10 @@
 # Cadastro do catálogo de teste
 
+O painel agora possui **Administração → Produtos**. A especificação completa,
+os campos, a migração necessária e os limites da consolidação estão em
+[Cadastro de produtos](product-registration.md). O catálogo estático abaixo é
+preservado até a publicação de uma versão gerenciada do mesmo ID.
+
 Cada produto tem nome (`title`), coleção (`collection`), tipo de peça (`category`),
 categoria de uso (`activityCategory`) e cores (`colors`). O nome do conjunto não
 cria automaticamente cadastros das peças avulsas. As combinações de duas cores

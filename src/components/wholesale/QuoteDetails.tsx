@@ -1,5 +1,6 @@
 import type { WholesaleQuote, QuoteEvent } from '@/types/database';
 import { QUOTE_LABELS, quoteWhatsAppUrl } from '@/services/wholesale';
+import { currency } from '@/lib/commerce';
 export function QuoteDetails({
   quote,
   events,
@@ -57,6 +58,15 @@ export function QuoteDetails({
               <p className="text-xs text-stuw-slate mt-1">
                 {i.color} · {i.size} · {i.qty} unidade(s)
               </p>
+              {i.wholesale_price_cents != null && (
+                <p className="text-xs mt-2">
+                  Referência de atacado: {currency(i.wholesale_price_cents / 100)} por unidade,
+                  sujeita à negociação.
+                </p>
+              )}
+              {i.wholesale_pack && (
+                <p className="text-xs mt-1">Grade / cartela: {i.wholesale_pack}</p>
+              )}
             </li>
           ))}
         </ul>

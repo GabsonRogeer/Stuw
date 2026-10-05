@@ -18,7 +18,7 @@ const normalize = (value: string) =>
     .toLowerCase();
 export function queryCatalog(products: Product[], query: CatalogQuery) {
   const search = normalize(query.busca?.trim() ?? '');
-  let filtered = products.filter(
+  const filtered = products.filter(
     (product) =>
       (!query.categoria ||
         product.category === query.categoria ||
@@ -29,11 +29,17 @@ export function queryCatalog(products: Product[], query: CatalogQuery) {
       (!query.ocasiao || product.occasion === query.ocasiao) &&
       (!search ||
         normalize(
-          `${product.title} ${product.category} ${product.collection} ${product.activityCategory} ${product.colors.map((color) => color.name).join(' ')} ${product.fabric} ${product.feelTag}`,
+          `${product.title} ${product.category} ${product.collection} ${product.activityCategory} ${product.colors.map((color) => color.name).join(' ')} ${product.fabric ?? ''} ${product.feelTag}`,
         ).includes(search)),
   );
-  if (query.ordem === 'menor-preco') filtered = filtered.sort((a, b) => a.price - b.price);
-  if (query.ordem === 'maior-preco') filtered = filtered.sort((a, b) => b.price - a.price);
+  if (query.ordem === 'menor-preco' || query.ordem === 'maior-preco') {
+    const direction = query.ordem === 'menor-preco' ? 1 : -1;
+    filtered.sort((a, b) => {
+      if (a.price === null) return b.price === null ? 0 : 1;
+      if (b.price === null) return -1;
+      return direction * (a.price - b.price);
+    });
+  }
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const requested = Number(query.pagina);
   const page = Math.min(pages, Number.isInteger(requested) && requested > 0 ? requested : 1);

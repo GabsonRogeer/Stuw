@@ -3,8 +3,8 @@ import type { Product } from '@/types';
 function similarity(candidate: Product, source: Product) {
   return (
     (candidate.category === source.category ? 5 : 0) +
-    (candidate.fabric === source.fabric ? 3 : 0) +
-    (candidate.occasion === source.occasion ? 2 : 0)
+    (source.fabric && candidate.fabric === source.fabric ? 3 : 0) +
+    (source.occasion && candidate.occasion === source.occasion ? 2 : 0)
   );
 }
 

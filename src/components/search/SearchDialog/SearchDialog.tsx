@@ -59,7 +59,9 @@ export function SearchDialog({ products, onClose }: { products: Product[]; onClo
               />
               <div className="text-xs">
                 <p>{product.title}</p>
-                <p className="text-stuw-slate mt-1">{currency(product.price)}</p>
+                <p className="text-stuw-slate mt-1">
+                  {product.price === null ? 'Em breve' : currency(product.price)}
+                </p>
               </div>
             </Link>
           </li>

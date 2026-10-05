@@ -4,6 +4,7 @@ import { usePersistentState } from '@/hooks/use-persistent-state';
 import {
   restoreWholesale,
   wholesaleKey,
+  wholesaleAvailable,
   type WholesaleLine,
   type WholesaleProduct,
 } from '@/services/wholesale';
@@ -22,19 +23,25 @@ function useWholesaleState(products: WholesaleProduct[]) {
       if (
         !Number.isInteger(qty) ||
         qty < 1 ||
-        qty > 9999 ||
+        qty > wholesaleAvailable(product, color, size) ||
         !product.sizes.includes(size) ||
         !product.colors.some((c) => c.name === color)
       )
         return false;
       const line = { id: product.id, title: product.title, image: product.image, size, color, qty };
       const prior = items.find((i) => wholesaleKey(i) === wholesaleKey(line));
-      if ((!prior && items.length >= 50) || (prior && prior.qty + qty > 9999)) return false;
+      if (
+        (!prior && items.length >= 50) ||
+        (prior && prior.qty + qty > wholesaleAvailable(product, color, size))
+      )
+        return false;
       setItems((current) => {
         const match = current.find((i) => wholesaleKey(i) === wholesaleKey(line));
         if (match)
           return current.map((i) =>
-            wholesaleKey(i) === wholesaleKey(line) ? { ...i, qty: Math.min(9999, i.qty + qty) } : i,
+            wholesaleKey(i) === wholesaleKey(line)
+              ? { ...i, qty: Math.min(wholesaleAvailable(product, color, size), i.qty + qty) }
+              : i,
           );
         return current.length < 50 ? [...current, line] : current;
       });
@@ -42,7 +49,14 @@ function useWholesaleState(products: WholesaleProduct[]) {
     },
     change: (key: string, qty: number) => {
       if (Number.isInteger(qty) && qty >= 1 && qty <= 9999)
-        setItems((current) => current.map((i) => (wholesaleKey(i) === key ? { ...i, qty } : i)));
+        setItems((current) =>
+          current.map((i) => {
+            const p = products.find((p) => p.id === i.id);
+            return wholesaleKey(i) === key && p
+              ? { ...i, qty: Math.max(1, Math.min(wholesaleAvailable(p, i.color, i.size), qty)) }
+              : i;
+          }),
+        );
     },
     remove: (key: string) => setItems((current) => current.filter((i) => wholesaleKey(i) !== key)),
     clear: () => setItems([]),

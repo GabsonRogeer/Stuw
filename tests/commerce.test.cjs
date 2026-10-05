@@ -27,12 +27,12 @@ const personalization = load('src/services/personalization.ts');
 const { recommendProducts, recommendFromHistory, getComplementaryProduct } = load(
   'src/services/recommendations.ts',
 );
-const product = PRODUCTS[0];
+const product = PRODUCTS.find((product) => product.id === 1);
 const checkout = load('src/services/checkout.ts');
 const { quoteShipping } = load('src/services/shipping.ts', {
   '@/lib/commerce': load('src/lib/commerce.ts'),
 });
-const cart = (product = PRODUCTS[0]) =>
+const cart = (product = PRODUCTS.find((product) => product.id === 1)) =>
   addCartItem([], product, product.sizes[0], product.colors[0].name);
 
 test('checkout validates information and prevents skipping required stages', () => {
@@ -174,7 +174,7 @@ test('recommendations rank matching products without mutating catalog or suggest
   assert.deepEqual(recommendProducts(PRODUCTS, []), []);
   assert.deepEqual(recommendProducts(PRODUCTS, [-1]), []);
   assert.equal(JSON.stringify(PRODUCTS), before);
-  assert.equal(getComplementaryProduct(PRODUCTS, PRODUCTS[0]).category, 'Tops & Sutiãs');
+  assert.equal(getComplementaryProduct(PRODUCTS, product).category, 'Tops & Sutiãs');
 });
 
 test('browser repository records nothing before consent, revokes history, handles other tabs and blocked storage', (t) => {
@@ -401,7 +401,6 @@ test('collection, color and activity filters combine and search includes catalog
 
 test('catalog IDs are unique and every gallery image exists with exact filename casing', () => {
   assert.equal(new Set(PRODUCTS.map((product) => product.id)).size, PRODUCTS.length);
-  const images = new Set(fs.readdirSync(path.resolve(__dirname, '../public/products')));
   for (const product of PRODUCTS) {
     assert.ok(product.collection && product.activityCategory);
     for (const src of [
@@ -409,10 +408,49 @@ test('catalog IDs are unique and every gallery image exists with exact filename 
       product.hoverImage,
       ...(product.galleryImages ?? []).map((image) => image.src),
     ].filter(Boolean)) {
-      assert.ok(
-        images.has(src.replace('/products/', '')),
-        `Missing or incorrectly cased image: ${src}`,
-      );
+      let directory = path.resolve(__dirname, '../public');
+      for (const segment of src.slice(1).split('/')) {
+        assert.ok(
+          fs.readdirSync(directory).includes(segment),
+          `Missing or incorrectly cased image: ${src}`,
+        );
+        directory = path.join(directory, segment);
+      }
     }
+  }
+});
+
+test('unpriced products cannot be added or restored even with valid variants', () => {
+  const unpriced = { ...product, price: null };
+  assert.deepEqual(addCartItem([], unpriced, product.sizes[0], product.colors[0].name), []);
+  assert.deepEqual(restoreCart(cart(), [unpriced]), []);
+});
+
+test('price sorting places unpriced products last in either direction', () => {
+  const unpriced = { ...product, id: 101, price: null };
+  const lower = { ...product, id: 102, price: 10 };
+  for (const order of ['menor-preco', 'maior-preco']) {
+    const sorted = queryCatalog([unpriced, product, lower], { ordem: order }).products;
+    assert.equal(sorted.at(-1).id, unpriced.id);
+    assert.equal(sorted[0].id, order === 'menor-preco' ? lower.id : product.id);
+  }
+});
+
+test('real STUW products include all six supplied photos with explicit front and hover', () => {
+  for (let number = 1; number <= 7; number++) {
+    const slug = `stuw-${String(number).padStart(2, '0')}`;
+    const entry = PRODUCTS.find((product) => product.slug === slug);
+    assert.ok(entry, `Missing product ${slug}`);
+    assert.equal(entry.price, null);
+    assert.equal(entry.image, `/products/${slug}/frente.jpg`);
+    assert.equal(entry.hoverImage, `/products/${slug}/costas.jpg`);
+    const photos = [
+      entry.image,
+      entry.hoverImage,
+      ...entry.galleryImages.map((image) => image.src),
+    ];
+    assert.equal(new Set(photos).size, 6);
+    const files = fs.readdirSync(path.resolve(__dirname, `../public/products/${slug}`));
+    assert.deepEqual(photos.map((photo) => path.basename(photo)).sort(), files.sort());
   }
 });

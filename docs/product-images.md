@@ -1,5 +1,22 @@
 # Imagens dos produtos
 
+## Fotografias reais STUW
+
+Os sete produtos `STUW-01` a `STUW-07` aparecem no catálogo com os códigos das
+pastas `public/products/stuw-01/` a `stuw-07/`. Cada pasta contém seis fotos:
+`frente.jpg` é a principal, `costas.jpg` aparece no hover, os dois arquivos
+`FIT-*.jpg` são as poses seguintes, e `detalhe1.jpg` e `detalhe2.jpg` fecham a galeria.
+Os arquivos originais foram preservados, e o Next Image otimiza a entrega.
+
+O cadastro em `src/data/products.ts` usa IDs de 101 a 107 e `price: null` para
+exibir “Em breve”, sem compra, parcelamento ou inclusão na sacola. Busca e favoritos
+continuam disponíveis. Esses produtos não entram no atacado nem na exportação do
+catálogo de checkout enquanto não tiverem preço. Nome comercial, preço, variantes
+e especificações devem ser confirmados antes de liberar a venda; não use zero
+como preço provisório. Mantenha os IDs, slugs e pastas quando alterar os nomes.
+
+## Cadastro das imagens
+
 O catálogo em `src/data/products.ts` declara as imagens explicitamente:
 
 ```ts

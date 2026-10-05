@@ -47,7 +47,13 @@ Cada componente tem sua própria pasta. `app` compõe páginas e define as rotas
 - `/checkout/information`, `/checkout/shipping`, `/checkout/payment`: etapas independentes, com layout, estado e resumo compartilhados. Ver `docs/checkout.md`.
 - Slugs desconhecidos retornam 404; os seis produtos têm rotas geradas e metadata individual.
 
-Na fonte local, `dynamicParams = false` garante status HTTP 404 antes do streaming para slugs fora do catálogo. Depois de cadastrar uma peça, executar novo build. Ao integrar catálogo dinâmico, trocar essa política por geração sob demanda/revalidação e validar novamente os status HTTP. O diretório de compilação é o padrão `.next`, compatível com o deploy na Vercel. No painel da Vercel, use o preset Next.js, o comando `npm run build` e o diretório de saída padrão (sem override).
+O cadastro administrativo combina a fonte local com publicações do Supabase por ID.
+As rotas de produto são resolvidas sob demanda, sem rebuild para cada cadastro.
+O proxy verifica existência, publicação e aliases antes do streaming, preservando
+HTTP 404 e redirecionamentos permanentes 308. Consulte
+[Cadastro de produtos](product-registration.md) para a migração e as regras.
+O diretório de compilação é `.next`, compatível com Vercel; use o preset Next.js,
+`npm run build` e o diretório de saída padrão, sem override.
 
 `id` é a identidade do produto; `slug` é um campo explícito e estável, não recalculado quando o título muda. Novos produtos devem ter slugs únicos, minúsculos e separados por hífen. Ao integrar o banco, adicionar constraint única em `slug`; alterações editoriais de slug devem gerar redirecionamento permanente da URL anterior.
 

@@ -11,8 +11,22 @@ export function ProductGallery({
 }) {
   const [selectedSource, setSelectedSource] = useState(product.image);
   const photos: ProductImage[] = [
-    { src: product.image, alt: `${product.title} — vista principal` },
-    ...(product.hoverImage ? [{ src: product.hoverImage, alt: `${product.title} — costas` }] : []),
+    {
+      src: product.image,
+      alt:
+        product.galleryImages?.find((m) => m.src === product.image)?.alt ??
+        `${product.title} — vista principal`,
+    },
+    ...(product.hoverImage
+      ? [
+          {
+            src: product.hoverImage,
+            alt:
+              product.galleryImages?.find((m) => m.src === product.hoverImage)?.alt ??
+              `${product.title} — costas`,
+          },
+        ]
+      : []),
     ...(product.galleryImages ?? []),
   ].filter((photo, index, all) => all.findIndex((entry) => entry.src === photo.src) === index);
   const selected = photos.find((photo) => photo.src === selectedSource) ?? photos[0];
@@ -44,7 +58,7 @@ export function ProductGallery({
               <Image
                 src={photo.src}
                 alt=""
-                width={54}
+                width={56}
                 height={72}
                 className="w-14 h-[72px] object-contain bg-stuw-sand dark:bg-stone-900"
               />

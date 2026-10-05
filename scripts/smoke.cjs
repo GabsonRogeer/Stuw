@@ -11,6 +11,9 @@ const cases = [
   ['/admin', 200, 'Fazer login'],
   ['/admin/cupons', 200, 'Fazer login'],
   ['/admin/banners', 200, 'Fazer login'],
+  ['/admin/produtos', 200, 'Fazer login'],
+  ['/admin/produtos/novo', 200, 'Fazer login'],
+  ['/admin/produtos/1', 200, 'Fazer login'],
   ['/admin/pedidos', 200, 'Fazer login'],
   ['/admin/relatorios', 200, 'Fazer login'],
   ['/atacado', 200, 'Atacado STUW'],
@@ -22,6 +25,10 @@ const cases = [
   ['/auth/callback', 200, 'Não foi possível abrir sua sessão.'],
   ['/auth/confirm?type=recovery&token_hash=invalid', 200, 'Não foi possível abrir sua sessão.'],
   ['/produtos', 200, 'A coleção STUW'],
+  ...Array.from({ length: 7 }, (_, index) => {
+    const code = String(index + 1).padStart(2, '0');
+    return [`/produtos/stuw-${code}`, 200, `STUW-${code}`];
+  }),
   ['/produtos?busca=macacao', 200, 'Macacão SilkAir'],
   ['/produtos?busca=inexistente', 200, 'Nenhuma peça nesta seleção.'],
   ['/produtos/legging-sculpt-pure-waist', 200, 'Legging Sculpt Pure Waist'],
@@ -66,6 +73,16 @@ const cases = [
         html = await redirected.text();
       }
       assert.ok(html.includes(text), `Missing content: ${route}`);
+      if (/^\/produtos\/stuw-\d{2}$/.test(route)) {
+        const gallery = html.match(
+          /<section aria-label="Galeria de STUW-\d{2}"[\s\S]*?<\/section>/,
+        )?.[0];
+        assert.ok(gallery, `Missing gallery: ${route}`);
+        assert.equal((gallery.match(/aria-label="Ver imagem /g) ?? []).length, 6, route);
+        assert.ok(html.includes('Esta peça ainda não está disponível para compra.'), route);
+        assert.ok(!html.includes('Adicionar à sacola'), route);
+        assert.ok(!html.includes('Selecione um tamanho'), route);
+      }
       if (route === '/atacado') {
         const cards = html.match(/<article\b[\s\S]*?<\/article>/g) ?? [];
         assert.ok(cards.length > 0, 'Wholesale catalog must show products');

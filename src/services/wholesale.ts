@@ -2,7 +2,17 @@ import type { Product } from '@/types';
 import { isTaxDocumentValid } from './checkout';
 export type WholesaleProduct = Pick<
   Product,
-  'id' | 'title' | 'image' | 'hoverImage' | 'category' | 'sizes' | 'colors' | 'description'
+  | 'id'
+  | 'title'
+  | 'image'
+  | 'hoverImage'
+  | 'category'
+  | 'sizes'
+  | 'colors'
+  | 'description'
+  | 'variants'
+  | 'wholesaleMinimum'
+  | 'wholesalePack'
 >;
 export type WholesaleLine = {
   id: number;
@@ -11,7 +21,15 @@ export type WholesaleLine = {
   qty: number;
   title: string;
   image: string;
+  wholesale_price_cents?: number | null;
+  wholesale_minimum?: number | null;
+  wholesale_pack?: string | null;
 };
+export function wholesaleAvailable(product: WholesaleProduct, color: string, size: string) {
+  return product.variants
+    ? Math.min(9999, product.variants.find((v) => v.color === color && v.size === size)?.stock ?? 0)
+    : 9999;
+}
 export const QUOTE_LABELS: Record<string, string> = {
   received: 'Recebida',
   negotiating: 'Em negociação',
@@ -46,10 +64,15 @@ export function restoreWholesale(value: unknown, products: WholesaleProduct[]): 
       image: product.image,
       size: entry.size,
       color: entry.color,
-      qty: Math.min(9999, entry.qty),
+      qty: Math.min(wholesaleAvailable(product, entry.color, entry.size), entry.qty),
     };
+    if (item.qty < 1) continue;
     const prior = result.find((i) => wholesaleKey(i) === wholesaleKey(item));
-    if (prior) prior.qty = Math.min(9999, prior.qty + item.qty);
+    if (prior)
+      prior.qty = Math.min(
+        wholesaleAvailable(product, entry.color, entry.size),
+        prior.qty + item.qty,
+      );
     else result.push(item);
   }
   return result;

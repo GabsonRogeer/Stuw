@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useWholesale } from '@/providers/wholesale-provider';
-import type { WholesaleProduct } from '@/services/wholesale';
+import { wholesaleAvailable, type WholesaleProduct } from '@/services/wholesale';
 function WholesaleCard({ product }: { product: WholesaleProduct }) {
   const { add, ready } = useWholesale();
   const [size, setSize] = useState(product.sizes[0] ?? '');
@@ -32,6 +32,14 @@ function WholesaleCard({ product }: { product: WholesaleProduct }) {
       </div>
       <h2 className="font-medium mt-4">{product.title}</h2>
       <p className="text-xs text-stuw-slate mt-1">{product.category}</p>
+      {product.wholesaleMinimum && product.wholesaleMinimum > 1 ? (
+        <p className="text-xs mt-2">
+          Mínimo deste modelo: {product.wholesaleMinimum} peças (cores e tamanhos combináveis).
+        </p>
+      ) : null}
+      {product.wholesalePack && (
+        <p className="text-xs text-stuw-slate mt-1">Grade / cartela: {product.wholesalePack}</p>
+      )}
       <form
         className="space-y-3 mt-4"
         onSubmit={(e) => {
@@ -39,7 +47,7 @@ function WholesaleCard({ product }: { product: WholesaleProduct }) {
           setMessage(
             add(product, size, color, qty)
               ? 'Adicionado à lista de cotação.'
-              : 'Limite de 50 variantes e 9.999 peças por variante.',
+              : 'Confira a disponibilidade e a quantidade. Limite de 50 variantes por cotação.',
           );
         }}
       >
@@ -56,7 +64,9 @@ function WholesaleCard({ product }: { product: WholesaleProduct }) {
             Tamanho
             <select className="field mt-1" value={size} onChange={(e) => setSize(e.target.value)}>
               {product.sizes.map((s) => (
-                <option key={s}>{s}</option>
+                <option key={s} disabled={wholesaleAvailable(product, color, s) === 0}>
+                  {s}
+                </option>
               ))}
             </select>
           </label>
@@ -66,7 +76,7 @@ function WholesaleCard({ product }: { product: WholesaleProduct }) {
               className="field mt-1"
               type="number"
               min={1}
-              max={9999}
+              max={wholesaleAvailable(product, color, size)}
               required
               value={qty || ''}
               onChange={(e) => setQty(Number(e.target.value))}
@@ -74,7 +84,7 @@ function WholesaleCard({ product }: { product: WholesaleProduct }) {
           </label>
         </div>
         <button
-          disabled={!ready}
+          disabled={!ready || wholesaleAvailable(product, color, size) === 0}
           className="w-full border border-current rounded-md py-3 text-xs disabled:opacity-50"
         >
           Adicionar à cotação

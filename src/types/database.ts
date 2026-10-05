@@ -118,6 +118,12 @@ export type QuoteEvent = {
 export type Database = {
   public: {
     Tables: {
+      admin_products: {
+        Row: import('@/services/product-admin').AdminProduct;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       wholesale_settings: {
         Row: WholesaleSettings;
         Insert: never;
@@ -166,6 +172,20 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      save_product: {
+        Args: {
+          input_id: number | null;
+          expected_revision: number;
+          input_document: unknown;
+          input_payload: unknown;
+          legacy_slug?: string | null;
+        };
+        Returns: number;
+      };
+      archive_product: {
+        Args: { input_id: number; expected_revision: number };
+        Returns: undefined;
+      };
       create_wholesale_quote: { Args: { request: unknown }; Returns: string };
       update_wholesale_quote: {
         Args: {

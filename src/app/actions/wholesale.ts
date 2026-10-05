@@ -58,6 +58,11 @@ export async function createQuote(request: {
       request: { key: request.key, ...contact, items },
     });
     if (error || !id) {
+      const productMinimum = error?.message.match(/^Product minimum: (\d+)$/)?.[1];
+      if (productMinimum)
+        return {
+          error: `Um dos modelos exige pelo menos ${productMinimum} peças, somando suas cores e tamanhos. Confira as condições no catálogo.`,
+        };
       const minimum = error?.message.match(/^Minimum quantity: (\d+)$/)?.[1];
       if (minimum)
         return { error: `A quantidade mínima atual é ${minimum} peças. Ajuste sua lista.` };

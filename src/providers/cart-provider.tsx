@@ -2,7 +2,13 @@
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import { usePersistentState } from '@/hooks/use-persistent-state';
-import { addCartItem, calculateTotals, itemKey, restoreCart } from '@/lib/commerce';
+import {
+  addCartItem,
+  calculateTotals,
+  itemKey,
+  restoreCart,
+  availableQuantity,
+} from '@/lib/commerce';
 import type { CartItem, Product } from '@/types';
 import type { AppliedCoupon } from '@/services/coupons';
 
@@ -10,13 +16,27 @@ function useCartState(products: Product[]) {
   const validateCart = useCallback((value: unknown) => restoreCart(value, products), [products]);
   const [items, setItems, ready] = usePersistentState<CartItem[]>('stuw_cart', [], validateCart);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
-  const addItem = (product: Product, size: string, color = product.colors[0].name) =>
+  const addItem = (product: Product, size: string, color = product.colors[0]?.name ?? '') =>
     setItems((items) => addCartItem(items, product, size, color));
   const changeQuantity = (key: string, delta: number) =>
     setItems((items) =>
       items
         .map((item) =>
-          itemKey(item) === key ? { ...item, qty: Math.min(99, item.qty + delta) } : item,
+          itemKey(item) === key
+            ? {
+                ...item,
+                qty: Math.min(
+                  products.some((p) => p.id === item.id)
+                    ? availableQuantity(
+                        products.find((p) => p.id === item.id)!,
+                        item.color,
+                        item.size,
+                      )
+                    : 0,
+                  item.qty + delta,
+                ),
+              }
+            : item,
         )
         .filter((item) => item.qty > 0),
     );

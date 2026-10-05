@@ -8,6 +8,12 @@ export const itemKey = (item: Pick<CartItem, 'id' | 'size' | 'color'>) =>
   `${item.id}:${item.size}:${item.color}`;
 export const productSlug = (product: Product) => product.slug;
 const round = (value: number) => Math.round(value * 100) / 100;
+export function productVariant(product: Product, color: string, size: string) {
+  return product.variants?.find((v) => v.color === color && v.size === size);
+}
+export function availableQuantity(product: Product, color: string, size: string) {
+  return product.variants ? Math.min(99, productVariant(product, color, size)?.stock ?? 0) : 99;
+}
 
 export function calculateTotals(
   items: CartItem[],
@@ -58,13 +64,20 @@ export function addCartItem(
   size: string,
   color: string,
 ): CartItem[] {
-  if (!product.sizes.includes(size) || !product.colors.some((option) => option.name === color))
+  const variant = productVariant(product, color, size);
+  const limit = availableQuantity(product, color, size);
+  if (
+    limit < 1 ||
+    product.price === null ||
+    !product.sizes.includes(size) ||
+    !product.colors.some((option) => option.name === color)
+  )
     return items;
   const newItem: CartItem = {
     id: product.id,
     title: product.title,
-    price: product.price,
-    image: product.image,
+    price: variant?.price ?? product.price,
+    image: product.colorMedia?.[color]?.[0]?.src ?? product.image,
     size,
     color,
     qty: 1,
@@ -72,7 +85,7 @@ export function addCartItem(
   const key = itemKey(newItem);
   return items.some((item) => itemKey(item) === key)
     ? items.map((item) =>
-        itemKey(item) === key ? { ...item, qty: Math.min(99, item.qty + 1) } : item,
+        itemKey(item) === key ? { ...item, qty: Math.min(limit, item.qty + 1) } : item,
       )
     : [...items, newItem];
 }
@@ -86,22 +99,25 @@ export function restoreCart(value: unknown, products: Product[]): CartItem[] {
     const product = products.find((product) => product.id === entry.id);
     if (
       !product ||
+      product.price === null ||
       !product.sizes.includes(entry.size) ||
       !product.colors.some((color) => color.name === entry.color)
     )
       continue;
     if (!Number.isInteger(entry.qty) || entry.qty < 1) continue;
+    const limit = availableQuantity(product, entry.color, entry.size);
+    if (limit < 1) continue;
     const item = {
       id: product.id,
       title: product.title,
-      price: product.price,
-      image: product.image,
+      price: productVariant(product, entry.color, entry.size)?.price ?? product.price,
+      image: product.colorMedia?.[entry.color]?.[0]?.src ?? product.image,
       size: entry.size as string,
       color: entry.color as string,
-      qty: Math.min(99, entry.qty),
+      qty: Math.min(limit, entry.qty),
     };
     const previous = result.find((existing) => itemKey(existing) === itemKey(item));
-    if (previous) previous.qty = Math.min(99, previous.qty + item.qty);
+    if (previous) previous.qty = Math.min(limit, previous.qty + item.qty);
     else result.push(item);
   }
   return result;

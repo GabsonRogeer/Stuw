@@ -9,18 +9,35 @@ export const metadata: Metadata = {
 };
 export default async function WholesalePage() {
   const [products, settings] = await Promise.all([getProducts(), getWholesaleSettings()]);
-  const catalog = products.map(
-    ({ id, title, image, hoverImage, category, sizes, colors, description }) => ({
-      id,
-      title,
-      image,
-      hoverImage,
-      category,
-      sizes,
-      colors,
-      description,
-    }),
-  );
+  const catalog = products
+    .filter((product) => product.price !== null)
+    .map(
+      ({
+        id,
+        title,
+        image,
+        hoverImage,
+        category,
+        sizes,
+        colors,
+        description,
+        variants,
+        wholesaleMinimum,
+        wholesalePack,
+      }) => ({
+        id,
+        title,
+        image,
+        hoverImage,
+        category,
+        sizes,
+        colors,
+        description,
+        variants,
+        wholesaleMinimum,
+        wholesalePack,
+      }),
+    );
   return (
     <div className="page-container py-12">
       <p className="eyebrow mb-3">STUW / B2B</p>

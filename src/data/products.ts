@@ -1,6 +1,45 @@
 import { Product } from '../types';
 
 export const PRODUCTS: Product[] = [
+  // Real photography: commercial details remain unconfirmed; null prices block purchase.
+  ...[
+    { code: '01', id: 101, poses: ['FIT-0011.jpg', 'FIT-0016.jpg'] },
+    { code: '02', id: 102, poses: ['FIT-0027.jpg', 'FIT-0042.jpg'] },
+    { code: '03', id: 103, poses: ['FIT-0055.jpg', 'FIT-0068.jpg'] },
+    { code: '04', id: 104, poses: ['FIT-0087.jpg', 'FIT-0088.jpg'] },
+    { code: '05', id: 105, poses: ['FIT-0094.jpg', 'FIT-0100.jpg'] },
+    { code: '06', id: 106, poses: ['FIT-0113.jpg', 'FIT-0120.jpg'] },
+    { code: '07', id: 107, poses: ['FIT-0136.jpg', 'FIT-0145.jpg'] },
+  ].map(
+    ({ code, id, poses }): Product => ({
+      id,
+      slug: `stuw-${code}`,
+      title: `STUW-${code}`,
+      category: 'Novidades',
+      collection: 'STUW',
+      activityCategory: 'Novidades',
+      fabric: null,
+      feelTag: '',
+      occasion: null,
+      price: null,
+      badge: 'Em breve',
+      rating: 0,
+      reviewsCount: 0,
+      image: `/products/stuw-${code}/frente.jpg`,
+      hoverImage: `/products/stuw-${code}/costas.jpg`,
+      galleryImages: [
+        ...poses.map((file, index) => ({
+          src: `/products/stuw-${code}/${file}`,
+          alt: `STUW-${code} — pose ${index + 1}`,
+        })),
+        { src: `/products/stuw-${code}/detalhe1.jpg`, alt: `STUW-${code} — detalhe 1` },
+        { src: `/products/stuw-${code}/detalhe2.jpg`, alt: `STUW-${code} — detalhe 2` },
+      ],
+      description: 'Conheça a peça em diferentes ângulos e veja os detalhes na galeria.',
+      colors: [],
+      sizes: [],
+    }),
+  ),
   {
     id: 1,
     slug: 'legging-sculpt-pure-waist',
