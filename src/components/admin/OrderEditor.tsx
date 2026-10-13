@@ -3,8 +3,10 @@ import { useActionState } from 'react';
 import { updateOrder } from '@/app/admin/pedidos/actions';
 import { ORDER_LABELS, ORDER_TRANSITIONS } from '@/services/orders';
 import type { Order } from '@/types/database';
+import { OrderIntegrationEditor } from './OrderIntegrationEditor';
 export function OrderEditor({ order }: { order: Order }) {
   const [state, action, pending] = useActionState(updateOrder, {});
+  if (!order.is_demo) return <OrderIntegrationEditor order={order} />;
   if (!ORDER_TRANSITIONS[order.status]?.length)
     return <p className="text-sm text-stuw-slate">Pedido encerrado.</p>;
   const statuses = [order.status, ...ORDER_TRANSITIONS[order.status]].filter(

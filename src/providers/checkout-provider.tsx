@@ -1,18 +1,19 @@
 'use client';
 
-import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
-import { placeOrder } from '@/app/actions/order';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { placeOrder, checkOrderPayment } from '@/app/actions/order';
 import { useCart } from '@/providers/cart-provider';
 import { calculateTotals } from '@/lib/commerce';
 import {
-  EMPTY_INFORMATION,
   isInformationValid,
   isTaxDocumentValid,
   shippingContextKey,
   type CheckoutInformation,
   type PaymentMethod,
 } from '@/services/checkout';
-import { quoteShipping } from '@/services/shipping';
+import type { ShippingOption } from '@/services/shipping';
+import { getShippingQuotes } from '@/app/actions/shipping';
+import type { CardPaymentData, CheckoutPaymentResult } from '@/services/fulfillment';
 import {
   applyCheckoutAddress,
   initialCheckoutInformation,
@@ -39,13 +40,45 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
   const [giftWrap, setGiftWrap] = useState(false);
   const [taxDocument, setTaxDocument] = useState('');
   const [installments, setInstallments] = useState(1);
-  const [order, setOrder] = useState<{ id: string; code: string; total: number } | null>(null);
+  const [order, setOrder] = useState<CheckoutPaymentResult | null>(null);
+  const [quote, setQuote] = useState<{
+    id: string;
+    expiresAt: string;
+    context: string;
+    options: ShippingOption[];
+  } | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState('');
+  const quoteSequence = useRef(0);
   const requestKey = useRef<string | null>(null);
   const submitting = useRef(false);
+  const [recovering, setRecovering] = useState(true);
+  const [recoveryError, setRecoveryError] = useState('');
+  useEffect(() => {
+    let disposed = false;
+    const id = new URLSearchParams(window.location.search).get('pedido');
+    async function recover() {
+      try {
+        if (id) {
+          const result = await checkOrderPayment(id);
+          if (!disposed && result.order) setOrder(result.order);
+          else if (!disposed)
+            setRecoveryError(result.error ?? 'Não foi possível recuperar o pedido agora.');
+        }
+      } catch {
+        if (!disposed) setRecoveryError('Não foi possível recuperar o pedido agora.');
+      } finally {
+        if (!disposed) setRecovering(false);
+      }
+    }
+    void recover();
+    return () => {
+      disposed = true;
+    };
+  }, []);
   const informationValid = informationSubmitted && isInformationValid(information);
-  const subtotal = calculateTotals(items).subtotal;
-  const shippingOptions = quoteShipping({ postalCode: information.postalCode, subtotal });
   const context = shippingContextKey(information, items);
+  const shippingOptions = quote?.context === context ? quote.options : [];
   const shipping =
     selection?.context === context
       ? shippingOptions.find((option) => option.id === selection.id)
@@ -57,7 +90,38 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
     setInformationSubmitted(true);
     return true;
   }
-  async function completeDemo(): Promise<{ error?: string; loginRequired?: boolean }> {
+  async function loadShipping(refresh = false) {
+    const sequence = ++quoteSequence.current;
+    setShippingLoading(true);
+    setShippingError('');
+    setSelection(null);
+    try {
+      const result = await getShippingQuotes(
+        { information, items: items.map(({ id, size, color, qty }) => ({ id, size, color, qty })) },
+        refresh,
+      );
+      if (sequence !== quoteSequence.current) return;
+      if (!result.quoteId || !result.options || !result.expiresAt) {
+        setQuote(null);
+        setShippingError(result.error ?? 'Não foi possível calcular o frete.');
+        return;
+      }
+      setQuote({
+        id: result.quoteId,
+        context,
+        expiresAt: result.expiresAt,
+        options: result.options,
+      });
+    } catch {
+      if (sequence === quoteSequence.current)
+        setShippingError('Não foi possível calcular o frete. Tente novamente.');
+    } finally {
+      if (sequence === quoteSequence.current) setShippingLoading(false);
+    }
+  }
+  async function completePayment(
+    card?: CardPaymentData,
+  ): Promise<{ error?: string; loginRequired?: boolean }> {
     if (submitting.current) return { error: 'O pedido já está sendo registrado.' };
     if (
       order ||
@@ -65,6 +129,7 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
       !items.length ||
       !informationValid ||
       !shipping ||
+      !quote ||
       !payment ||
       !isTaxDocumentValid(taxDocument)
     )
@@ -72,31 +137,33 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
     submitting.current = true;
     requestKey.current ??= crypto.randomUUID();
     try {
-      const result = await placeOrder({
-        key: requestKey.current,
-        information,
-        items: items.map(({ id, size, color, qty }) => ({ id, size, color, qty })),
-        shipping: shipping.id,
-        payment,
-        installments,
-        gift,
-        giftWrap,
-        taxDocument,
-        coupon: coupon?.code ?? '',
-        expectedTotal: Math.round(totals.total * 100),
-      });
+      const result = await placeOrder(
+        {
+          key: requestKey.current,
+          quoteId: quote.id,
+          information,
+          items: items.map(({ id, size, color, qty }) => ({ id, size, color, qty })),
+          shipping: shipping.id,
+          payment,
+          installments: card?.installments ?? installments,
+          gift,
+          giftWrap,
+          taxDocument,
+          coupon: coupon?.code ?? '',
+          expectedTotal: Math.round(totals.total * 100),
+        },
+        card,
+      );
       if (!result.order) return result;
       setOrder(result.order);
-      setInformation(EMPTY_INFORMATION);
-      setInformationSubmitted(false);
-      setSelection(null);
+      window.history.replaceState(null, '', `/checkout/payment?pedido=${result.order.id}`);
       setTaxDocument('');
       setGift(false);
       setGiftWrap(false);
       setPayment(null);
       setInstallments(1);
-      clear();
-      return {};
+      if (result.order.paymentStatus === 'approved') clear();
+      return { error: result.error };
     } catch {
       return { error: 'Não foi possível salvar. Tente novamente.' };
     } finally {
@@ -104,7 +171,8 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
     }
   }
   return {
-    ready,
+    ready: ready && !recovering,
+    recoveryError,
     items,
     information,
     addresses,
@@ -142,6 +210,10 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
       setInformation((current) => ({ ...current, ...patch, email }));
     },
     shippingOptions,
+    shippingLoading,
+    shippingError,
+    loadShipping,
+    shippingContext: context,
     shipping,
     selectShipping: (id: string) => {
       if (shippingOptions.some((option) => option.id === id)) setSelection({ id, context });
@@ -158,7 +230,7 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
     setInstallments,
     totals,
     order,
-    completeDemo,
+    completePayment,
   };
 }
 const CheckoutContext = createContext<ReturnType<typeof useCheckoutState> | null>(null);

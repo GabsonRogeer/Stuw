@@ -1,79 +1,57 @@
-# Banners da home
+# Campanhas e carrossel da home
 
-Esta entrega administra o destaque principal da home, mantendo a disposição de
-texto e imagem e as demais seções existentes. Há uma posição (`home`), com uma
-imagem desktop e outra mobile. Não é um carrossel.
+Em **Admin → Banners**, use **Novo card** para adicionar uma campanha. Cada card é independente: publicar um segundo card mantém o primeiro e os dois alternam na home quando seus períodos coincidem.
 
-## Aplicar no Supabase
+## Criar ou editar
 
-Após as migrações anteriores, execute no SQL Editor:
+1. Escolha **Foto + texto** ou **Foto em toda a largura** do destaque inicial da home.
+2. Preencha o título e o link. No formato de foto inteira, o título identifica a campanha e descreve a imagem para leitores de tela; não aparece sobre a foto.
+3. Envie a imagem. Por padrão, a mesma foto atende desktop e celular; desmarque a opção para enviar uma versão própria para celular.
+4. Defina início, fim e ordem, se desejar. As datas do editor usam o horário local do navegador; a listagem apresenta os horários de Brasília. Menores números de ordem aparecem primeiro.
+5. Confira a prévia para desktop e celular e clique em **Salvar rascunho**.
+6. Clique em **Publicar rascunho** para incluir o card no carrossel, conforme o período escolhido.
 
-1. `supabase/migrations/20260928145859_banners.sql` uma única vez.
-2. `supabase/migrations/20260928153112_banner_text_fields.sql` para subtítulo e descrição.
-3. `supabase/tests/banners.sql` (fixtures transacionais; termina em ROLLBACK).
+Salvar uma edição não modifica a versão no ar. É preciso publicá-la novamente. O editor impede publicar alterações locais ainda não salvas.
 
-Se a migração inicial de banners já foi aplicada, execute somente a nova migração
-de campos de texto e o teste atualizado. Ela preserva títulos, imagens e links;
-subtítulo e descrição começam vazios nos banners existentes.
+- Imagens: JPG, PNG ou WebP, até 5 MB por arquivo.
+- Foto inteira desktop: sugestão de 1920 × 800 px.
+- Foto com texto: sugestão de 1200 × 1400 px.
+- Celular: sugestão de 800 × 1000 px.
+- As fotos ocupam o espaço com recorte centralizado; confira o enquadramento nas duas prévias.
+- Links aceitam caminhos internos, como `/produtos`, ou HTTPS.
 
-A migração cria as tabelas, o bucket público `site-banners` e suas políticas.
-Não é necessário cadastrar credenciais novas no projeto. Clientes usam a sessão
-autenticada e a publishable key; as permissões são conferidas por RLS. Confira
-os Security Advisors no painel depois de aplicar a migração.
+## Período e cards salvos
 
-## Uso
+- Sem início: entra no ar assim que for publicado.
+- Com início futuro: fica **Agendada** até a data.
+- Sem fim: permanece publicada até ser retirada.
+- O início é inclusivo; no instante final, a campanha deixa de ser exibida.
+- Ao terminar, o card continua salvo como **Encerrada**. Edite as datas e publique novamente para reutilizá-lo.
+- **Retirar do ar**, dentro do editor, remove somente a publicação daquele card e preserva o rascunho.
+- **Excluir**, na lista, pede confirmação e retira o card da lista e da home. Os demais cards permanecem.
 
-Em `/admin/banners`, preencha título principal, subtítulo, descrição e link e envie as duas imagens. A prévia usa
-os arquivos locais antes do upload e permite alternar desktop/celular. Os links
-da prévia não navegam, evitando sair do editor sem salvar.
+A lista indica quando há mudanças salvas ainda não publicadas. Nessa situação, a home continua usando conteúdo e período da última publicação.
 
-O título principal usa a cor escura da STUW; o subtítulo aparece abaixo, em verde
-e itálico; a descrição tem tamanho menor e cor discreta. Subtítulo (até 160
-caracteres) e descrição (até 300) são opcionais. O tema escuro mantém os contrastes
-da marca. Os três campos são salvos e publicados juntos.
+## Comportamento da home
 
-- JPG, PNG e WebP, no máximo 5 MB por imagem. SVG não é aceito.
-- Sugestões: desktop 1200 × 1400 e celular 800 × 1000 px. O recorte usa object-fit
-  cover centralizado; confirme o enquadramento na prévia.
-- Link: caminho interno como `/produtos` ou URL HTTPS, sem credenciais embutidas.
-- **Salvar rascunho**: envia arquivos diretamente ao Storage e grava título,
-  link e caminhos. Isso não altera o conteúdo publicado.
-- **Publicar rascunho**: publica somente a versão salva. Alterações locais
-  precisam ser salvas primeiro. A função verifica a revisão e a existência das
-  duas imagens antes de copiar o rascunho para a versão pública, em transação.
-- **Retirar do ar**: remove a versão publicada; o rascunho é mantido e a home volta
-  ao destaque original.
+Dois ou mais cards vigentes alternam a cada 6 segundos. Há setas, seletores e botão de pausa. A alternância pausa ao passar o mouse, navegar por teclado ou interagir manualmente. A preferência de movimento reduzido desativa a alternância automática.
 
-O bucket é público: imagens enviadas podem ser acessadas por sua URL mesmo antes
-de publicar. Os caminhos têm UUID aleatório. Títulos e links do rascunho permanecem
-restritos aos administradores. Não use esse bucket para material confidencial.
+Um único card aparece sem controles. Se não houver campanha vigente, ou se a consulta falhar, aparece o destaque original da loja.
 
-## Cache e persistência
+A consulta pública não usa cache de dados. Abas abertas verificam novas publicações a cada 30 segundos enquanto visíveis; o fim da campanha também é verificado no cliente a cada segundo. Novas visitas já consultam as campanhas vigentes. Não é necessário novo deploy para alterar os cards.
 
-A home consulta somente `site_banners`, sem usar sessão administrativa. A leitura
-tem cache de 60 segundos com tag `home-banner`. Publicar/retirar expira essa tag
-imediatamente via `updateTag` e revalida `/`. Não é necessário novo deploy. Abas
-já abertas precisam atualizar a página para exibir o novo banner.
+## Banco, migração e segurança
 
-Enquanto não há publicação, ou se o banco não responde, o destaque original
-continua disponível. O editor mostra falha de consulta em vez de simular sucesso.
+Migração: `supabase/migrations/20261013055416_home_banner_campaigns.sql`, após as migrações anteriores de banners.
 
-Cada upload cria um caminho novo, sem sobrescrever arquivos. Isso evita modificar
-uma imagem publicada ao editar o rascunho e permite cache longo das imagens.
-Arquivos anteriores ou uploads cujo salvamento falhou não são apagados
-automaticamente. Uma futura rotina de limpeza deve preservar todos os caminhos
-referenciados por `banner_drafts` e `site_banners` antes de remover órfãos.
+- `banner_campaigns`: rascunhos, restritos aos administradores por RLS.
+- `banner_publications`: versões publicadas. Visitantes só leem campanhas dentro do período; administradores também leem futuras e encerradas.
+- `change_banner_campaign`: publicação, retirada e exclusão transacionais, com verificação de administrador, ID e revisão. Alterações concorrentes exigem recarregar.
+- A migração preserva o banner anterior e seu rascunho separadamente. As tabelas legadas ficam disponíveis para compatibilidade durante a publicação do novo site.
+- A exclusão é lógica no cadastro, com remoção da versão publicada. O cadastro excluído deixa de ser acessível pelo admin da aplicação.
+- O bucket público `site-banners` é mantido. Os uploads usam caminhos imutáveis e não são removidos automaticamente: excluir um card não exclui seus arquivos do Storage. URLs de imagens continuam públicas.
+- Nenhuma chave administrativa é exposta ao navegador.
 
-## Segurança e verificação
+Os testes cobrem migração com rascunho diferente da publicação, múltiplos cards, datas, RLS, concorrência, retirada/exclusão isoladas, validação de imagens/links e renderização dos dois formatos.
 
-As ações conferem `requireAdmin`. Visitantes leem somente a versão publicada;
-clientes comuns não editam tabelas nem enviam imagens. As funções de publicação
-conferem `auth.uid()` e a permissão no banco, com search_path vazio. O schema
-`private` deve permanecer fora da Data API. O bucket permite inserção a admins e
-nunca overwrite/delete via aplicação. Limites de tamanho e MIME também existem
-no Storage, além das validações do editor.
-
-Os testes Node verificam validações, acesso e separação entre salvar/publicar.
-Os testes SQL verificam RLS, Storage, concorrência de revisão e publicação. Após
-aplicar, teste com a conta admin: salvar rascunho, conferir que a home não mudou,
-publicar, conferir desktop/mobile, editar sem publicar e retirar do ar.
+Na implantação de 13/10/2026, o site usava o destaque original e havia um rascunho sem publicação. O rascunho foi preservado separadamente. A foto e o texto do destaque original foram guardados em uma campanha publicada, para que o próximo card seja acrescentado sem retirar o conteúdo atual. As cópias de segurança e os registros dessa operação ficam em `.local-backups/banner-campaigns/`, fora do deploy e do Git.

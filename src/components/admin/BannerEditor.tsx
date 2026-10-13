@@ -9,6 +9,11 @@ import { Button } from '@/components/ui/button/button';
 import type { Banner } from '@/types/database';
 const field =
   'block w-full mt-2 border border-stuw-border dark:border-stuw-borderDark rounded-md p-3 bg-white dark:bg-stone-900 text-sm';
+function localDate(value?: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
 function useImagePreview(file: File | null, path: string) {
   const [local, setLocal] = useState('');
   useEffect(() => {
@@ -28,9 +33,13 @@ function useImagePreview(file: File | null, path: string) {
 export function BannerEditor({
   draft,
   published,
+  onClose,
+  onSaved,
 }: {
   draft: Banner | null;
   published: Banner | null;
+  onClose: () => void;
+  onSaved: (banner: Banner) => void;
 }) {
   const router = useRouter();
   const [saved, setSaved] = useState(draft);
@@ -38,6 +47,11 @@ export function BannerEditor({
   const [subtitle, setSubtitle] = useState(draft?.subtitle ?? '');
   const [description, setDescription] = useState(draft?.description ?? '');
   const [link, setLink] = useState(draft?.link ?? '/produtos');
+  const [layout, setLayout] = useState<Banner['layout']>(draft?.layout ?? 'split');
+  const [starts, setStarts] = useState(localDate(draft?.starts_at));
+  const [ends, setEnds] = useState(localDate(draft?.ends_at));
+  const [position, setPosition] = useState(draft?.position ?? 0);
+  const [reuseImage, setReuseImage] = useState(!draft || draft.desktop_path === draft.mobile_path);
   const [desktop, setDesktop] = useState<File | null>(null);
   const [mobile, setMobile] = useState<File | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -46,7 +60,8 @@ export function BannerEditor({
   const [message, setMessage] = useState('');
   const [mode, setMode] = useState<'desktop' | 'mobile'>('desktop');
   const desktopUrl = useImagePreview(desktop, saved?.desktop_path ?? '');
-  const mobileUrl = useImagePreview(mobile, saved?.mobile_path ?? '');
+  const ownMobileUrl = useImagePreview(mobile, saved?.mobile_path ?? '');
+  const mobileUrl = reuseImage ? desktopUrl : ownMobileUrl;
   function pick(file: File | undefined, setter: (file: File) => void) {
     if (!file) return;
     const invalid = validateBannerFile(file);
@@ -83,11 +98,22 @@ export function BannerEditor({
   }
   return (
     <div className="space-y-8">
+      <button
+        type="button"
+        disabled={pending}
+        className="text-sm underline"
+        onClick={() => {
+          if (!dirty || window.confirm('Descartar as alterações não salvas?')) onClose();
+        }}
+      >
+        ← Voltar aos cards salvos
+      </button>
       <div className="rounded-lg bg-stuw-sand dark:bg-stone-800 p-5 text-sm">
-        <p className="font-medium">{published ? 'Banner publicado' : 'Destaque original no ar'}</p>
+        <p className="font-medium">{published ? 'Campanha publicada' : 'Rascunho'}</p>
         {published && <p className="mt-2 break-words">{published.title}</p>}
         <p className="text-xs text-stuw-slate mt-2">
-          Salvar rascunho não altera a home. A publicação substitui o destaque principal.
+          Salvar rascunho não altera a home. Publicar adiciona este card ao carrossel no período
+          definido.
         </p>
       </div>
       <form
@@ -100,9 +126,16 @@ export function BannerEditor({
           setMessage('');
           try {
             const desktopPath = await upload(desktop, saved?.desktop_path ?? '');
-            const mobilePath = await upload(mobile, saved?.mobile_path ?? '');
+            const mobilePath = reuseImage
+              ? desktopPath
+              : await upload(mobile, saved?.mobile_path ?? '');
             const form = new FormData();
             Object.entries({
+              id: saved?.id ?? '',
+              layout,
+              starts_at: starts ? new Date(starts).toISOString() : '',
+              ends_at: ends ? new Date(ends).toISOString() : '',
+              position: String(position),
               title,
               subtitle,
               description,
@@ -115,6 +148,7 @@ export function BannerEditor({
             if (result.error) setError(result.error);
             else if (result.draft) {
               setSaved(result.draft);
+              onSaved(result.draft);
               setDesktop(null);
               setMobile(null);
               setDirty(false);
@@ -130,7 +164,23 @@ export function BannerEditor({
       >
         <fieldset disabled={pending} className="space-y-5">
           <label className="block text-sm">
-            Título principal
+            Formato do card
+            <select
+              className={field}
+              value={layout}
+              onChange={(event) => {
+                setLayout(event.target.value as Banner['layout']);
+                setDirty(true);
+              }}
+            >
+              <option value="split">Foto + texto</option>
+              <option value="image">Foto em toda a largura</option>
+            </select>
+          </label>
+          <label className="block text-sm">
+            {layout === 'image'
+              ? 'Nome da campanha / descrição acessível da foto'
+              : 'Título principal'}
             <input
               className={field}
               required
@@ -143,7 +193,7 @@ export function BannerEditor({
               }}
             />
           </label>
-          <label className="block text-sm">
+          <label className={layout === 'image' ? 'hidden' : 'block text-sm'}>
             Subtítulo (verde e itálico)
             <input
               className={field}
@@ -156,7 +206,7 @@ export function BannerEditor({
               }}
             />
           </label>
-          <label className="block text-sm">
+          <label className={layout === 'image' ? 'hidden' : 'block text-sm'}>
             Descrição
             <textarea
               className={field}
@@ -192,6 +242,64 @@ export function BannerEditor({
           </label>
           <div className="grid sm:grid-cols-2 gap-5">
             <label className="block text-sm">
+              Início da campanha (opcional)
+              <input
+                type="datetime-local"
+                className={field}
+                value={starts}
+                onChange={(event) => {
+                  setStarts(event.target.value);
+                  setDirty(true);
+                }}
+              />
+            </label>
+            <label className="block text-sm">
+              Fim da campanha (opcional)
+              <input
+                type="datetime-local"
+                className={field}
+                value={ends}
+                min={starts || undefined}
+                onChange={(event) => {
+                  setEnds(event.target.value);
+                  setDirty(true);
+                }}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-stuw-slate">
+            Horário local do seu navegador. Sem início, a publicação é imediata; sem fim, permanece
+            no ar até ser retirada. Ao encerrar, o card continua salvo.
+          </p>
+          <label className="block text-sm">
+            Ordem no carrossel (menores primeiro)
+            <input
+              type="number"
+              min={0}
+              max={999999}
+              step={1}
+              required
+              className={field}
+              value={position}
+              onChange={(event) => {
+                setPosition(Number(event.target.value));
+                setDirty(true);
+              }}
+            />
+          </label>
+          <label className="flex gap-2 text-sm items-center">
+            <input
+              type="checkbox"
+              checked={reuseImage}
+              onChange={(event) => {
+                setReuseImage(event.target.checked);
+                setDirty(true);
+              }}
+            />
+            Usar a mesma foto no desktop e no celular
+          </label>
+          <div className="grid sm:grid-cols-2 gap-5">
+            <label className="block text-sm">
               Imagem desktop
               <input
                 type="file"
@@ -200,10 +308,11 @@ export function BannerEditor({
                 onChange={(event) => pick(event.target.files?.[0], setDesktop)}
               />
               <span className="block mt-2 text-xs text-stuw-slate">
-                Sugestão: 1200 × 1400 px. JPG, PNG ou WebP, até 5 MB.
+                Sugestão: {layout === 'image' ? '1920 × 800' : '1200 × 1400'} px. JPG, PNG ou WebP,
+                até 5 MB.
               </span>
             </label>
-            <label className="block text-sm">
+            <label className={reuseImage ? 'hidden' : 'block text-sm'}>
               Imagem celular
               <input
                 type="file"
@@ -255,6 +364,7 @@ export function BannerEditor({
           <div className="overflow-auto rounded-lg border border-stuw-border dark:border-stuw-borderDark">
             <div className={mode === 'mobile' ? 'w-[375px] max-w-full mx-auto' : 'min-w-[800px]'}>
               <ManagedBanner
+                layout={layout}
                 title={title || 'Título do banner'}
                 subtitle={subtitle}
                 description={description}
@@ -267,7 +377,7 @@ export function BannerEditor({
           </div>
         ) : (
           <p className="text-sm text-stuw-slate py-10">
-            Envie as duas imagens para visualizar o banner.
+            Envie a foto para visualizar o card. Confira o recorte nas duas telas.
           </p>
         )}
       </section>
@@ -280,9 +390,13 @@ export function BannerEditor({
             setError('');
             setMessage('');
             try {
-              const result = await publishBanner(saved.revision);
+              const result = await publishBanner(saved.id, saved.revision);
               if (result.error) setError(result.error);
               else {
+                if (result.draft) {
+                  setSaved(result.draft);
+                  onSaved(result.draft);
+                }
                 setMessage(result.message ?? '');
                 router.refresh();
               }
@@ -295,7 +409,7 @@ export function BannerEditor({
         >
           Publicar rascunho
         </Button>
-        {published && (
+        {published && saved && (
           <button
             type="button"
             disabled={pending}
@@ -305,9 +419,13 @@ export function BannerEditor({
               setError('');
               setMessage('');
               try {
-                const result = await unpublishBanner();
+                const result = await unpublishBanner(saved.id, saved.revision);
                 if (result.error) setError(result.error);
                 else {
+                  if (result.draft) {
+                    setSaved(result.draft);
+                    onSaved(result.draft);
+                  }
                   setMessage(result.message ?? '');
                   router.refresh();
                 }

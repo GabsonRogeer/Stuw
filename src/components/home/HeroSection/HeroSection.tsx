@@ -22,20 +22,20 @@ export function HeroSection() {
         </Link>
       </div>
       <Link
-        href="/produtos/legging-sculpt-pure-waist"
-        aria-label="Conhecer a Legging Sculpt Pure Waist"
+        href="/produtos?categoria=Conjuntos"
+        aria-label="Conhecer os conjuntos STUW"
         className="relative block aspect-[4/5] md:aspect-auto md:min-h-[620px] order-1 md:order-2 overflow-hidden"
       >
         <Image
-          src="/products/legging-sculpt-frente.jpg"
-          alt="Legging Sculpt da coleção STUW"
+          src="/products/stuw-azul/frente.jpg"
+          alt="Conjunto Stuw azul com top cropped e short de cintura alta"
           fill
           priority
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover object-top"
         />
         <span className="absolute bottom-6 left-6 text-white text-[10px] tracking-[.2em] uppercase">
-          Sculpt / Obsidian
+          Training / Azul
         </span>
       </Link>
     </section>

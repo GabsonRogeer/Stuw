@@ -1,10 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { TicketPercent, Image, ShoppingBag, ChartNoAxesCombined, UserRound } from 'lucide-react';
+import {
+  TicketPercent,
+  Image,
+  ShoppingBag,
+  ChartNoAxesCombined,
+  UserRound,
+  Tags,
+} from 'lucide-react';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 const links = [
   ['/admin/produtos', 'Produtos', ShoppingBag, false],
+  ['/admin/categorias', 'Categorias', Tags, false],
   ['/admin/cupons', 'Cupons', TicketPercent, false],
   ['/admin/banners', 'Banners', Image, false],
   ['/admin/pedidos', 'Pedidos', ShoppingBag, false],

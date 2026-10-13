@@ -1,30 +1,36 @@
 import 'server-only';
 import { getSupabaseConfig, isSupabaseConfigured } from '@/lib/supabase/config';
-import { validateBanner } from '@/services/banners';
+import { validateBanner, bannerIsCurrent } from '@/services/banners';
 import type { Banner } from '@/types/database';
-export async function getPublishedBanner(): Promise<Banner | null> {
-  if (!isSupabaseConfigured()) return null;
+
+export async function getPublishedBanners(): Promise<Banner[]> {
+  if (!isSupabaseConfigured()) return [];
   try {
     const { url, key } = getSupabaseConfig();
-    const response = await fetch(url + '/rest/v1/site_banners?slot=eq.home&select=*', {
-      headers: { apikey: key },
-      next: { revalidate: 60, tags: ['home-banner'] },
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!response.ok) return null;
-    const rows = await response.json();
-    const row = rows?.[0];
-    if (
-      !row ||
-      typeof row.title !== 'string' ||
-      typeof row.link !== 'string' ||
-      typeof row.desktop_path !== 'string' ||
-      typeof row.mobile_path !== 'string' ||
-      validateBanner(row)
-    )
-      return null;
-    return row;
+    const banners: Banner[] = [];
+    const now = Date.now();
+    for (let offset = 0; ; offset += 1000) {
+      const response = await fetch(
+        url +
+          '/rest/v1/banner_publications?select=*&order=position,created_at,id&limit=1000&offset=' +
+          offset,
+        {
+          headers: { apikey: key },
+          cache: 'no-store',
+          signal: AbortSignal.timeout(5000),
+        },
+      );
+      if (!response.ok) return [];
+      const rows: Banner[] = await response.json();
+      if (!Array.isArray(rows)) return [];
+      banners.push(
+        ...rows.filter(
+          (row) => row && !row.deleted_at && bannerIsCurrent(row, now) && !validateBanner(row),
+        ),
+      );
+      if (rows.length < 1000) return banners;
+    }
   } catch {
-    return null;
+    return [];
   }
 }

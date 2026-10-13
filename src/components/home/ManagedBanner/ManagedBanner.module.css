@@ -1,6 +1,25 @@
 .banner {
   display: grid;
 }
+.banner.fullImage {
+  grid-template-columns: 1fr;
+}
+.imageLink {
+  display: block;
+  min-width: 0;
+}
+.imageLink:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: -5px;
+}
+.fullImage.desktop .media {
+  min-height: 480px;
+}
+@media (min-width: 768px) {
+  .fullImage.responsive .media {
+    min-height: 620px;
+  }
+}
 .copy {
   padding: 3rem 1.5rem;
   order: 2;

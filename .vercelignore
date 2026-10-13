@@ -1,0 +1,11 @@
+/.local-backups
+/.env*
+/.agents
+/.codex
+/.aider-desk
+/.next-stuw
+/tests
+/supabase
+/docs
+/scripts
+/*.tsbuildinfo

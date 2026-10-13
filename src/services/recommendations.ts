@@ -4,7 +4,7 @@ function similarity(candidate: Product, source: Product) {
   return (
     (candidate.category === source.category ? 5 : 0) +
     (source.fabric && candidate.fabric === source.fabric ? 3 : 0) +
-    (source.occasion && candidate.occasion === source.occasion ? 2 : 0)
+    (source.activityCategory && candidate.activityCategory === source.activityCategory ? 2 : 0)
   );
 }
 
@@ -75,6 +75,8 @@ export function getComplementaryProduct(
   current: Product,
 ): Product | undefined {
   const complements: Record<string, string[]> = {
+    'Tops/Croppeds': ['Shorts'],
+    Shorts: ['Tops/Croppeds'],
     'Tops & Sutiãs': ['Leggings & Calças', 'Tennis & Saias'],
     'Leggings & Calças': ['Tops & Sutiãs'],
     'Tennis & Saias': ['Tops & Sutiãs'],

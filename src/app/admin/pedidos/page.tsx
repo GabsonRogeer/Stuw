@@ -15,14 +15,19 @@ export default async function OrdersPage({
     .trim()
     .slice(0, 100);
   const page = Math.min(10000, Math.max(1, Math.floor(Number(params.page) || 1)));
-  const mode = ['demo', 'live'].includes(params.mode ?? '') ? params.mode! : '';
+  const mode = ['demo', 'sandbox', 'live'].includes(params.mode ?? '') ? params.mode! : '';
   let query = supabase
     .from('orders')
-    .select('id,number,status,total_cents,created_at,customer_name,customer_email,is_demo', {
-      count: 'exact',
-    });
+    .select(
+      'id,number,status,total_cents,created_at,customer_name,customer_email,is_demo,payment_test_mode',
+      {
+        count: 'exact',
+      },
+    );
   if (status) query = query.eq('status', status);
-  if (mode) query = query.eq('is_demo', mode === 'demo');
+  if (mode === 'demo') query = query.eq('is_demo', true);
+  if (mode === 'sandbox') query = query.eq('is_demo', false).eq('payment_test_mode', true);
+  if (mode === 'live') query = query.eq('is_demo', false).eq('payment_test_mode', false);
   if (q)
     query = query.or(`number.ilike.%${q}%,customer_name.ilike.%${q}%,customer_email.ilike.%${q}%`);
   const { data, error, count } = await query
@@ -60,6 +65,7 @@ export default async function OrdersPage({
           <select name="mode" defaultValue={mode} className="field mt-2">
             <option value="">Todos</option>
             <option value="demo">Teste</option>
+            <option value="sandbox">Sandbox Mercado Pago</option>
             <option value="live">Real</option>
           </select>
         </label>
@@ -94,7 +100,7 @@ export default async function OrdersPage({
                     {new Date(order.created_at).toLocaleDateString('pt-BR', {
                       timeZone: 'America/Sao_Paulo',
                     })}
-                    {order.is_demo ? ' · Teste' : ''} · Ver detalhes
+                    {order.is_demo || order.payment_test_mode ? ' · Teste' : ''} · Ver detalhes
                   </p>
                 </Link>
               </li>

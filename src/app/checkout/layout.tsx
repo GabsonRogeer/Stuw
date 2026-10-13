@@ -24,7 +24,14 @@ export default async function CheckoutLayout({ children }: { children: ReactNode
       addresses={saved.addresses}
       loadError={saved.loadError}
     >
-      <CheckoutShell>{children}</CheckoutShell>
+      <CheckoutShell>
+        {process.env.MERCADO_PAGO_ENVIRONMENT !== 'production' && (
+          <p className="text-sm border rounded p-3 mb-6">
+            Ambiente de teste. Use somente os dados de teste do Mercado Pago.
+          </p>
+        )}
+        {children}
+      </CheckoutShell>
     </CheckoutProvider>
   );
 }

@@ -20,6 +20,7 @@ function load(file, deps = {}) {
   return compiledModule.exports;
 }
 const banner = load('src/services/banners.ts');
+const id = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 const content = {
   subtitle: 'O luxo da pausa.',
   description: 'Essenciais para o estúdio. Liberdade para todos os dias.',
@@ -96,9 +97,9 @@ function setup({
       return query;
     },
     storage: { from: () => ({ info: async () => ({ error: storageError }) }) },
-    rpc: async (...args) => {
+    rpc: (...args) => {
       calls.push(['rpc', ...args]);
-      return { error: rpcError };
+      return { single: async () => ({ error: rpcError, data: result.data }) };
     },
   };
   const actions = load('src/app/admin/banners/actions.ts', {
@@ -119,8 +120,9 @@ function setup({
 test('all banner writes reject unauthorized callers', async () => {
   const { actions, calls } = setup({ authorized: false });
   assert.ok((await actions.saveBanner(form())).error);
-  assert.ok((await actions.publishBanner(1)).error);
-  assert.ok((await actions.unpublishBanner()).error);
+  assert.ok((await actions.publishBanner(id, 1)).error);
+  assert.ok((await actions.unpublishBanner(id, 1)).error);
+  assert.ok((await actions.deleteBanner(id, 1)).error);
   assert.deepEqual(calls, []);
 });
 test('saving a draft never writes the live banner or invalidates the home cache', async () => {
@@ -129,7 +131,7 @@ test('saving a draft never writes the live banner or invalidates the home cache'
   const saved = calls.find((call) => call[0] === 'insert')[1];
   assert.equal(saved.subtitle, content.subtitle);
   assert.equal(saved.description, content.description);
-  assert.ok(calls.some((call) => call[0] === 'from' && call[1] === 'banner_drafts'));
+  assert.ok(calls.some((call) => call[0] === 'from' && call[1] === 'banner_campaigns'));
   assert.ok(
     !calls.some((call) => call[0] === 'rpc' || call[0] === 'tag' || call[1] === 'site_banners'),
   );
@@ -139,18 +141,57 @@ test('draft save checks uploaded assets and refuses concurrent edits', async () 
     (await setup({ storageError: { message: 'missing' } }).actions.saveBanner(form())).error,
   );
   const { actions, calls } = setup({ result: { data: null, error: null } });
-  assert.match((await actions.saveBanner(form({ revision: '3' }))).error, /outra sessão/);
+  assert.match((await actions.saveBanner(form({ id, revision: '3' }))).error, /outra sessão/);
+  assert.ok(calls.some((call) => call[0] === 'eq' && call[1] === 'id' && call[2] === id));
   assert.ok(calls.some((call) => call[0] === 'eq' && call[1] === 'revision' && call[2] === 3));
 });
 test('publication passes expected revision and refreshes cache only on success', async () => {
   const { actions, calls } = setup();
-  assert.ok((await actions.publishBanner(3)).message);
+  assert.ok((await actions.publishBanner(id, 3)).message);
   assert.deepEqual(
     calls.find((call) => call[0] === 'rpc'),
-    ['rpc', 'publish_home_banner', { expected_revision: 3 }],
+    ['rpc', 'change_banner_campaign', { input_id: id, expected_revision: 3, operation: 'publish' }],
   );
   assert.ok(calls.some((call) => call[0] === 'tag' && call[1] === 'home-banner'));
   const failed = setup({ rpcError: { message: 'conflict' } });
-  assert.ok((await failed.actions.publishBanner(3)).error);
+  assert.ok((await failed.actions.publishBanner(id, 3)).error);
   assert.ok(!failed.calls.some((call) => call[0] === 'tag'));
+});
+test('campaign validation and schedule boundaries are consistent', () => {
+  const dates = { starts_at: '2026-10-20T12:00:00Z', ends_at: '2026-10-21T12:00:00Z' };
+  assert.equal(banner.validateBanner({ ...content, layout: 'image', position: 2, ...dates }), null);
+  for (const patch of [
+    { layout: 'other' },
+    { position: -1 },
+    { position: 1.5 },
+    { starts_at: 'invalid' },
+    { ...dates, ends_at: dates.starts_at },
+  ])
+    assert.ok(banner.validateBanner({ ...content, ...patch }));
+  assert.equal(banner.bannerIsCurrent(dates, Date.parse(dates.starts_at) - 1), false);
+  assert.equal(banner.bannerIsCurrent(dates, Date.parse(dates.starts_at)), true);
+  assert.equal(banner.bannerIsCurrent(dates, Date.parse(dates.ends_at)), false);
+  assert.equal(banner.bannerIsCurrent({}, Date.now()), true);
+});
+test('deletion and withdrawal target only the selected campaign and guard stale revisions', async () => {
+  for (const [name, operation] of [
+    ['deleteBanner', 'delete'],
+    ['unpublishBanner', 'unpublish'],
+  ]) {
+    const { actions, calls } = setup();
+    assert.ok((await actions[name](id, 5)).draft);
+    assert.deepEqual(
+      calls.find((call) => call[0] === 'rpc'),
+      ['rpc', 'change_banner_campaign', { input_id: id, expected_revision: 5, operation }],
+    );
+    assert.match(
+      (await setup({ rpcError: { code: '40001' } }).actions[name](id, 5)).error,
+      /outra sessão/,
+    );
+  }
+  const invalid = setup();
+  assert.ok((await invalid.actions.saveBanner(form({ revision: '2' }))).error);
+  assert.ok((await invalid.actions.saveBanner(form({ id, revision: '0' }))).error);
+  assert.ok((await invalid.actions.deleteBanner('', 2)).error);
+  assert.deepEqual(invalid.calls, []);
 });

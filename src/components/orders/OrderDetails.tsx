@@ -1,6 +1,8 @@
 import type { Order, OrderEvent } from '@/types/database';
 import { currency } from '@/lib/commerce';
 import { ORDER_LABELS } from '@/services/orders';
+import { PAYMENT_LABELS, SHIPMENT_LABELS } from '@/services/fulfillment';
+import { ShipmentTimeline } from './ShipmentTimeline';
 export function OrderDetails({ order, events }: { order: Order; events: OrderEvent[] }) {
   const address = order.delivery;
   return (
@@ -8,8 +10,10 @@ export function OrderDetails({ order, events }: { order: Order; events: OrderEve
       <header className="border-b pb-5 border-stuw-border dark:border-stuw-borderDark">
         <h2 className="font-serif text-2xl break-all">Pedido {order.number}</h2>
         <p className="text-sm mt-3">
-          {ORDER_LABELS[order.status]} ·{' '}
-          {new Date(order.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+          {!order.is_demo && order.status === 'pending' && order.payment_status === 'initializing'
+            ? PAYMENT_LABELS.initializing
+            : ORDER_LABELS[order.status]}{' '}
+          · {new Date(order.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
         </p>
         {order.is_demo && (
           <p className="text-sm mt-3 text-stuw-sage dark:text-stuw-champagne">
@@ -17,6 +21,27 @@ export function OrderDetails({ order, events }: { order: Order; events: OrderEve
           </p>
         )}
       </header>
+      {!order.is_demo && (
+        <>
+          {order.payment_test_mode && (
+            <p className="text-sm">Integração em ambiente de teste — sem envio real.</p>
+          )}
+          <p className="text-sm">
+            {PAYMENT_LABELS[order.payment_status] ?? 'Aguardando confirmação'}
+          </p>
+          {order.payment_status === 'initializing' && (
+            <p className="text-sm">
+              Seu pedido foi registrado na STUW, mas ainda não recebemos a confirmação do pagamento.
+              Estamos consultando o Mercado Pago. Não refaça a compra enquanto essa verificação
+              estiver em andamento.
+            </p>
+          )}
+          <ShipmentTimeline
+            status={order.shipment_status ?? 'pending'}
+            paid={order.payment_status === 'approved'}
+          />
+        </>
+      )}
       <section>
         <h3 className="font-serif text-xl mb-4">Itens do pedido</h3>
         {!order.items.length && (
@@ -99,7 +124,15 @@ export function OrderDetails({ order, events }: { order: Order; events: OrderEve
           {events.map((event) => (
             <li key={event.id} className="text-sm">
               <p>
-                {ORDER_LABELS[event.status]} · {event.note}
+                {(!order.is_demo && event.status === 'pending'
+                  ? 'Pedido registrado'
+                  : ORDER_LABELS[event.status]) ??
+                  (event.status.startsWith('payment_')
+                    ? PAYMENT_LABELS[event.status.slice(8)]
+                    : event.status.startsWith('shipment_')
+                      ? SHIPMENT_LABELS[event.status.slice(9)]
+                      : event.status)}{' '}
+                · {event.note}
               </p>
               <time className="text-xs text-stuw-slate">
                 {new Date(event.created_at).toLocaleString('pt-BR', {

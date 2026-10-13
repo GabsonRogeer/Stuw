@@ -23,6 +23,7 @@ export type Coupon = {
   created_at: string;
 };
 export type Banner = {
+  id: string;
   slot: string;
   title: string;
   subtitle: string;
@@ -32,6 +33,12 @@ export type Banner = {
   mobile_path: string;
   revision: number;
   updated_at: string;
+  layout: 'split' | 'image';
+  starts_at: string | null;
+  ends_at: string | null;
+  position: number;
+  created_at: string;
+  deleted_at: string | null;
 };
 type Profile = {
   id: string;
@@ -42,6 +49,7 @@ type Profile = {
   updated_at: string;
 };
 export type OrderItem = {
+  sku?: string;
   id: number;
   title: string;
   image: string;
@@ -59,6 +67,11 @@ export type OrderEvent = {
   created_at: string;
 };
 export type Order = {
+  payment_test_mode: boolean;
+  payment_status: string;
+  shipment_status: string;
+  payment_expires_at: string | null;
+  checkout_fingerprint: string | null;
   id: string;
   user_id: string;
   number: string;
@@ -118,6 +131,57 @@ export type QuoteEvent = {
 export type Database = {
   public: {
     Tables: {
+      checkout_shipping_quotes: {
+        Row: {
+          id: string;
+          user_id: string;
+          context_hash: string;
+          products: import('@/services/checkout-integration').QuotedProduct[];
+          options: import('@/services/shipping').ShippingOption[];
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          context_hash: string;
+          products: import('@/services/checkout-integration').QuotedProduct[];
+          options: import('@/services/shipping').ShippingOption[];
+        };
+        Update: never;
+        Relationships: [];
+      };
+      order_integrations: {
+        Row: {
+          order_id: string;
+          payment_id: string | null;
+          payment_fingerprint: string;
+          provider_updated_at: string | null;
+          quote_id: string;
+          shipping_service: string;
+          label_id: string | null;
+          stock_released: boolean;
+          last_synced_at: string;
+          next_sync_at: string | null;
+          sync_error: string;
+        };
+        Insert: never;
+        Update: { last_synced_at?: string; next_sync_at?: string | null; sync_error?: string };
+        Relationships: [];
+      };
+      catalog_products: {
+        Row: import('@/repositories/products').PublishedProduct;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      product_categories: {
+        Row: import('@/services/categories').Category;
+        Insert: import('@/services/categories').CategoryInput & { value: string };
+        Update: Partial<
+          Pick<import('@/services/categories').Category, 'label' | 'position' | 'archived'>
+        >;
+        Relationships: [];
+      };
       admin_products: {
         Row: import('@/services/product-admin').AdminProduct;
         Insert: never;
@@ -134,11 +198,20 @@ export type Database = {
       wholesale_quote_events: { Row: QuoteEvent; Insert: never; Update: never; Relationships: [] };
       banner_drafts: {
         Row: Banner;
-        Insert: Omit<Banner, 'revision' | 'updated_at'>;
-        Update: Partial<Omit<Banner, 'slot' | 'revision' | 'updated_at'>>;
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       site_banners: { Row: Banner; Insert: never; Update: never; Relationships: [] };
+      banner_campaigns: {
+        Row: Banner;
+        Insert: Omit<Banner, 'id' | 'revision' | 'updated_at' | 'created_at' | 'deleted_at'>;
+        Update: Partial<
+          Omit<Banner, 'id' | 'slot' | 'revision' | 'updated_at' | 'created_at' | 'deleted_at'>
+        >;
+        Relationships: [];
+      };
+      banner_publications: { Row: Banner; Insert: never; Update: never; Relationships: [] };
       coupons: {
         Row: Coupon;
         Insert: Omit<Coupon, 'id' | 'created_at' | 'used_count'>;
@@ -172,6 +245,28 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      create_checkout_order: {
+        Args: {
+          input_user: string;
+          request: unknown;
+          fingerprint: string;
+          payment_fingerprint: string;
+        };
+        Returns: string;
+      };
+      apply_checkout_payment: {
+        Args: { input_id: string; provider_id: string; next_status: string; provider_time: string };
+        Returns: undefined;
+      };
+      apply_checkout_shipment: {
+        Args: {
+          input_id: string;
+          input_label: string;
+          next_status: string;
+          input_tracking: string;
+        };
+        Returns: undefined;
+      };
       save_product: {
         Args: {
           input_id: number | null;
@@ -208,6 +303,10 @@ export type Database = {
         Returns: undefined;
       };
       publish_home_banner: { Args: { expected_revision: number }; Returns: undefined };
+      change_banner_campaign: {
+        Args: { input_id: string; expected_revision: number; operation: string };
+        Returns: Banner[];
+      };
       unpublish_home_banner: { Args: Record<string, never>; Returns: undefined };
       lookup_coupon: {
         Args: { input_code: string };

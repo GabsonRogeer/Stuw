@@ -22,16 +22,13 @@ function load(relativePath, dependencies = {}) {
 }
 const { addCartItem, calculateTotals, restoreCart, itemKey } = load('src/lib/commerce.ts');
 const { queryCatalog } = load('src/services/catalog.ts');
-const { PRODUCTS } = load('src/data/products.ts');
+const { PRODUCTS } = load('tests/fixtures/products.ts');
 const personalization = load('src/services/personalization.ts');
 const { recommendProducts, recommendFromHistory, getComplementaryProduct } = load(
   'src/services/recommendations.ts',
 );
 const product = PRODUCTS.find((product) => product.id === 1);
 const checkout = load('src/services/checkout.ts');
-const { quoteShipping } = load('src/services/shipping.ts', {
-  '@/lib/commerce': load('src/lib/commerce.ts'),
-});
 const cart = (product = PRODUCTS.find((product) => product.id === 1)) =>
   addCartItem([], product, product.sizes[0], product.colors[0].name);
 
@@ -78,19 +75,8 @@ test('shipping selection becomes stale after address or basket changes, not cont
 });
 
 test('selected freight, gift wrap, coupons and payment compose consistent totals', () => {
-  assert.deepEqual(quoteShipping({ postalCode: 'bad', subtotal: 480 }), []);
-  assert.deepEqual(quoteShipping({ postalCode: '01001-000', subtotal: 0 }), []);
-  const options = quoteShipping({ postalCode: '01001-000', subtotal: 480 });
-  assert.deepEqual(
-    options.map((option) => option.price),
-    [28, 45],
-  );
-  assert.deepEqual(
-    quoteShipping({ postalCode: '01001-000', subtotal: 499 }).map((option) => option.price),
-    [0, 45],
-  );
-  assert.equal(calculateTotals(cart(), 'PRIVE10', 'pix', true, options[1].price).total, 490.4);
-  assert.equal(calculateTotals(cart(), 'PRIVE10', 'card', false, options[1].price).total, 477);
+  assert.equal(calculateTotals(cart(), 'PRIVE10', 'pix', true, 45).total, 490.4);
+  assert.equal(calculateTotals(cart(), 'PRIVE10', 'card', false, 45).total, 477);
   assert.equal(calculateTotals(cart(), '', null, false, 0).shipping, 0);
   assert.equal(calculateTotals([], '', 'pix', true, 45).total, 0);
 });
@@ -343,12 +329,11 @@ test('slugs are explicit, URL-safe and unique across the catalog', () => {
   assert.equal(new Set(PRODUCTS.map((product) => product.slug)).size, PRODUCTS.length);
   for (const product of PRODUCTS) assert.match(product.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 });
-test('category, fabric, occasion and accent-insensitive search combine', () => {
+test('category, fabric and accent-insensitive search combine', () => {
   assert.deepEqual(
     queryCatalog(PRODUCTS, {
       categoria: 'Leggings & Calças',
       tecido: 'SculptHold',
-      ocasiao: 'Studio & Mindful',
       busca: 'legging',
     }).products.map((product) => product.id),
     [1],
@@ -433,24 +418,5 @@ test('price sorting places unpriced products last in either direction', () => {
     const sorted = queryCatalog([unpriced, product, lower], { ordem: order }).products;
     assert.equal(sorted.at(-1).id, unpriced.id);
     assert.equal(sorted[0].id, order === 'menor-preco' ? lower.id : product.id);
-  }
-});
-
-test('real STUW products include all six supplied photos with explicit front and hover', () => {
-  for (let number = 1; number <= 7; number++) {
-    const slug = `stuw-${String(number).padStart(2, '0')}`;
-    const entry = PRODUCTS.find((product) => product.slug === slug);
-    assert.ok(entry, `Missing product ${slug}`);
-    assert.equal(entry.price, null);
-    assert.equal(entry.image, `/products/${slug}/frente.jpg`);
-    assert.equal(entry.hoverImage, `/products/${slug}/costas.jpg`);
-    const photos = [
-      entry.image,
-      entry.hoverImage,
-      ...entry.galleryImages.map((image) => image.src),
-    ];
-    assert.equal(new Set(photos).size, 6);
-    const files = fs.readdirSync(path.resolve(__dirname, `../public/products/${slug}`));
-    assert.deepEqual(photos.map((photo) => path.basename(photo)).sort(), files.sort());
   }
 });

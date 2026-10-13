@@ -5,32 +5,23 @@ import { LifestyleSection } from '@/components/home/LifestyleSection/LifestyleSe
 import { ProductGrid } from '@/components/catalog/ProductGrid/ProductGrid';
 import { getProducts } from '@/services/product-service';
 import { ProductDiscovery } from '@/components/product/ProductDiscovery/ProductDiscovery';
-import { getPublishedBanner } from '@/repositories/banners';
-import { ManagedBanner } from '@/components/home/ManagedBanner/ManagedBanner';
-import { bannerImageUrl } from '@/services/banners';
+import { getPublishedBanners } from '@/repositories/banners';
+import { BannerCarousel } from '@/components/home/ManagedBanner/BannerCarousel';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [products, banner] = await Promise.all([getProducts(), getPublishedBanner()]);
+  const [products, banners] = await Promise.all([getProducts(), getPublishedBanners()]);
+  // This dynamic server component supplies one shared clock snapshot for hydration.
+  // eslint-disable-next-line react-hooks/purity
+  const serverNow = Date.now();
   const featuredProducts = [
     ...products.filter((product) => product.featured),
     ...products.filter((product) => !product.featured),
   ].slice(0, 8);
   return (
     <>
-      {banner ? (
-        <ManagedBanner
-          title={banner.title}
-          subtitle={banner.subtitle}
-          description={banner.description}
-          link={banner.link}
-          desktop={bannerImageUrl(banner.desktop_path)}
-          mobile={bannerImageUrl(banner.mobile_path)}
-        />
-      ) : (
-        <HeroSection />
-      )}
+      <BannerCarousel banners={banners} serverNow={serverNow} fallback={<HeroSection />} />
       <section id="catalogo" className="page-container py-16 sm:py-24">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>

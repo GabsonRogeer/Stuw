@@ -23,13 +23,33 @@ const admin = load('src/services/product-admin.ts', {
   '@/data/navigation': load('src/data/navigation.ts'),
 });
 const commerce = load('src/lib/commerce.ts');
-const { PRODUCTS } = load('src/data/products.ts');
+const { PRODUCTS } = load('tests/fixtures/products.ts');
 const repository = load('src/repositories/products.ts', {
   '@/data/products': { PRODUCTS },
   '@/lib/supabase/config': {},
 });
 test('all existing products can be prepared as drafts without changing their IDs or media', () => {
   for (const p of PRODUCTS) assert.equal(admin.validateProduct(admin.fromLegacy(p)), null, p.slug);
+});
+
+test('product categories use managed options and preserve only previous archived assignments', () => {
+  const navigation = { categories: [{ label: 'Shorts', value: 'Shorts' }], activityCategories: [] };
+  const product = { ...admin.emptyProduct(), name: 'Shorts', slug: 'shorts', category: 'Shorts' };
+  assert.equal(admin.validateProduct(product, navigation), null);
+  assert.ok(admin.validateProduct({ ...product, category: 'Conjuntos' }, navigation));
+  assert.equal(
+    admin.validateProduct({ ...product, category: 'Conjuntos' }, navigation, {
+      category: 'Conjuntos',
+      activityCategory: '',
+    }),
+    null,
+  );
+  assert.ok(
+    admin.validateProduct({ ...product, category: 'Tops & Sutiãs' }, navigation, {
+      category: 'Conjuntos',
+      activityCategory: '',
+    }),
+  );
 });
 function draft() {
   return {
@@ -42,6 +62,10 @@ function draft() {
     activityCategory: 'Activewear / Training',
     price: 100,
     status: 'active',
+    weight: 300,
+    width: 20,
+    length: 30,
+    height: 4,
     sizes: ['P', 'M'],
     colors: [
       {
@@ -183,6 +207,7 @@ test('public route resolution preserves legacy URLs, redirects aliases and hides
 test('product actions reject unauthorized callers before any database or storage write', async () => {
   const actions = load('src/app/admin/produtos/actions.ts', {
     'next/cache': {},
+    '@/repositories/categories': {},
     '@/lib/supabase/admin': {
       requireAdmin: async () => {
         throw new Error('denied');

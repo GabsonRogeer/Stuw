@@ -3,8 +3,8 @@
 import { useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Check, ChevronRight } from 'lucide-react';
-import { currency } from '@/lib/commerce';
+import { ChevronRight } from 'lucide-react';
+import { PaymentStatus } from '@/components/checkout/PaymentStatus';
 import { useCheckout } from '@/providers/checkout-provider';
 import { useStorefront } from '@/providers/storefront-provider';
 import { usePersonalization } from '@/providers/personalization-provider';
@@ -22,14 +22,14 @@ export function CheckoutShell({ children }: { children: ReactNode }) {
   useTheme();
   const pathname = usePathname();
   const router = useRouter();
-  const { ready, items, informationValid, shipping, order } = useCheckout();
+  const { ready, items, informationValid, shipping, order, recoveryError } = useCheckout();
   const { setPanel } = useStorefront();
   const { openSettings } = usePersonalization();
   const step = steps.find((entry) => pathname === `/checkout/${entry.id}`)?.id ?? 'information';
   const redirectTo = checkoutRedirect(step, informationValid, Boolean(shipping));
   useEffect(() => {
-    if (ready && items.length && !order && redirectTo) router.replace(redirectTo);
-  }, [ready, items.length, order, redirectTo, router]);
+    if (ready && items.length && !order && !recoveryError && redirectTo) router.replace(redirectTo);
+  }, [ready, items.length, order, recoveryError, redirectTo, router]);
 
   return (
     <div className="page-container py-8 sm:py-12">
@@ -77,21 +77,17 @@ export function CheckoutShell({ children }: { children: ReactNode }) {
           <p role="status" className="py-20 text-center">
             Carregando sua sacola…
           </p>
-        ) : order ? (
-          <section className="max-w-lg mx-auto text-center py-16 space-y-6">
-            <Check size={40} className="mx-auto text-stuw-sage" aria-hidden="true" />
-            <p className="eyebrow">Demonstração concluída</p>
-            <h1 className="font-serif text-4xl">Tudo pronto para o próximo movimento.</h1>
-            <p className="text-sm">
-              Simulação {order.code} · {currency(order.total)}
-            </p>
-            <p className="text-xs text-stuw-slate">
-              Pedido de teste salvo na sua conta. Nenhuma cobrança ou envio será realizado.
-            </p>
-            <Link href={`/conta/compras/${order.id}`} className="inline-block underline text-sm">
-              Acompanhar meu pedido
+        ) : recoveryError ? (
+          <section className="max-w-lg mx-auto py-12 space-y-5">
+            <h1 className="font-serif text-3xl">Acompanhe seu pedido</h1>
+            <p role="alert">{recoveryError}</p>
+            <p className="text-sm">Confira suas compras antes de iniciar outro pagamento.</p>
+            <Link href="/conta/compras" className="underline text-sm">
+              Abrir minhas compras
             </Link>
           </section>
+        ) : order ? (
+          <PaymentStatus initial={order} clearCart />
         ) : !items.length ? (
           <section className="text-center py-20 space-y-5">
             <h1 className="font-serif text-4xl">Sua sacola está vazia.</h1>

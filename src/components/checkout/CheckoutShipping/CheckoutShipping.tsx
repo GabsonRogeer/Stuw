@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useEffectEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useCheckout } from '@/providers/checkout-provider';
@@ -9,7 +10,21 @@ import { CheckoutContactSummary } from '@/components/checkout/CheckoutContactSum
 import { Button } from '@/components/ui/button/button';
 
 export function CheckoutShipping() {
-  const { shippingOptions, shipping, selectShipping } = useCheckout();
+  const {
+    shippingOptions,
+    shipping,
+    selectShipping,
+    shippingError,
+    shippingLoading,
+    loadShipping,
+    shippingContext,
+  } = useCheckout();
+  const calculate = useEffectEvent(() => {
+    void loadShipping();
+  });
+  useEffect(() => {
+    calculate();
+  }, [shippingContext]);
   const router = useRouter();
   return (
     <div>
@@ -22,8 +37,28 @@ export function CheckoutShipping() {
       >
         <h1 className="font-serif text-3xl mb-3">Forma de frete</h1>
         <p className="text-xs text-stuw-slate mb-6">
-          Valores e prazos fictícios para esta demonstração.
+          Valores consultados no Melhor Envio. O prazo de transporte começa após a postagem.
         </p>
+        {shippingLoading && (
+          <p role="status" className="text-sm mb-5">
+            Calculando as opções de entrega…
+          </p>
+        )}
+        {shippingError && (
+          <p role="alert" className="text-sm text-red-700 dark:text-red-300 mb-4">
+            {shippingError}
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={shippingLoading}
+          onClick={() => {
+            void loadShipping(true);
+          }}
+          className="text-xs underline mb-5 disabled:opacity-50"
+        >
+          Recalcular frete
+        </button>
         <fieldset className="space-y-3">
           <legend className="sr-only">Selecione a forma de entrega</legend>
           {shippingOptions.map((option) => (

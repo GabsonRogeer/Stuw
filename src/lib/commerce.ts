@@ -7,7 +7,6 @@ export const currency = (value: number) =>
 export const itemKey = (item: Pick<CartItem, 'id' | 'size' | 'color'>) =>
   `${item.id}:${item.size}:${item.color}`;
 export const productSlug = (product: Product) => product.slug;
-const round = (value: number) => Math.round(value * 100) / 100;
 export function productVariant(product: Product, color: string, size: string) {
   return product.variants?.find((v) => v.color === color && v.size === size);
 }
@@ -22,16 +21,19 @@ export function calculateTotals(
   gift = false,
   shippingPrice?: number,
 ) {
-  const subtotal = round(items.reduce((sum, item) => sum + item.price * item.qty, 0));
-  const shipping =
-    subtotal === 0
+  const subtotalCents = items.reduce(
+    (sum, item) => sum + Math.round(item.price * 100) * item.qty,
+    0,
+  );
+  const shippingCents =
+    subtotalCents === 0
       ? 0
       : shippingPrice !== undefined && Number.isFinite(shippingPrice) && shippingPrice >= 0
-        ? round(shippingPrice)
-        : subtotal >= FREE_SHIPPING_THRESHOLD
+        ? Math.round(shippingPrice * 100)
+        : subtotalCents >= FREE_SHIPPING_THRESHOLD * 100
           ? 0
-          : 28;
-  const giftCost = gift && items.length > 0 ? 35 : 0;
+          : 2800;
+  const giftCents = gift && items.length > 0 ? 3500 : 0;
   // Strings support legacy demo callers; the storefront uses validated objects.
   const rate =
     typeof coupon === 'object' &&
@@ -39,22 +41,23 @@ export function calculateTotals(
     Number.isFinite(coupon.percent) &&
     coupon.percent > 0 &&
     coupon.percent <= 100
-      ? coupon.percent / 100
+      ? Math.round(coupon.percent * 100)
       : 0;
   const discount = rate
-    ? round((subtotal + shipping + giftCost) * rate)
+    ? Math.round(((subtotalCents + shippingCents + giftCents) * rate) / 10000)
     : coupon === 'PRIVE10'
-      ? round(subtotal * 0.1)
+      ? Math.round(subtotalCents * 0.1)
       : 0;
-  const merchandiseDiscount = rate ? round(subtotal * rate) : discount;
-  const pixDiscount = payment === 'pix' ? round((subtotal - merchandiseDiscount) * 0.05) : 0;
+  const merchandiseDiscount = rate ? Math.round((subtotalCents * rate) / 10000) : discount;
+  const pixDiscount =
+    payment === 'pix' ? Math.round((subtotalCents - merchandiseDiscount) * 0.05) : 0;
   return {
-    subtotal,
-    discount,
-    pixDiscount,
-    shipping,
-    giftCost,
-    total: round(subtotal - discount - pixDiscount + shipping + giftCost),
+    subtotal: subtotalCents / 100,
+    discount: discount / 100,
+    pixDiscount: pixDiscount / 100,
+    shipping: shippingCents / 100,
+    giftCost: giftCents / 100,
+    total: (subtotalCents - discount - pixDiscount + shippingCents + giftCents) / 100,
   };
 }
 

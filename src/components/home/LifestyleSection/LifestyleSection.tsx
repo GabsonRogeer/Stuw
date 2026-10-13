@@ -3,18 +3,18 @@ import Link from 'next/link';
 
 const edits = [
   {
-    title: 'Studio & Mindful',
-    image: '/products/top-sage-frente.jpg',
+    title: 'Tops/Croppeds',
+    image: '/products/stuw-azul/FIT-0068.jpg',
     caption: 'Encontre seu equilíbrio.',
   },
   {
-    title: 'Street & Travel',
-    image: '/products/bomber-taupe-frente.jpg',
+    title: 'Shorts',
+    image: '/products/stuw-vermelho/detalhe2.jpg',
     caption: 'Além do estúdio.',
   },
   {
-    title: 'Racquet Club',
-    image: '/products/skirt-tennis-frente.jpg',
+    title: 'Conjuntos',
+    image: '/products/stuw-preto/frente.jpg',
     caption: 'Movimento com leveza.',
   },
 ];
@@ -22,14 +22,14 @@ export function LifestyleSection() {
   return (
     <section className="page-container py-16 sm:py-24">
       <div className="text-center mb-10">
-        <p className="eyebrow mb-3">The STUW edit</p>
+        <p className="eyebrow mb-3">Seleção STUW</p>
         <h2 className="font-serif text-4xl">Um ritmo. Muitas possibilidades.</h2>
       </div>
       <div className="grid sm:grid-cols-3 gap-6">
         {edits.map((edit) => (
           <Link
             key={edit.title}
-            href={`/produtos?ocasiao=${encodeURIComponent(edit.title)}`}
+            href={`/produtos?categoria=${encodeURIComponent(edit.title)}`}
             className="group"
           >
             <div className="relative aspect-[3/4] overflow-hidden bg-stuw-sand">

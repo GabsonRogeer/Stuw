@@ -1,5 +1,6 @@
-import { categories, activityCategories, fabrics, occasions } from '@/data/navigation';
+import { categories, activityCategories, fabrics } from '@/data/navigation';
 import type { Product } from '@/types';
+import type { CategoryNavigation } from '@/services/categories';
 
 export const PRODUCT_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'Único'] as const;
 export const PRODUCT_BUCKET = 'product-images';
@@ -37,7 +38,6 @@ export type ProductDraft = {
   brand: string;
   category: string;
   activityCategory: string;
-  occasion: string;
   gender: string;
   collection: string;
   tags: string;
@@ -70,6 +70,7 @@ export type ProductDraft = {
   length: number | null;
   width: number | null;
   height: number | null;
+  shippingPackageIsTest?: boolean;
   seoTitle: string;
   seoDescription: string;
   canonical: string;
@@ -126,7 +127,6 @@ export const PRODUCT_SECTIONS: { title: string; fields: ProductField[] }[] = [
         label: 'Linha de uso',
         options: activityCategories.map((c) => c.value),
       },
-      { key: 'occasion', label: 'Ocasião', options: occasions },
       { key: 'gender', label: 'Gênero', options: ['Feminino', 'Masculino', 'Unissex'] },
       { key: 'collection', label: 'Coleção' },
       { key: 'tags', label: 'Tags (separadas por vírgula)' },
@@ -194,7 +194,7 @@ export const PRODUCT_SECTIONS: { title: string; fields: ProductField[] }[] = [
     ],
   },
   {
-    title: 'Dados fiscais e logística',
+    title: 'Dados fiscais',
     fields: [
       { key: 'ncm', label: 'NCM (8 dígitos)' },
       { key: 'cest', label: 'CEST (7 dígitos)' },
@@ -204,6 +204,11 @@ export const PRODUCT_SECTIONS: { title: string; fields: ProductField[] }[] = [
         options: ['0', '1', '2', '3', '4', '5', '6', '7', '8'],
       },
       { key: 'unit', label: 'Unidade', options: ['UN', 'PC', 'CJ', 'PAR'] },
+    ],
+  },
+  {
+    title: 'Frete e embalagem',
+    fields: [
       { key: 'weight', label: 'Peso embalado (g)', type: 'number' },
       { key: 'length', label: 'Comprimento da embalagem (cm)', type: 'number' },
       { key: 'width', label: 'Largura da embalagem (cm)', type: 'number' },
@@ -247,7 +252,6 @@ export function emptyProduct(): ProductDraft {
     brand: 'STUW',
     category: '',
     activityCategory: '',
-    occasion: '',
     gender: '',
     collection: '',
     tags: '',
@@ -302,7 +306,6 @@ export function fromLegacy(p: Product): ProductDraft {
       ? p.activityCategory
       : '',
     collection: p.collection,
-    occasion: p.occasion ?? '',
     fabric: p.fabric ?? '',
     fit: p.feelTag,
     price: p.price,
@@ -355,7 +358,11 @@ const money = (n: unknown) =>
     n <= 1000000 &&
     Math.abs(n * 100 - Math.round(n * 100)) < 0.000001);
 const date = (s: string) => !s || (/^\d{4}-\d\d-\d\dT/.test(s) && Number.isFinite(Date.parse(s)));
-export function validateProduct(value: unknown): string | null {
+export function validateProduct(
+  value: unknown,
+  navigation: CategoryNavigation = { categories, activityCategories },
+  previous?: Pick<ProductDraft, 'category' | 'activityCategory'>,
+): string | null {
   if (!value || typeof value !== 'object' || JSON.stringify(value).length > 200000)
     return 'Cadastro inválido ou muito grande.';
   const p = value as ProductDraft;
@@ -368,7 +375,21 @@ export function validateProduct(value: unknown): string | null {
       v.length > (f.max ?? (f.type === 'textarea' ? 10000 : 1000))
     )
       return `${f.label}: conteúdo inválido ou muito longo.`;
-    if (f.options && v && !f.options.includes(String(v))) return `${f.label}: opção inválida.`;
+    const taxonomy =
+      f.key === 'category'
+        ? navigation.categories
+        : f.key === 'activityCategory'
+          ? navigation.activityCategories
+          : null;
+    if (taxonomy) {
+      if (
+        v &&
+        !taxonomy.some((c) => c.value === v) &&
+        previous?.[f.key as 'category' | 'activityCategory'] !== v
+      )
+        return `${f.label}: selecione uma categoria ativa.`;
+    } else if (f.options && v && !f.options.includes(String(v)))
+      return `${f.label}: opção inválida.`;
     if (f.type === 'datetime-local' && !date(String(v))) return `${f.label}: data inválida.`;
   }
   if (!p.name.trim() || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.slug) || p.slug.length > 160)
@@ -399,6 +420,8 @@ export function validateProduct(value: unknown): string | null {
     return 'Confira os dígitos do NCM e do CEST.';
   for (const n of [p.weight, p.length, p.width, p.height])
     if (n !== null && n <= 0) return 'Peso e dimensões devem ser maiores que zero.';
+  if (p.shippingPackageIsTest !== undefined && typeof p.shippingPackageIsTest !== 'boolean')
+    return 'Identificação da embalagem de teste inválida.';
   if (p.canonical && !/^https:\/\/stuw\.vercel\.app\/produtos\/[a-z0-9-]+$/.test(p.canonical))
     return 'Canonical deve ser uma URL de produto da STUW.';
   if (p.sizeGuide && !/^(\/(?!\/)[^\s\\]*|https:\/\/[^\s]+)$/.test(p.sizeGuide))
@@ -495,6 +518,8 @@ export function validateProduct(value: unknown): string | null {
     }
   }
   if (p.status === 'active') {
+    if ([p.weight, p.length, p.width, p.height].some((n) => n === null || n <= 0))
+      return 'Para publicar, informe o peso e as dimensões da peça embalada para calcular o frete.';
     if (
       !p.description.trim() ||
       !p.category ||
@@ -544,7 +569,6 @@ export function toStoreProduct(id: number, p: ProductDraft, now = Date.now()): P
     collection: p.collection,
     activityCategory: p.activityCategory,
     fabric: (p.fabric || null) as Product['fabric'],
-    occasion: (p.occasion || null) as Product['occasion'],
     featured: p.featured,
     feelTag: p.fit,
     description: p.description,

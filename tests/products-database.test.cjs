@@ -22,15 +22,18 @@ test('Postgres product permissions, atomic variants, slug history, revisions, dr
       '20260928184320_unlimited_coupons.sql',
       '20260928185642_wholesale_quotes.sql',
       '20261005172919_product_catalog.sql',
+      '20261012170807_category_management.sql',
     ])
       await db.exec(fs.readFileSync('supabase/migrations/' + file, 'utf8'));
     const uid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-    for (const file of ['orders.sql', 'wholesale.sql'])
+    for (const file of ['orders.sql', 'wholesale.sql', 'categories.sql'])
       await db.exec(fs.readFileSync('supabase/tests/' + file, 'utf8'));
     await db.query('insert into auth.users(id,email) values($1,$2)', [uid, 'admin@example.com']);
     await db.query('insert into private.admin_users(user_id) values($1)', [uid]);
     const document = {
       name: 'Sculpt',
+      category: 'Conjuntos',
+      activityCategory: 'Activewear / Training',
       slug: 'sculpt',
       status: 'active',
       wholesaleMinimum: 2,
@@ -74,6 +77,26 @@ test('Postgres product permissions, atomic variants, slug history, revisions, dr
     ]);
     const id = (await save(null, 0)).rows[0].id;
     assert.ok(id >= 1000000);
+    await assert.rejects(
+      save(id, 1, { ...document, category: 'Does not exist' }),
+      (e) => e.code === '23503',
+    );
+    await assert.rejects(
+      save(id, 1, { ...document, category: 'Activewear / Training' }),
+      (e) => e.code === '23503',
+    );
+    await db.query(
+      "update public.product_categories set archived=true where kind='piece' and value='Conjuntos'",
+    );
+    assert.equal(
+      (await db.query('select document from public.admin_products where id=$1', [id])).rows[0]
+        .document.category,
+      'Conjuntos',
+    );
+    assert.ok(
+      (await db.query('select payload from public.catalog_products where id=$1', [id])).rows[0]
+        .payload,
+    );
     assert.equal(
       (await db.query('select count(*)::int n from public.admin_products')).rows[0].n,
       1,

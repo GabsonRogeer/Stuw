@@ -12,6 +12,7 @@ const cases = [
   ['/admin/cupons', 200, 'Fazer login'],
   ['/admin/banners', 200, 'Fazer login'],
   ['/admin/produtos', 200, 'Fazer login'],
+  ['/admin/categorias', 200, 'Fazer login'],
   ['/admin/produtos/novo', 200, 'Fazer login'],
   ['/admin/produtos/1', 200, 'Fazer login'],
   ['/admin/pedidos', 200, 'Fazer login'],
@@ -25,22 +26,12 @@ const cases = [
   ['/auth/callback', 200, 'Não foi possível abrir sua sessão.'],
   ['/auth/confirm?type=recovery&token_hash=invalid', 200, 'Não foi possível abrir sua sessão.'],
   ['/produtos', 200, 'A coleção STUW'],
-  ...Array.from({ length: 7 }, (_, index) => {
-    const code = String(index + 1).padStart(2, '0');
-    return [`/produtos/stuw-${code}`, 200, `STUW-${code}`];
-  }),
-  ['/produtos?busca=macacao', 200, 'Macacão SilkAir'],
   ['/produtos?busca=inexistente', 200, 'Nenhuma peça nesta seleção.'],
-  ['/produtos/legging-sculpt-pure-waist', 200, 'Legging Sculpt Pure Waist'],
-  ['/produtos/stuw-mocha-sculpt-set', 200, 'STUW Mocha Sculpt Set'],
-  ['/produtos/stuw-run-set-mauve', 200, 'STUW Run Set'],
-  ['/produtos/stuw-move-zip-set', 200, 'STUW Move Zip Set'],
-  ['/produtos/stuw-studio-half-zip-set', 200, 'STUW Studio Half-Zip Set'],
-  ['/produtos/stuw-active-run-set', 200, 'STUW Active Run Set'],
-  ['/produtos/stuw-sculpt-set-mocha', 200, 'STUW Sculpt Set Mocha'],
-  ['/produtos?colecao=Move&cor=Black', 200, 'STUW Move Zip Set'],
-  ['/produtos?categoria=Activewear%20%2F%20Running', 200, 'STUW Active Run Set'],
-  ['/produtos?categoria=Conjuntos', 200, 'STUW Mocha Sculpt Set'],
+  ['/produtos/legging-sculpt-pure-waist', 404, 'Essa página não está por aqui.'],
+  ['/produtos/stuw-01', 404, 'Essa página não está por aqui.'],
+  ['/produtos?categoria=Conjuntos', 200, 'A coleção STUW'],
+  ['/produtos?categoria=Tops%2FCroppeds', 200, 'A coleção STUW'],
+  ['/produtos?categoria=Shorts', 200, 'A coleção STUW'],
   ['/produtos/nao-existe', 404, 'Essa página não está por aqui.'],
   ['/checkout', 200, 'Fazer login'],
   ['/checkout/information', 200, 'Fazer login'],
@@ -48,12 +39,10 @@ const cases = [
   ['/checkout/payment', 200, 'Fazer login'],
   ['/admin/pedidos/00000000-0000-0000-0000-000000000001', 200, 'Fazer login'],
   ['/conta/compras/00000000-0000-0000-0000-000000000001', 200, 'Fazer login'],
-  ['/products/legging-sculpt-frente.jpg', 200, null],
-  ['/products/legging-sculpt-costas.png', 200, null],
-  ['/products/STUW-Mocha%20Sculpt-Set-frente.png', 200, null],
-  ['/products/STUW-Mocha-Sculpt-Set-costas.png', 200, null],
-  ['/products/STUW_Run_Set-Mauve-frente.png', 200, null],
-  ['/products/STUW_Run_Set-Mauve-costas.png', 200, null],
+  ...['azul', 'preto', 'branco', 'grafite', 'rosa', 'vermelho', 'azul-marinho'].flatMap((color) => [
+    [`/products/stuw-${color}/frente.jpg`, 200, null],
+    [`/products/stuw-${color}/costas.jpg`, 200, null],
+  ]),
 ];
 (async () => {
   for (const [route, status, text] of cases) {
@@ -73,34 +62,13 @@ const cases = [
         html = await redirected.text();
       }
       assert.ok(html.includes(text), `Missing content: ${route}`);
-      if (/^\/produtos\/stuw-\d{2}$/.test(route)) {
-        const gallery = html.match(
-          /<section aria-label="Galeria de STUW-\d{2}"[\s\S]*?<\/section>/,
-        )?.[0];
-        assert.ok(gallery, `Missing gallery: ${route}`);
-        assert.equal((gallery.match(/aria-label="Ver imagem /g) ?? []).length, 6, route);
-        assert.ok(html.includes('Esta peça ainda não está disponível para compra.'), route);
-        assert.ok(!html.includes('Adicionar à sacola'), route);
-        assert.ok(!html.includes('Selecione um tamanho'), route);
-      }
       if (route === '/atacado') {
         const cards = html.match(/<article\b[\s\S]*?<\/article>/g) ?? [];
-        assert.ok(cards.length > 0, 'Wholesale catalog must show products');
         assert.ok(
           cards.every((card) => !card.includes('R$')),
           'Wholesale cards must not show retail prices',
         );
-        assert.ok(html.includes('Adicionar à cotação'));
-      }
-      if (route === '/produtos/stuw-mocha-sculpt-set') {
-        const gallery = html.match(
-          /<section aria-label="Galeria de STUW Mocha Sculpt Set"[\s\S]*?<\/section>/,
-        )?.[0];
-        assert.ok(gallery, 'Mocha product gallery must be rendered');
-        assert.equal((gallery.match(/aria-label="Ver imagem /g) ?? []).length, 2);
-        assert.ok(gallery.includes('STUW-Mocha%20Sculpt-Set-frente.png'));
-        assert.ok(gallery.includes('STUW-Mocha-Sculpt-Set-costas.png'));
-        assert.ok(!gallery.includes('fabric-macro'), 'Mocha gallery must not show generic texture');
+        assert.ok(html.includes(cards.length ? 'Adicionar à cotação' : 'Nenhuma peça encontrada.'));
       }
     }
     console.log(`OK ${status} ${route}`);

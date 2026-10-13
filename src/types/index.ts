@@ -19,13 +19,6 @@ export interface Product extends ManagedProductFields {
   featured?: boolean;
   fabric: 'SilkAir' | 'SculptHold' | 'VelvetNulu' | 'ShieldAir' | null;
   feelTag: string;
-  occasion:
-    | 'Studio & Mindful'
-    | 'High Impact'
-    | 'Racquet Club'
-    | 'Street & Travel'
-    | 'Recovery & Lounge'
-    | null;
   /** Null means the product is visible but not available for purchase. */
   price: number | null;
   badge: string;

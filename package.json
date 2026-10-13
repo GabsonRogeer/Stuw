@@ -12,7 +12,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --test tests/*.test.cjs",
     "test:smoke": "node scripts/smoke.cjs",
-    "db:check": "node scripts/check-supabase.cjs"
+    "db:check": "node scripts/check-supabase.cjs",
+    "shipping:check": "node scripts/check-shipping.cjs",
+    "checkout:check": "node scripts/check-checkout.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

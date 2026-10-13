@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { requireAccount } from '@/lib/supabase/account';
 import { isUuid } from '@/services/orders';
 import { OrderDetails } from '@/components/orders/OrderDetails';
+import { PaymentStatus } from '@/components/checkout/PaymentStatus';
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { supabase, user } = await requireAccount();
   const { id } = await params;
@@ -26,6 +27,18 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         Voltar às compras
       </Link>
       <OrderDetails order={order} events={events ?? []} />
+      {!order.is_demo &&
+        ['initializing', 'pending', 'in_process', 'authorized'].includes(order.payment_status) && (
+          <PaymentStatus
+            initial={{
+              id: order.id,
+              code: order.number,
+              total: order.total_cents / 100,
+              paymentStatus: order.payment_status,
+              testMode: order.payment_test_mode,
+            }}
+          />
+        )}
       {eventsError && <p role="alert">Histórico temporariamente indisponível.</p>}
     </div>
   );

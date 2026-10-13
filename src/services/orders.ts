@@ -27,6 +27,7 @@ export type OrderRequest = {
   coupon: string;
   expectedTotal: number;
   taxDocument: string;
+  quoteId: string;
 };
 export function validOrderRequest(value: OrderRequest) {
   try {
@@ -51,7 +52,8 @@ export function validOrderRequest(value: OrderRequest) {
           i.qty >= 1 &&
           i.qty <= 99,
       ) &&
-      ['standard', 'express'].includes(value.shipping) &&
+      /^me:[1-9]\d{0,8}$/.test(value.shipping) &&
+      isUuid(value.quoteId) &&
       ['pix', 'card'].includes(value.payment) &&
       Number.isInteger(value.installments) &&
       value.installments >= 1 &&

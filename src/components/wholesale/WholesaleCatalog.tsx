@@ -3,8 +3,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useWholesale } from '@/providers/wholesale-provider';
+import { useCategories } from '@/providers/categories-provider';
 import { wholesaleAvailable, type WholesaleProduct } from '@/services/wholesale';
 function WholesaleCard({ product }: { product: WholesaleProduct }) {
+  const { categories } = useCategories();
   const { add, ready } = useWholesale();
   const [size, setSize] = useState(product.sizes[0] ?? '');
   const [color, setColor] = useState(product.colors[0]?.name ?? '');
@@ -31,7 +33,9 @@ function WholesaleCard({ product }: { product: WholesaleProduct }) {
         )}
       </div>
       <h2 className="font-medium mt-4">{product.title}</h2>
-      <p className="text-xs text-stuw-slate mt-1">{product.category}</p>
+      <p className="text-xs text-stuw-slate mt-1">
+        {categories.find((c) => c.value === product.category)?.label ?? product.category}
+      </p>
       {product.wholesaleMinimum && product.wholesaleMinimum > 1 ? (
         <p className="text-xs mt-2">
           Mínimo deste modelo: {product.wholesaleMinimum} peças (cores e tamanhos combináveis).
@@ -104,6 +108,7 @@ export function WholesaleCatalog({
   minimum: number | null;
 }) {
   const { count } = useWholesale();
+  const { categories } = useCategories();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
@@ -152,8 +157,10 @@ export function WholesaleCatalog({
             }}
           >
             <option value="">Todas as categorias</option>
-            {[...new Set(products.map((p) => p.category))].map((c) => (
-              <option key={c}>{c}</option>
+            {categories.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
             ))}
           </select>
         </label>

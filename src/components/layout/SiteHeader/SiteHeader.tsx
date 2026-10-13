@@ -7,10 +7,11 @@ import { useCart } from '@/providers/cart-provider';
 import { useWishlist } from '@/providers/wishlist-provider';
 import { useStorefront } from '@/providers/storefront-provider';
 import { useTheme } from '@/hooks/use-theme';
-import { categories, activityCategories } from '@/data/navigation';
+import { useCategories } from '@/providers/categories-provider';
 import { Modal } from '@/components/ui/modal/modal';
 
 export function SiteHeader({ compact = false }: { compact?: boolean }) {
+  const { categories, activityCategories } = useCategories();
   const { count } = useCart();
   const { ids } = useWishlist();
   const { setPanel } = useStorefront();

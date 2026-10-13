@@ -7,7 +7,7 @@ import { CatalogFilters } from '@/components/catalog/CatalogFilters/CatalogFilte
 
 export const metadata: Metadata = {
   title: 'Coleção',
-  description: 'Descubra as peças STUW por categoria, tecido ou ocasião.',
+  description: 'Descubra as peças STUW por categoria, cor ou tecido.',
 };
 export default async function ProductsPage({
   searchParams,
@@ -21,7 +21,6 @@ export default async function ProductsPage({
     'colecao',
     'cor',
     'tecido',
-    'ocasiao',
     'busca',
     'ordem',
     'pagina',

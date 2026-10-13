@@ -7,6 +7,9 @@ import { Plus, Trash2, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button/button';
 import { saveProduct, archiveProduct } from '@/app/admin/produtos/actions';
 import { createClient } from '@/lib/supabase/client';
+import { useCategories } from '@/providers/categories-provider';
+import { withTestShippingPackage } from '@/services/shipping-package';
+import { ProductShippingTest } from './ProductShippingTest';
 import {
   PRODUCT_SECTIONS,
   PRODUCT_SIZES,
@@ -33,13 +36,17 @@ export function ProductEditor({
   record,
   legacyId,
   legacyImages = [],
+  shippingSandbox = false,
 }: {
   initial: ProductDraft;
   record?: AdminProduct;
   legacyId?: number;
   legacyImages?: AdminColor['images'];
+  shippingSandbox?: boolean;
 }) {
-  const [draft, setDraft] = useState(initial);
+  const [draft, setDraft] = useState(() =>
+    shippingSandbox ? withTestShippingPackage(initial) : initial,
+  );
   const [saved, setSaved] = useState(record);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -47,6 +54,8 @@ export function ProductEditor({
   const [uploading, setUploading] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(false);
   const router = useRouter();
+  const navigation = useCategories();
+  const previous = saved?.document ?? initial;
   const set = <K extends keyof ProductDraft>(key: K, value: ProductDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
   const color = (index: number, update: Partial<AdminColor>) =>
@@ -106,7 +115,7 @@ export function ProductEditor({
         e.preventDefault();
         setMessage('');
         setError('');
-        const invalid = validateProduct(draft);
+        const invalid = validateProduct(draft, navigation, previous);
         if (invalid) {
           setError(invalid);
           return;
@@ -138,10 +147,33 @@ export function ProductEditor({
         {PRODUCT_SECTIONS.map((section, index) => (
           <details
             key={section.title}
-            open={index === 0}
+            open={index === 0 || section.title === 'Frete e embalagem'}
             className="border border-stuw-border dark:border-stuw-borderDark rounded-lg p-5"
           >
             <summary className="cursor-pointer font-medium">{section.title}</summary>
+            {section.title === 'Frete e embalagem' && (
+              <div className="mt-4 space-y-3 text-sm">
+                <p>
+                  Informe o peso e as medidas de uma unidade já embalada para envio. O tamanho da
+                  roupa (P, M, G) é cadastrado na grade de SKUs.
+                </p>
+                {draft.shippingPackageIsTest && (
+                  <p className="border rounded p-3">
+                    Embalagem de teste: os campos vazios foram preenchidos com 300 g, 30 × 20 × 5
+                    cm. Salve o produto para usar essas medidas no checkout sandbox. Substitua pelas
+                    medidas reais antes de vender.
+                  </p>
+                )}
+                <label className="flex gap-2 items-center">
+                  <input
+                    type="checkbox"
+                    checked={draft.shippingPackageIsTest === true}
+                    onChange={(e) => set('shippingPackageIsTest', e.target.checked)}
+                  />
+                  Medidas de teste (somente sandbox)
+                </label>
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 gap-5 mt-5">
               {section.fields.map((f) => (
                 <label
@@ -150,7 +182,33 @@ export function ProductEditor({
                 >
                   {f.label}
                   {f.required ? ' *' : ''}
-                  {f.options ? (
+                  {f.key === 'category' || f.key === 'activityCategory' ? (
+                    <select
+                      className={field}
+                      value={String(draft[f.key])}
+                      onChange={(e) => set(f.key, e.target.value)}
+                    >
+                      <option value="">Selecione</option>
+                      {(f.key === 'category'
+                        ? navigation.categories
+                        : navigation.activityCategories
+                      ).map((c) => (
+                        <option key={c.value} value={c.value}>
+                          {c.label}
+                        </option>
+                      ))}
+                      {previous[f.key] &&
+                        !(
+                          f.key === 'category'
+                            ? navigation.categories
+                            : navigation.activityCategories
+                        ).some((c) => c.value === previous[f.key]) && (
+                          <option value={previous[f.key]} disabled>
+                            {previous[f.key]} (arquivada)
+                          </option>
+                        )}
+                    </select>
+                  ) : f.options ? (
                     <select
                       className={field}
                       value={String(draft[f.key] ?? '')}
@@ -205,6 +263,7 @@ export function ProductEditor({
                 </label>
               ))}
             </div>
+            {section.title === 'Frete e embalagem' && <ProductShippingTest product={draft} />}
           </details>
         ))}
 

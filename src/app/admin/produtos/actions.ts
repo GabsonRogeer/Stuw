@@ -5,8 +5,10 @@ import { requireAdmin } from '@/lib/supabase/admin';
 import { PRODUCTS } from '@/data/products';
 import { access } from 'node:fs/promises';
 import path from 'node:path';
+import { getCategoryNavigation } from '@/repositories/categories';
 import {
   validateProduct,
+  fromLegacy,
   toStoreProduct,
   PRODUCT_BUCKET,
   type ProductDraft,
@@ -27,6 +29,8 @@ export async function saveProduct(input: {
     const { supabase } = await requireAdmin();
     if (
       !input ||
+      !input.document ||
+      typeof input.document !== 'object' ||
       !Number.isInteger(input.revision) ||
       input.revision < 0 ||
       (input.id !== null && (!Number.isInteger(input.id) || input.id < 1))
@@ -34,11 +38,22 @@ export async function saveProduct(input: {
       return { error: 'Identificação inválida. Recarregue o cadastro.' };
     if (input.revision === 0 && input.id !== null && !PRODUCTS.some((p) => p.id === input.id))
       return { error: 'Produto de origem não encontrado.' };
-    const invalid = validateProduct(input.document);
-    if (invalid) return { error: invalid };
+    const navigation = await getCategoryNavigation();
+    let previous: ProductDraft | undefined;
+    const legacy = PRODUCTS.find((p) => p.id === input.id);
+    if (legacy) previous = fromLegacy(legacy);
     if (PRODUCTS.some((p) => p.slug === input.document.slug && p.id !== input.id))
       return { error: 'Este slug já pertence a um produto publicado.' };
     const p = { ...input.document, lastSync: '' };
+    if (
+      p.status === 'active' &&
+      p.shippingPackageIsTest &&
+      process.env.MELHOR_ENVIO_ENVIRONMENT !== 'sandbox'
+    )
+      return {
+        error:
+          'Confira o peso e as dimensões reais e desmarque a embalagem de teste antes de publicar em produção.',
+      };
     if (input.id && input.revision) {
       const current = await supabase
         .from('admin_products')
@@ -47,7 +62,10 @@ export async function saveProduct(input: {
         .single();
       if (current.error) return { error: 'Não foi possível conferir a revisão atual.' };
       p.lastSync = current.data.document.lastSync;
+      previous = current.data.document;
     }
+    const invalid = validateProduct(input.document, navigation, previous);
+    if (invalid) return { error: invalid };
     if (p.status === 'active') {
       const localPaths = [
         ...new Set(
@@ -96,6 +114,11 @@ export async function saveProduct(input: {
       };
     if (error?.code === '40001')
       return { error: 'Outra sessão alterou este cadastro. Recarregue a página antes de salvar.' };
+    if (error?.message === 'Pending checkout reserves SKU')
+      return {
+        error:
+          'Este produto tem um pagamento em andamento. Aguarde a confirmação ou o cancelamento antes de alterar os SKUs.',
+      };
     if (error || !id)
       return {
         error:

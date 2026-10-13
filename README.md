@@ -41,9 +41,9 @@ Veja [a arquitetura e os limites do MVP](docs/architecture.md).
 
 ## Produtos e configuração
 
-Cadastre produtos em `src/data/products.ts`. Mantenha o `id` e o `slug` estáveis. O slug deve ser único; editar o título não muda a URL.
+Cadastre e edite produtos em `/admin/produtos`. O catálogo público usa apenas as versões publicadas no banco; `src/data/products.ts` permanece vazio para impedir o retorno de produtos antigos. Mantenha IDs e slugs estáveis.
 
-Na versão com catálogo local, execute novo build após cadastrar produtos para gerar as novas rotas.
+Veja o [catálogo de produção com 21 produtos](docs/catalogo-producao.md), seus preços, grade P/M/G e pendências antes da publicação.
 
 Copie `.env.example` para `.env.local` se precisar configurar o número oficial do WhatsApp. Sem número configurado, o contato usa o Instagram da STUW.
 

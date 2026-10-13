@@ -11,7 +11,10 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     return (
       <>
         <h2 className="font-serif text-3xl mb-6">Novo produto</h2>
-        <ProductEditor initial={emptyProduct()} />
+        <ProductEditor
+          initial={emptyProduct()}
+          shippingSandbox={process.env.MELHOR_ENVIO_ENVIRONMENT === 'sandbox'}
+        />
       </>
     );
   if (!/^\d+$/.test(id)) notFound();
@@ -39,6 +42,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
         </p>
       )}
       <ProductEditor
+        shippingSandbox={process.env.MELHOR_ENVIO_ENVIRONMENT === 'sandbox'}
         initial={data?.document ?? fromLegacy(legacy!)}
         record={data ?? undefined}
         legacyId={legacy?.id}

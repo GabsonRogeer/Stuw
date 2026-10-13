@@ -1,0 +1,68 @@
+.carousel {
+  position: relative;
+}
+.slide:not([hidden]) {
+  animation: appear 400ms ease-out;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: var(--background, #f7f5f0);
+  color: #242820;
+  flex-wrap: wrap;
+}
+.controls button {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.controls button:hover {
+  background: #e7e5dd;
+}
+.controls button:focus-visible {
+  outline: 2px solid #536545;
+  outline-offset: 2px;
+}
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.dots button {
+  display: grid;
+  place-items: center;
+}
+.dots span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9b9e93;
+}
+.dots button[aria-pressed='true'] span {
+  width: 20px;
+  border-radius: 6px;
+  background: #3c4932;
+}
+.controls .pause {
+  font-size: 0.75rem;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+}
+@keyframes appear {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide:not([hidden]) {
+    animation: none;
+  }
+}

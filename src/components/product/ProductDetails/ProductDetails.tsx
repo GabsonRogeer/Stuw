@@ -9,6 +9,7 @@ import { currency, availableQuantity, productVariant } from '@/lib/commerce';
 import { useCart } from '@/providers/cart-provider';
 import { useWishlist } from '@/providers/wishlist-provider';
 import { useStorefront } from '@/providers/storefront-provider';
+import { useCategories } from '@/providers/categories-provider';
 import { Button } from '@/components/ui/button/button';
 import { ProductGallery } from '@/components/product/ProductGallery/ProductGallery';
 import {
@@ -17,6 +18,7 @@ import {
 } from '@/components/product/ProductDiscovery/ProductDiscovery';
 
 export function ProductDetails({ product, related }: { product: Product; related?: Product }) {
+  const { categories, activityCategories } = useCategories();
   const [color, setColor] = useState(product.colors[0]?.name ?? '');
   const [size, setSize] = useState('');
   const { addItem, ready } = useCart();
@@ -68,7 +70,8 @@ export function ProductDetails({ product, related }: { product: Product; related
         <ProductGallery key={`${product.id}-${color}`} product={selectedProduct} />
         <div className="lg:sticky lg:top-40 self-start py-3">
           <p className="eyebrow mb-4">
-            {product.fabric}™ / {product.category}
+            {product.fabric}™ /{' '}
+            {categories.find((c) => c.value === product.category)?.label ?? product.category}
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl leading-tight">{product.title}</h1>
           {product.comparePrice && price !== null && product.comparePrice > price ? (
@@ -99,7 +102,8 @@ export function ProductDetails({ product, related }: { product: Product; related
                   href={`/produtos?categoria=${encodeURIComponent(product.activityCategory)}`}
                   className="underline"
                 >
-                  {product.activityCategory}
+                  {activityCategories.find((c) => c.value === product.activityCategory)?.label ??
+                    product.activityCategory}
                 </Link>
               </dd>
             </div>

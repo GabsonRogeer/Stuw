@@ -1,9 +1,17 @@
 import Link from 'next/link';
-import { categories, activityCategories, fabrics, occasions } from '@/data/navigation';
+import { fabrics } from '@/data/navigation';
+import { getCategoryNavigation } from '@/repositories/categories';
 import type { CatalogQuery } from '@/services/catalog';
 import type { Product } from '@/types';
 
-export function CatalogFilters({ query, products }: { query: CatalogQuery; products: Product[] }) {
+export async function CatalogFilters({
+  query,
+  products,
+}: {
+  query: CatalogQuery;
+  products: Product[];
+}) {
+  const { categories, activityCategories } = await getCategoryNavigation();
   const collections = [...new Set(products.map((product) => product.collection))].sort();
   const colors = [
     ...new Set(products.flatMap((product) => product.colors.map((color) => color.name))),
@@ -11,7 +19,7 @@ export function CatalogFilters({ query, products }: { query: CatalogQuery; produ
   return (
     <form
       action="/produtos"
-      className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3 py-6 border-y border-stuw-border dark:border-stuw-borderDark mb-8"
+      className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 py-6 border-y border-stuw-border dark:border-stuw-borderDark mb-8"
     >
       <label className="text-[10px] uppercase tracking-wider">
         Categoria
@@ -57,15 +65,6 @@ export function CatalogFilters({ query, products }: { query: CatalogQuery; produ
           <option value="">Todos</option>
           {fabrics.map((fabric) => (
             <option key={fabric}>{fabric}</option>
-          ))}
-        </select>
-      </label>
-      <label className="text-[10px] uppercase tracking-wider">
-        Ocasião
-        <select name="ocasiao" defaultValue={query.ocasiao ?? ''} className="filter-select">
-          <option value="">Todas</option>
-          {occasions.map((occasion) => (
-            <option key={occasion}>{occasion}</option>
           ))}
         </select>
       </label>

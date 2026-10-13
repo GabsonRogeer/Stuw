@@ -5,7 +5,6 @@ export type CatalogQuery = {
   colecao?: string;
   cor?: string;
   tecido?: string;
-  ocasiao?: string;
   busca?: string;
   ordem?: string;
   pagina?: string;
@@ -26,7 +25,6 @@ export function queryCatalog(products: Product[], query: CatalogQuery) {
       (!query.colecao || product.collection === query.colecao) &&
       (!query.cor || product.colors.some((color) => color.name === query.cor)) &&
       (!query.tecido || product.fabric === query.tecido) &&
-      (!query.ocasiao || product.occasion === query.ocasiao) &&
       (!search ||
         normalize(
           `${product.title} ${product.category} ${product.collection} ${product.activityCategory} ${product.colors.map((color) => color.name).join(' ')} ${product.fabric ?? ''} ${product.feelTag}`,

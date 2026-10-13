@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { AppProviders } from '@/providers/app-providers';
 import { getProducts } from '@/services/product-service';
+import { getCategoryNavigation } from '@/repositories/categories';
+import { CategoriesProvider } from '@/providers/categories-provider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -10,11 +12,13 @@ export const metadata: Metadata = {
   icons: { icon: '/logo.jpg' },
 };
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const products = await getProducts();
+  const [products, navigation] = await Promise.all([getProducts(), getCategoryNavigation()]);
   return (
     <html lang="pt-BR">
       <body className="selection:bg-stuw-sage selection:text-white min-h-screen">
-        <AppProviders products={products}>{children}</AppProviders>
+        <CategoriesProvider navigation={navigation}>
+          <AppProviders products={products}>{children}</AppProviders>
+        </CategoriesProvider>
       </body>
     </html>
   );

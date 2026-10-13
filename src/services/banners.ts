@@ -7,6 +7,10 @@ export type BannerContent = {
   link: string;
   desktop_path: string;
   mobile_path: string;
+  layout?: 'split' | 'image';
+  starts_at?: string | null;
+  ends_at?: string | null;
+  position?: number;
 };
 export const bannerPathValid = (path: string) => /^home\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(path);
 export function bannerLinkValid(link: string) {
@@ -27,6 +31,23 @@ export function bannerLinkValid(link: string) {
   }
 }
 export function validateBanner(value: BannerContent) {
+  if (value.layout !== undefined && !['split', 'image'].includes(value.layout))
+    return 'Selecione imagem inteira ou imagem com texto.';
+  if (
+    value.position !== undefined &&
+    (!Number.isInteger(value.position) || value.position < 0 || value.position > 999999)
+  )
+    return 'A ordem deve ser um número inteiro entre 0 e 999999.';
+  for (const date of [value.starts_at, value.ends_at]) {
+    if (
+      date !== undefined &&
+      date !== null &&
+      (!/^\d{4}-\d\d-\d\dT/.test(date) || !Number.isFinite(Date.parse(date)))
+    )
+      return 'Informe uma data válida para a campanha.';
+  }
+  if (value.starts_at && value.ends_at && Date.parse(value.ends_at) <= Date.parse(value.starts_at))
+    return 'O fim da campanha deve ser posterior ao início.';
   if (value.title.trim().length < 2 || value.title.trim().length > 160)
     return 'Informe um título entre 2 e 160 caracteres.';
   if (
@@ -44,6 +65,12 @@ export function validateBanner(value: BannerContent) {
   if (!bannerPathValid(value.desktop_path) || !bannerPathValid(value.mobile_path))
     return 'Envie as imagens para desktop e celular.';
   return null;
+}
+export function bannerIsCurrent(banner: Pick<BannerContent, 'starts_at' | 'ends_at'>, now: number) {
+  return (
+    (!banner.starts_at || Date.parse(banner.starts_at) <= now) &&
+    (!banner.ends_at || Date.parse(banner.ends_at) > now)
+  );
 }
 export function validateBannerFile(file: { size: number; type: string }) {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
