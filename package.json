@@ -14,7 +14,11 @@
     "test:smoke": "node scripts/smoke.cjs",
     "db:check": "node scripts/check-supabase.cjs",
     "shipping:check": "node scripts/check-shipping.cjs",
-    "checkout:check": "node scripts/check-checkout.cjs"
+    "checkout:check": "node scripts/check-checkout.cjs",
+    "checkout:preflight": "node scripts/checkout-preflight.cjs",
+    "checkout:replay": "node scripts/replay-payment-webhook.cjs",
+    "checkout:job": "node scripts/run-commerce-job.cjs",
+    "test:payments": "node --test tests/orders.test.cjs tests/payment-shipping.test.cjs tests/checkout-integrations-database.test.cjs tests/payment-homologation.test.cjs tests/checkout-tools.test.cjs tests/pix-status.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

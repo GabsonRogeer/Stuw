@@ -31,6 +31,14 @@ function request<T>(path: string, init: RequestInit = {}) {
     },
   });
 }
+function paymentExpiration(value: string | null) {
+  const date = value ? new Date(value) : null;
+  if (!date || !Number.isFinite(date.getTime()))
+    throw new Error('Validade do pagamento indisponível.');
+  // Postgres returns microseconds; Payments accepts milliseconds and an explicit offset.
+  // Format the persisted instant without calculating a new deadline on retries.
+  return date.toISOString().replace('Z', '+00:00');
+}
 export async function createPayment(order: Order, taxDocument: string, card?: CardPaymentData) {
   const { origin, localTest } = commerceConfig();
   if (order.payment_method === 'card') {
@@ -53,7 +61,7 @@ export async function createPayment(order: Order, taxDocument: string, card?: Ca
       installments: order.payment_method === 'pix' ? 1 : order.installments,
       ...(order.payment_method === 'card'
         ? { token: card!.token, issuer_id: card!.issuer_id }
-        : { date_of_expiration: order.payment_expires_at }),
+        : { date_of_expiration: paymentExpiration(order.payment_expires_at) }),
       payer: {
         email: order.customer_email,
         identification: { type: taxDocument.length === 11 ? 'CPF' : 'CNPJ', number: taxDocument },

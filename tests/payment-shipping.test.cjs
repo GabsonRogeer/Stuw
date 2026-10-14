@@ -316,11 +316,59 @@ test('payment requests use authoritative order amount, fixed idempotency and all
     '52998224725',
   );
   assert.equal(Object.hasOwn(JSON.parse(captured.body), 'notification_url'), false);
+  assert.equal(JSON.parse(captured.body).date_of_expiration, '2030-01-01T00:00:00.000+00:00');
+  const firstPixBody = captured.body;
+  await mp.createPayment(
+    { ...order, payment_method: 'pix', payment_expires_at: '2030-01-01T00:00:00Z' },
+    '52998224725',
+  );
+  assert.equal(captured.body, firstPixBody, 'retry preserves the persisted expiry and payload');
   assert.equal(captured.headers['X-Idempotency-Key'], 'order-id');
   await assert.rejects(
     mp.createPayment(order, '52998224725', { payment_method_id: 'debit' }),
     /crédito/,
   );
+});
+
+test('Pix normalizes Postgres microseconds and offsets without extending the persisted expiry', async () => {
+  const bodies = [];
+  const mp = load('src/lib/integrations/mercado-pago.ts', {
+    './config': config,
+    './http': {
+      integrationRequest: async (_provider, _url, init) => {
+        bodies.push(JSON.parse(init.body));
+        return { id: 123 };
+      },
+    },
+  });
+  const order = {
+    id: 'pix-order',
+    number: 'STUW-PIX',
+    payment_method: 'pix',
+    installments: 1,
+    total_cents: 8898,
+    customer_email: 'buyer@example.com',
+    items: [],
+  };
+  for (const expiration of [
+    '2026-10-13T22:15:52.536076+00:00',
+    '2026-10-13T19:15:52.536076-03:00',
+    '2026-10-13T22:15:52.536Z',
+  ]) {
+    await mp.createPayment({ ...order, payment_expires_at: expiration }, '52998224725');
+    const sent = bodies.at(-1).date_of_expiration;
+    assert.equal(sent, '2026-10-13T22:15:52.536+00:00');
+    assert.equal(Date.parse(sent), Date.parse(expiration));
+  }
+  assert.deepEqual(bodies[0], bodies[1]);
+  assert.deepEqual(bodies[1], bodies[2]);
+  const count = bodies.length;
+  for (const expiration of [null, '', 'invalid'])
+    await assert.rejects(
+      mp.createPayment({ ...order, payment_expires_at: expiration }, '52998224725'),
+      /Validade/,
+    );
+  assert.equal(bodies.length, count, 'invalid or missing expiry must not reach the provider');
 });
 test('shipping quotes filter unavailable and malformed services, preserve carrier price and kg units', async () => {
   let captured;

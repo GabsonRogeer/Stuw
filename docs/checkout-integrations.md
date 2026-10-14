@@ -163,6 +163,11 @@ Eventos antigos não fazem uma entrega concluída retroceder.
 
 ## Verificação
 
+O [roteiro de homologação](homologacao-pagamentos.md) reúne a matriz de cenários,
+evidências, diagnóstico `checkout:preflight`, testes `test:payments` e reenvio
+controlado `checkout:replay` de pagamentos existentes de sandbox. Testes locais
+aprovados não significam homologação do gateway concluída.
+
 `npm test` cobre banco/RLS, reserva e devolução de estoque, alterações concorrentes,
 idempotência, cotação vinculada ao usuário, valores adulterados, assinatura de
 webhooks, conta/moeda/ambiente divergentes e monotonicidade dos eventos. Executar

@@ -261,8 +261,13 @@ test('request rejection keeps its diagnostic in the result screen; ambiguous err
   console.warn = (...args) => messages.push(args);
   try {
     for (const production of [false, true]) {
-      for (const status of [400, 401, 403, 422, 500]) {
-        const failure = new integrationDeps['@/lib/integrations/http'].IntegrationError();
+      for (const status of [400, 401, 403, 422, 500, 'timeout', 'network']) {
+        const failure =
+          status === 'timeout'
+            ? new DOMException('Simulated timeout', 'TimeoutError')
+            : status === 'network'
+              ? new TypeError('Simulated lost connection')
+              : new integrationDeps['@/lib/integrations/http'].IntegrationError();
         failure.status = status;
         failure.codes = ['unauthorized', '7'];
         const writes = [];
@@ -313,7 +318,7 @@ test('request rejection keeps its diagnostic in the result screen; ambiguous err
           },
         });
         const result = await actions.placeOrder(request);
-        if (status === 500) {
+        if ([500, 'timeout', 'network'].includes(status)) {
           assert.equal(result.order.paymentStatus, 'initializing');
           assert.equal(result.order.paymentIssue, undefined);
           assert.equal(writes.length, 1);

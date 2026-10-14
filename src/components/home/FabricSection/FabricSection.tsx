@@ -20,10 +20,10 @@ export function FabricSection() {
           Texturas suaves. Linhas precisas. Descubra o tecido que acompanha o seu ritmo.
         </p>
         <Link
-          href="/produtos?tecido=SilkAir"
+          href="/produtos"
           className="text-xs uppercase tracking-widest border-b border-current pb-2"
         >
-          Conhecer SilkAir™
+          Conhecer a coleção
         </Link>
       </div>
     </section>

@@ -21,6 +21,11 @@ npm run build
 npm start
 ```
 
+Para homologar os pagamentos no ambiente atual de testes, siga o
+[roteiro de homologação](docs/homologacao-pagamentos.md). Ele separa testes
+automatizados, verificações de configuração e cenários que ainda exigem execução
+no Mercado Pago e no site publicado.
+
 Com o servidor ativo, `npm run test:smoke` verifica as rotas por HTTP. Defina `SMOKE_URL` para testar outra porta.
 
 ## Incluído

@@ -329,11 +329,10 @@ test('slugs are explicit, URL-safe and unique across the catalog', () => {
   assert.equal(new Set(PRODUCTS.map((product) => product.slug)).size, PRODUCTS.length);
   for (const product of PRODUCTS) assert.match(product.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 });
-test('category, fabric and accent-insensitive search combine', () => {
+test('category and accent-insensitive search combine; old fabric filters are ignored', () => {
   assert.deepEqual(
     queryCatalog(PRODUCTS, {
       categoria: 'Leggings & Calças',
-      tecido: 'SculptHold',
       busca: 'legging',
     }).products.map((product) => product.id),
     [1],
@@ -341,7 +340,7 @@ test('category, fabric and accent-insensitive search combine', () => {
   assert.equal(queryCatalog(PRODUCTS, { busca: 'macacao' }).total, 1);
   assert.equal(
     queryCatalog(PRODUCTS, { tecido: 'SilkAir', categoria: 'Leggings & Calças' }).total,
-    0,
+    queryCatalog(PRODUCTS, { categoria: 'Leggings & Calças' }).total,
   );
 });
 test('sort does not mutate source, pagination handles invalid and out-of-range input', () => {

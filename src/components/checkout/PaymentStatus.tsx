@@ -17,11 +17,29 @@ export function PaymentStatus({
   const [order, setOrder] = useState(initial);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [now, setNow] = useState<number | null>(null);
   const { clear } = useCart();
   const cleared = useRef(false);
   const terminal = ['approved', 'rejected', 'cancelled', 'refunded', 'charged_back'].includes(
     order.paymentStatus,
   );
+  const pixDeadline = Date.parse(order.pix?.expiresAt ?? '');
+  const pendingPix = order.paymentStatus === 'pending' && Boolean(order.pix);
+  const pixExpired = pendingPix && now !== null && pixDeadline <= now;
+  const pixAvailable = pendingPix && now !== null && pixDeadline > now;
+  useEffect(() => {
+    if (!pendingPix) return;
+    const tick = () => setNow(Date.now());
+    // Keep SSR and hydration identical; only offer the code after checking the clock.
+    const initialTick = setTimeout(tick, 0);
+    const timer = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
+    return () => {
+      clearTimeout(initialTick);
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', tick);
+    };
+  }, [pendingPix]);
   useEffect(() => {
     if (clearCart && order.paymentStatus === 'approved' && !cleared.current) {
       cleared.current = true;
@@ -67,14 +85,16 @@ export function PaymentStatus({
     <section className="max-w-lg mx-auto py-8 space-y-5">
       {order.testMode && (
         <p className="text-sm border rounded p-3">
-          Ambiente de teste. Não use dados de cartão real.
+          Ambiente de teste. Não faça transferências nem use dados de cartão real.
         </p>
       )}
       <p className="eyebrow">Pedido {order.code}</p>
       <h1 className="font-serif text-3xl" role="status">
         {order.paymentIssue?.kind === 'request_rejected'
           ? 'Não foi possível iniciar o pagamento'
-          : (PAYMENT_LABELS[order.paymentStatus] ?? 'Conferindo pagamento')}
+          : pixExpired
+            ? 'Código Pix vencido'
+            : (PAYMENT_LABELS[order.paymentStatus] ?? 'Conferindo pagamento')}
       </h1>
       <p className="text-lg">{currency(order.total)}</p>
       {order.paymentIssue && (
@@ -88,7 +108,14 @@ export function PaymentStatus({
           confirmação estiver em andamento.
         </p>
       )}
-      {order.pix && (
+      {pendingPix && !pixAvailable && (
+        <p className="text-sm" role="status">
+          {pixExpired
+            ? 'O prazo deste código terminou. Estamos conferindo o resultado com o Mercado Pago. Aguarde a confirmação antes de iniciar outra compra.'
+            : 'Conferindo a validade do Pix. Aguarde antes de realizar o pagamento.'}
+        </p>
+      )}
+      {pixAvailable && order.pix && (
         <div className="space-y-4">
           <p className="text-sm">
             Escaneie o QR Code no aplicativo do seu banco ou copie o código Pix.
@@ -108,6 +135,11 @@ export function PaymentStatus({
             type="button"
             className="border rounded px-4 py-3 text-sm"
             onClick={async () => {
+              // A suspended tab may not have processed the expiry timer yet.
+              if (pixDeadline <= Date.now()) {
+                setNow(Date.now());
+                return;
+              }
               try {
                 await navigator.clipboard.writeText(order.pix!.code);
                 setCopied(true);

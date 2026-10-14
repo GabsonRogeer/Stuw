@@ -7,7 +7,7 @@ import { CatalogFilters } from '@/components/catalog/CatalogFilters/CatalogFilte
 
 export const metadata: Metadata = {
   title: 'Coleção',
-  description: 'Descubra as peças STUW por categoria, cor ou tecido.',
+  description: 'Descubra as peças STUW por categoria, cor ou coleção.',
 };
 export default async function ProductsPage({
   searchParams,
@@ -16,15 +16,7 @@ export default async function ProductsPage({
 }) {
   const params = await searchParams;
   const query: CatalogQuery = {};
-  for (const key of [
-    'categoria',
-    'colecao',
-    'cor',
-    'tecido',
-    'busca',
-    'ordem',
-    'pagina',
-  ] as const) {
+  for (const key of ['categoria', 'colecao', 'cor', 'busca', 'ordem', 'pagina'] as const) {
     const value = params[key];
     if (typeof value === 'string') query[key] = value;
   }

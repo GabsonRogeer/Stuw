@@ -24,9 +24,6 @@ export function SiteFooter() {
           <Link className="block" href="/produtos">
             Coleção
           </Link>
-          <Link className="block" href="/produtos?tecido=SilkAir">
-            SilkAir™
-          </Link>
           <Link className="block" href="/#sensorial">
             O toque STUW
           </Link>

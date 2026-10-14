@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { fabrics } from '@/data/navigation';
 import { getCategoryNavigation } from '@/repositories/categories';
 import type { CatalogQuery } from '@/services/catalog';
 import type { Product } from '@/types';
@@ -19,7 +18,7 @@ export async function CatalogFilters({
   return (
     <form
       action="/produtos"
-      className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 py-6 border-y border-stuw-border dark:border-stuw-borderDark mb-8"
+      className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 py-6 border-y border-stuw-border dark:border-stuw-borderDark mb-8"
     >
       <label className="text-[10px] uppercase tracking-wider">
         Categoria
@@ -56,15 +55,6 @@ export async function CatalogFilters({
           <option value="">Todas</option>
           {colors.map((color) => (
             <option key={color}>{color}</option>
-          ))}
-        </select>
-      </label>
-      <label className="text-[10px] uppercase tracking-wider">
-        Tecido
-        <select name="tecido" defaultValue={query.tecido ?? ''} className="filter-select">
-          <option value="">Todos</option>
-          {fabrics.map((fabric) => (
-            <option key={fabric}>{fabric}</option>
           ))}
         </select>
       </label>

@@ -133,9 +133,8 @@ export const PRODUCT_SECTIONS: { title: string; fields: ProductField[] }[] = [
     ],
   },
   {
-    title: 'Tecido e atributos de moda',
+    title: 'Composição e atributos de moda',
     fields: [
-      { key: 'fabric', label: 'Tecnologia', options: fabrics },
       {
         key: 'composition',
         label: 'Composição',
@@ -366,6 +365,9 @@ export function validateProduct(
   if (!value || typeof value !== 'object' || JSON.stringify(value).length > 200000)
     return 'Cadastro inválido ou muito grande.';
   const p = value as ProductDraft;
+  // Retain validation for previously stored attributes even though the field is no longer editable.
+  if (typeof p.fabric !== 'string' || !['', ...fabrics].includes(p.fabric))
+    return 'Atributo do produto inválido.';
   for (const f of PRODUCT_SECTIONS.flatMap((s) => s.fields)) {
     const v = p[f.key];
     if (f.type === 'number') {

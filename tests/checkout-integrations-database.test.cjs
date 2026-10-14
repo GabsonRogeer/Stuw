@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { PGlite } = require('@electric-sql/pglite');
+const { databaseWebhook } = require('./helpers/database-webhook.cjs');
 
 test('real checkout: trusted quotes, atomic inventory, idempotency, provider transitions and customer isolation', async () => {
   const db = new PGlite();
@@ -24,6 +25,7 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
       '20261005172919_product_catalog.sql',
       '20261012170807_category_management.sql',
       '20261012180829_checkout_integrations.sql',
+      '20261013212513_pix_expiration_margin.sql',
     ])
       await db.exec(fs.readFileSync('supabase/migrations/' + file, 'utf8'));
     const uid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -144,6 +146,12 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
     await assert.rejects(create(request, 'other', other), /Quote expired/);
     await assert.rejects(create({ ...request, shipping: 'me:999' }), /Invalid shipping/);
     const order = (await create()).rows[0].id;
+    const persistedExpiry = async () =>
+      (await db.query('select payment_expires_at from public.orders where id=$1', [order])).rows[0]
+        .payment_expires_at;
+    const initialExpiry = await persistedExpiry();
+    const remaining = new Date(initialExpiry).getTime() - Date.now();
+    assert.ok(remaining > 34 * 60000 && remaining <= 35 * 60000, 'persisted Pix transport margin');
     await db.exec('set role authenticated');
     await assert.rejects(
       db.query('select public.save_product($1,2,$2::jsonb,$3::jsonb,null)', [
@@ -155,6 +163,11 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
     );
     await db.exec('set role service_role');
     assert.equal((await create()).rows[0].id, order);
+    assert.deepEqual(
+      await persistedExpiry(),
+      initialExpiry,
+      'a retry must not extend the deadline',
+    );
     assert.equal(
       (await create({ ...request, key: '22222222-2222-4222-8222-222222222222' })).rows[0].id,
       order,
@@ -189,8 +202,19 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
       /Provider-managed/,
     );
     await db.exec('set role service_role');
-    await apply('approved', '2026-10-12T10:00:00Z');
-    await apply('approved', '2026-10-12T10:00:00Z');
+    const deliver = databaseWebhook(db);
+    const providerPayment = {
+      id: 987,
+      external_reference: order,
+      status: 'approved',
+      transaction_amount: 115,
+      currency_id: 'BRL',
+      collector_id: 123,
+      live_mode: false,
+      payment_method_id: 'pix',
+      date_last_updated: '2026-10-12T10:00:00Z',
+    };
+    await deliver(providerPayment);
     await apply('pending', '2026-10-12T11:00:00Z');
     await assert.rejects(
       apply('approved', '2026-10-12T12:00:00Z', 'other-payment'),
@@ -261,6 +285,79 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
         second,
       ]),
       /stock release/,
+    );
+    // Expiration is confirmed by a provider cancellation, never by the client clock.
+    await db.query(
+      "insert into public.coupons(code,percent,max_uses,expires_at) values('HOMOLOG10',10,5,now()+interval '1 day')",
+    );
+    const expired = (
+      await create(
+        {
+          ...request,
+          key: '66666666-6666-4666-8666-666666666666',
+          coupon: 'HOMOLOG10',
+          expectedTotal: 10350,
+        },
+        'expired-pix',
+      )
+    ).rows[0].id;
+    await db.query(
+      "update public.orders set payment_expires_at=now()-interval '1 minute' where id=$1",
+      [expired],
+    );
+    await deliver({
+      ...providerPayment,
+      id: 989,
+      external_reference: expired,
+      status: 'pending',
+      transaction_amount: 103.5,
+    });
+    assert.equal(
+      (await db.query("select stock from private.product_skus where code='REAL-P'")).rows[0].stock,
+      1,
+    );
+    assert.equal(
+      (await db.query("select used_count from public.coupons where code='HOMOLOG10'")).rows[0]
+        .used_count,
+      1,
+    );
+    await deliver({
+      ...providerPayment,
+      id: 989,
+      external_reference: expired,
+      status: 'cancelled',
+      transaction_amount: 103.5,
+      date_last_updated: '2026-10-12T11:00:00Z',
+    });
+    assert.equal(
+      (await db.query('select status from public.orders where id=$1', [expired])).rows[0].status,
+      'cancelled',
+    );
+    assert.equal(
+      (await db.query("select stock from private.product_skus where code='REAL-P'")).rows[0].stock,
+      2,
+    );
+    assert.equal(
+      (await db.query("select used_count from public.coupons where code='HOMOLOG10'")).rows[0]
+        .used_count,
+      0,
+    );
+    assert.equal(
+      (
+        await db.query('select count(*)::int n from public.coupon_redemptions where order_id=$1', [
+          expired,
+        ])
+      ).rows[0].n,
+      0,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select count(*)::int n from public.order_events where order_id=$1 and status='payment_cancelled'",
+          [expired],
+        )
+      ).rows[0].n,
+      1,
     );
     await db.exec('set role authenticated');
     await db.query("select set_config('request.jwt.claims',$1,false)", [

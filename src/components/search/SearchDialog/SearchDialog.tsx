@@ -67,7 +67,7 @@ export function SearchDialog({ products, onClose }: { products: Product[]; onClo
           </li>
         ))}
       </ul>
-      {results.length === 0 && <p className="text-sm">Tente outro nome ou tecido.</p>}
+      {results.length === 0 && <p className="text-sm">Tente outro nome, cor ou coleção.</p>}
     </Modal>
   );
 }
