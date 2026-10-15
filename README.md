@@ -13,6 +13,10 @@ npm run dev
 
 Abra [localhost:3000](http://localhost:3000). Se a porta estiver ocupada, use a URL indicada pelo Next.js no terminal.
 
+O `.env.local` usa somente credenciais de testes. As credenciais de produção
+ficam na Vercel, separadas das variáveis Preview da branch `teste`.
+Veja a [configuração dos ambientes](docs/ambientes.md).
+
 ```bash
 npm run typecheck
 npm run lint
