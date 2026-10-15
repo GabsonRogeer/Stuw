@@ -12,6 +12,12 @@ export default function ConfirmationError() {
       <Link href="/login" className="block underline mt-6">
         Ir para o login
       </Link>
+      <Link href="/esqueci-senha" className="block underline mt-4">
+        Recuperar senha
+      </Link>
+      <Link href="/reenviar-confirmacao" className="block underline mt-4">
+        Reenviar confirmação
+      </Link>
     </AuthCard>
   );
 }

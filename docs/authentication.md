@@ -1,6 +1,7 @@
 ﻿# Autenticação STUW
 
-Rotas: `/cadastro`, `/login`, `/conta`, `/admin`, `/auth/callback`, `/auth/confirm`.
+Rotas: `/cadastro`, `/login`, `/conta`, `/admin`, `/auth/callback`, `/auth/confirm`,
+`/auth/verificar`, `/esqueci-senha`, `/reenviar-confirmacao` e `/redefinir-senha`.
 O cadastro solicita nome, e-mail, senha (8–128 caracteres) e confirmação de senha.
 As Server Actions validam os dados novamente, não retornam senhas e não atribuem
 papéis administrativos. Supabase Auth gerencia as credenciais e a sessão usa
@@ -20,25 +21,32 @@ cookies SSR. O nome fica nos metadados da conta e no perfil após a migração a
 4. Mantenha o provedor Email habilitado. Com Confirm email ativo, o cadastro pede
    confirmação antes do login; se desativado, entra diretamente em Minha conta.
    Recomenda-se manter a confirmação habilitada em produção.
-5. O template padrão de e-mail funciona via `/auth/callback` com PKCE no mesmo
-   navegador do cadastro. Para confirmar também em outro navegador/dispositivo,
-   no template **Confirm signup**, use um link com este endereço:
+5. Instale os templates completos descritos em [SMTP e templates](smtp.md).
+   Eles usam `/auth/verificar` e funcionam também em outro navegador/dispositivo.
+   O link de confirmação de cadastro é:
 
 ```html
-<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+<a href="{{ .SiteURL }}/auth/verificar?token_hash={{ .TokenHash }}&type=email"
   >Confirmar meu e-mail</a
 >
 ```
 
 Nesse template, Site URL precisa apontar para o ambiente em que deseja confirmar.
-O callback aceita apenas confirmação de e-mail e sempre direciona para `/conta`;
-parâmetros de redirecionamento externos não são aceitos.
+O token é validado somente após pressionar Continuar, para evitar consumo por
+leitores automáticos. `type=email` leva para `/conta`; `type=recovery` leva para
+`/redefinir-senha`. A rota antiga `/auth/confirm` permanece compatível com links
+de confirmação já enviados. Parâmetros de redirecionamento externos não são aceitos.
+O callback PKCE aceita apenas `next=recovery` como destino alternativo fixo.
 
 O envio de e-mail depende do Supabase e do SMTP configurado no projeto. Para envio
 real a clientes, configure um provedor SMTP próprio e confira os limites de envio.
 O site mostra erros e limites sem expor detalhes internos nem confirmar a existência
 prévia de uma conta. Links expirados/usados direcionam a uma página de orientação.
-Recuperação de senha e reenvio de confirmação ainda não estão nesta entrega.
+Recuperação e reenvio apresentam respostas genéricas sobre existência da conta.
+A nova senha é validada no servidor, exige um usuário verificado pelo Auth e
+encerra as sessões de atualização dos outros dispositivos. Tokens de acesso já
+emitidos podem permanecer válidos até expirar. Nenhum identificador de usuário
+enviado pelo formulário é usado para escolher a conta a atualizar.
 
 ## Primeiro administrador
 

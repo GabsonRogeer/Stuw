@@ -6,7 +6,13 @@ export async function GET(request: NextRequest) {
     try {
       const supabase = await createClient();
       const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (!error) return NextResponse.redirect(new URL('/conta', request.url));
+      if (!error)
+        return NextResponse.redirect(
+          new URL(
+            request.nextUrl.searchParams.get('next') === 'recovery' ? '/redefinir-senha' : '/conta',
+            request.url,
+          ),
+        );
     } catch {
       /* Never expose tokens in error messages. */
     }

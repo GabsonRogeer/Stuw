@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 const links = [
+  ['/admin/olist', 'Integração Olist', Tags, false],
   ['/admin/produtos', 'Produtos', ShoppingBag, false],
   ['/admin/categorias', 'Categorias', Tags, false],
   ['/admin/cupons', 'Cupons', TicketPercent, false],

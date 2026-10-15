@@ -27,6 +27,20 @@ const field =
   'block w-full mt-2 border border-stuw-border dark:border-stuw-borderDark rounded-md px-3 py-2.5 bg-white dark:bg-stone-900 text-sm';
 const smallButton =
   'inline-flex items-center gap-2 text-xs border border-stuw-border dark:border-stuw-borderDark rounded px-3 py-2 disabled:opacity-40';
+const sharedFields = new Set<keyof ProductDraft>([
+  'name',
+  'description',
+  'brand',
+  'price',
+  'ncm',
+  'cest',
+  'origin',
+  'unit',
+  'weight',
+  'length',
+  'width',
+  'height',
+]);
 const localDate = (s: string) =>
   s
     ? new Date(Date.parse(s) - new Date(s).getTimezoneOffset() * 60000).toISOString().slice(0, 16)
@@ -53,6 +67,7 @@ export function ProductEditor({
   const [pending, start] = useTransition();
   const [uploading, setUploading] = useState(false);
   const [confirmArchive, setConfirmArchive] = useState(false);
+  const [showStoreOptions, setShowStoreOptions] = useState(false);
   const router = useRouter();
   const navigation = useCategories();
   const previous = saved?.document ?? initial;
@@ -118,6 +133,7 @@ export function ProductEditor({
         const invalid = validateProduct(draft, navigation, previous);
         if (invalid) {
           setError(invalid);
+          setShowStoreOptions(true);
           return;
         }
         start(async () => {
@@ -144,128 +160,152 @@ export function ProductEditor({
       className="space-y-5"
     >
       <fieldset disabled={pending || uploading} className="space-y-5 disabled:opacity-70">
-        {PRODUCT_SECTIONS.map((section, index) => (
-          <details
-            key={section.title}
-            open={index === 0 || section.title === 'Frete e embalagem'}
-            className="border border-stuw-border dark:border-stuw-borderDark rounded-lg p-5"
-          >
-            <summary className="cursor-pointer font-medium">{section.title}</summary>
-            {section.title === 'Frete e embalagem' && (
-              <div className="mt-4 space-y-3 text-sm">
-                <p>
-                  Informe o peso e as medidas de uma unidade já embalada para envio. O tamanho da
-                  roupa (P, M, G) é cadastrado na grade de SKUs.
-                </p>
-                {draft.shippingPackageIsTest && (
-                  <p className="border rounded p-3">
-                    Embalagem de teste: os campos vazios foram preenchidos com 300 g, 30 × 20 × 5
-                    cm. Salve o produto para usar essas medidas no checkout sandbox. Substitua pelas
-                    medidas reais antes de vender.
+        <div className="space-y-3 text-sm">
+          <p>
+            Preencha os dados do produto, preço, informações fiscais, embalagem e variações. A
+            descrição pode incluir composição, cuidados e medidas.
+          </p>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showStoreOptions}
+              onChange={(e) => setShowStoreOptions(e.target.checked)}
+            />
+            Mostrar opções da loja (categorias, endereço, promoções e SEO)
+          </label>
+        </div>
+        {PRODUCT_SECTIONS.filter((section) => section.title !== 'Integração')
+          .map((section) => ({
+            ...section,
+            fields: section.fields.filter((f) => showStoreOptions || sharedFields.has(f.key)),
+          }))
+          .filter((section) => section.fields.length > 0)
+          .map((section, index) => (
+            <details
+              key={section.title}
+              open={index === 0 || section.title === 'Frete e embalagem'}
+              className="border border-stuw-border dark:border-stuw-borderDark rounded-lg p-5"
+            >
+              <summary className="cursor-pointer font-medium">
+                {section.title === 'Preços, promoções e atacado' && !showStoreOptions
+                  ? 'Preço de venda'
+                  : section.title}
+              </summary>
+              {section.title === 'Frete e embalagem' && (
+                <div className="mt-4 space-y-3 text-sm">
+                  <p>
+                    Informe o peso e as medidas de uma unidade já embalada para envio. O tamanho da
+                    roupa (P, M, G) é cadastrado na grade de SKUs.
                   </p>
-                )}
-                <label className="flex gap-2 items-center">
-                  <input
-                    type="checkbox"
-                    checked={draft.shippingPackageIsTest === true}
-                    onChange={(e) => set('shippingPackageIsTest', e.target.checked)}
-                  />
-                  Medidas de teste (somente sandbox)
-                </label>
-              </div>
-            )}
-            <div className="grid sm:grid-cols-2 gap-5 mt-5">
-              {section.fields.map((f) => (
-                <label
-                  key={f.key}
-                  className={`text-sm ${f.type === 'textarea' ? 'sm:col-span-2' : ''}`}
-                >
-                  {f.label}
-                  {f.required ? ' *' : ''}
-                  {f.key === 'category' || f.key === 'activityCategory' ? (
-                    <select
-                      className={field}
-                      value={String(draft[f.key])}
-                      onChange={(e) => set(f.key, e.target.value)}
-                    >
-                      <option value="">Selecione</option>
-                      {(f.key === 'category'
-                        ? navigation.categories
-                        : navigation.activityCategories
-                      ).map((c) => (
-                        <option key={c.value} value={c.value}>
-                          {c.label}
-                        </option>
-                      ))}
-                      {previous[f.key] &&
-                        !(
-                          f.key === 'category'
-                            ? navigation.categories
-                            : navigation.activityCategories
-                        ).some((c) => c.value === previous[f.key]) && (
-                          <option value={previous[f.key]} disabled>
-                            {previous[f.key]} (arquivada)
-                          </option>
-                        )}
-                    </select>
-                  ) : f.options ? (
-                    <select
-                      className={field}
-                      value={String(draft[f.key] ?? '')}
-                      onChange={(e) => set(f.key, e.target.value)}
-                    >
-                      <option value="">Selecione</option>
-                      {f.options.map((v) => (
-                        <option key={v}>{v}</option>
-                      ))}
-                    </select>
-                  ) : f.type === 'textarea' ? (
-                    <textarea
-                      className={field}
-                      rows={4}
-                      maxLength={f.max ?? 10000}
-                      value={String(draft[f.key] ?? '')}
-                      onChange={(e) => set(f.key, e.target.value)}
-                    />
-                  ) : (
-                    <input
-                      className={field}
-                      type={f.type ?? 'text'}
-                      required={f.required}
-                      min={f.type === 'number' ? 0 : undefined}
-                      step={f.key === 'wholesaleMinimum' ? 1 : '0.01'}
-                      maxLength={f.max ?? 1000}
-                      value={
-                        f.type === 'datetime-local'
-                          ? localDate(String(draft[f.key]))
-                          : String(draft[f.key] ?? '')
-                      }
-                      onChange={(e) =>
-                        set(
-                          f.key,
-                          f.type === 'number'
-                            ? e.target.value === ''
-                              ? null
-                              : Number(e.target.value)
-                            : f.type === 'datetime-local'
-                              ? e.target.value
-                                ? new Date(e.target.value).toISOString()
-                                : ''
-                              : e.target.value,
-                        )
-                      }
-                      onBlur={() => {
-                        if (f.key === 'name' && !draft.slug) set('slug', slugify(draft.name));
-                      }}
-                    />
+                  {draft.shippingPackageIsTest && (
+                    <p className="border rounded p-3">
+                      Embalagem de teste: os campos vazios foram preenchidos com 300 g, 30 × 20 × 5
+                      cm. Salve o produto para usar essas medidas no checkout sandbox. Substitua
+                      pelas medidas reais antes de vender.
+                    </p>
                   )}
-                  {f.hint && <span className="block mt-2 text-xs text-stuw-slate">{f.hint}</span>}
-                </label>
-              ))}
-            </div>
-            {section.title === 'Frete e embalagem' && <ProductShippingTest product={draft} />}
-          </details>
-        ))}
+                  <label className="flex gap-2 items-center">
+                    <input
+                      type="checkbox"
+                      checked={draft.shippingPackageIsTest === true}
+                      onChange={(e) => set('shippingPackageIsTest', e.target.checked)}
+                    />
+                    Medidas de teste (somente sandbox)
+                  </label>
+                </div>
+              )}
+              <div className="grid sm:grid-cols-2 gap-5 mt-5">
+                {section.fields.map((f) => (
+                  <label
+                    key={f.key}
+                    className={`text-sm ${f.type === 'textarea' ? 'sm:col-span-2' : ''}`}
+                  >
+                    {f.label}
+                    {f.required ? ' *' : ''}
+                    {f.key === 'category' || f.key === 'activityCategory' ? (
+                      <select
+                        className={field}
+                        value={String(draft[f.key])}
+                        onChange={(e) => set(f.key, e.target.value)}
+                      >
+                        <option value="">Selecione</option>
+                        {(f.key === 'category'
+                          ? navigation.categories
+                          : navigation.activityCategories
+                        ).map((c) => (
+                          <option key={c.value} value={c.value}>
+                            {c.label}
+                          </option>
+                        ))}
+                        {previous[f.key] &&
+                          !(
+                            f.key === 'category'
+                              ? navigation.categories
+                              : navigation.activityCategories
+                          ).some((c) => c.value === previous[f.key]) && (
+                            <option value={previous[f.key]} disabled>
+                              {previous[f.key]} (arquivada)
+                            </option>
+                          )}
+                      </select>
+                    ) : f.options ? (
+                      <select
+                        className={field}
+                        value={String(draft[f.key] ?? '')}
+                        onChange={(e) => set(f.key, e.target.value)}
+                      >
+                        <option value="">Selecione</option>
+                        {f.options.map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    ) : f.type === 'textarea' ? (
+                      <textarea
+                        className={field}
+                        rows={4}
+                        maxLength={f.max ?? 10000}
+                        value={String(draft[f.key] ?? '')}
+                        onChange={(e) => set(f.key, e.target.value)}
+                      />
+                    ) : (
+                      <input
+                        className={field}
+                        type={f.type ?? 'text'}
+                        required={f.required}
+                        min={f.type === 'number' ? 0 : undefined}
+                        step={f.key === 'wholesaleMinimum' ? 1 : '0.01'}
+                        maxLength={f.max ?? 1000}
+                        value={
+                          f.type === 'datetime-local'
+                            ? localDate(String(draft[f.key]))
+                            : String(draft[f.key] ?? '')
+                        }
+                        onChange={(e) =>
+                          set(
+                            f.key,
+                            f.type === 'number'
+                              ? e.target.value === ''
+                                ? null
+                                : Number(e.target.value)
+                              : f.type === 'datetime-local'
+                                ? e.target.value
+                                  ? new Date(e.target.value).toISOString()
+                                  : ''
+                                : e.target.value,
+                          )
+                        }
+                        onBlur={() => {
+                          if (f.key === 'name' && !draft.slug) set('slug', slugify(draft.name));
+                        }}
+                      />
+                    )}
+                    {f.hint && <span className="block mt-2 text-xs text-stuw-slate">{f.hint}</span>}
+                  </label>
+                ))}
+              </div>
+              {section.title === 'Frete e embalagem' && <ProductShippingTest product={draft} />}
+            </details>
+          ))}
 
         <details
           open
@@ -454,6 +494,12 @@ export function ProductEditor({
                                 min={0}
                                 step={k === 'price' ? '0.01' : 1}
                                 value={s[k] ?? ''}
+                                readOnly={k === 'stock' && Boolean(s.components?.length)}
+                                title={
+                                  k === 'stock' && s.components?.length
+                                    ? 'Calculado a partir dos componentes do conjunto'
+                                    : undefined
+                                }
                                 onChange={(e) =>
                                   color(i, {
                                     skus: c.skus.map((sku, n) =>
@@ -495,6 +541,39 @@ export function ProductEditor({
                     </tbody>
                   </table>
                 </div>
+                <details className="text-sm space-y-3">
+                  <summary className="cursor-pointer">Composição dos conjuntos</summary>
+                  <p>
+                    Para conjuntos, informe um SKU de top e um de short da mesma cor e tamanho,
+                    separados por vírgula. Cada conjunto usa uma unidade de cada peça. O saldo é
+                    calculado automaticamente. Para peças avulsas, deixe vazio.
+                  </p>
+                  {c.skus.map((s, j) => (
+                    <label key={s.code} className="block">
+                      {s.size} · Componentes
+                      <input
+                        className={field}
+                        defaultValue={(s.components ?? []).map((v) => v.sku).join(', ')}
+                        onBlur={(e) =>
+                          color(i, {
+                            skus: c.skus.map((sku, n) =>
+                              n === j
+                                ? {
+                                    ...sku,
+                                    components: e.target.value
+                                      .split(',')
+                                      .map((v) => v.trim())
+                                      .filter(Boolean)
+                                      .map((sku) => ({ sku, quantity: 1 })),
+                                  }
+                                : sku,
+                            ),
+                          })
+                        }
+                      />
+                    </label>
+                  ))}
+                </details>
                 <div className="border-t border-stuw-border dark:border-stuw-borderDark pt-4 space-y-4">
                   <h4 className="text-sm font-medium">Imagens desta cor</h4>
                   {c.images.map((m, j) => (
@@ -685,6 +764,10 @@ export function ProductEditor({
               {saved.updated_by}
             </p>
             <p>Última sincronização: {draft.lastSync || 'Nenhuma'}</p>
+            <p>Origem do cadastro: {draft.source || 'manual'}</p>
+            <Link href="/admin/olist" className="underline">
+              Consultar vínculo com a Olist
+            </Link>
           </details>
         )}
       </fieldset>

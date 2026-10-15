@@ -141,6 +141,16 @@ export function AuthForm({ signup = false, next = '' }: { signup?: boolean; next
           {signup ? 'Entrar' : 'Criar conta'}
         </Link>
       </p>
+      <div className="flex flex-wrap justify-center gap-x-5 gap-y-3 text-xs">
+        {!signup && (
+          <Link className="underline" href="/esqueci-senha">
+            Esqueci minha senha
+          </Link>
+        )}
+        <Link className="underline" href="/reenviar-confirmacao">
+          Reenviar confirmação
+        </Link>
+      </div>
       <div className="text-center">
         <button
           type="button"

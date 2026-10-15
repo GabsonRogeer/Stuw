@@ -174,6 +174,53 @@ test('catalog replacement is atomic, removes order/quote dependencies, preserves
     await db.exec('set role anon');
     assert.deepEqual((await db.query('select * from public.catalog_products')).rows, []);
     await assert.rejects(db.query('select * from public.admin_products'), /permission denied/);
+    await db.exec('reset role');
+    for (const file of [
+      '20261013212513_pix_expiration_margin.sql',
+      '20261014215041_olist_catalog_sync.sql',
+      '20261014234221_olist_simple_products_and_kits.sql',
+    ])
+      await db.exec(fs.readFileSync('supabase/migrations/' + file, 'utf8'));
+    for (const row of (await db.query('select id,document from public.admin_products')).rows) {
+      const projected = toStoreProduct(row.id, row.document);
+      await db.query('insert into public.catalog_products(id,payload) values($1,$2)', [
+        row.id,
+        JSON.stringify({ regular: projected, promotion: projected }),
+      ]);
+    }
+    // The failed reset above advances the identity sequence; bind the script's 21 fixed IDs to this fixture.
+    const fixtureIds = (
+      await db.query('select id from public.admin_products order by id')
+    ).rows.map((r) => r.id);
+    const simpleSql = fs
+      .readFileSync('scripts/sql/olist-initial-simple-skus.sql', 'utf8')
+      .replace(/\b10000\d\d\b/g, (id) => String(fixtureIds[Number(id) - 1000000]));
+    await db.exec(simpleSql);
+    await db.exec(simpleSql);
+    assert.equal(
+      (await db.query('select count(*)::int n from private.product_skus')).rows[0].n,
+      84,
+    );
+    assert.equal(
+      (await db.query('select count(*)::int n from private.product_kit_components')).rows[0].n,
+      56,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select count(*)::int n from private.product_skus where size='GG' and stock=0",
+        )
+      ).rows[0].n,
+      21,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "select jsonb_array_length(payload->'regular'->'variants') n from public.catalog_products limit 1",
+        )
+      ).rows[0].n,
+      4,
+    );
   } finally {
     await db.close();
   }

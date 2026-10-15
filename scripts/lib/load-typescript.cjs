@@ -10,6 +10,8 @@ function loadTypeScript(file, dependencies = {}) {
     if (name in dependencies) return dependencies[name];
     if (name.startsWith('@/'))
       return loadTypeScript(path.join('src', name.slice(2) + '.ts'), dependencies);
+    if (name.startsWith('.') && fs.existsSync(path.resolve(path.dirname(filename), name + '.ts')))
+      return loadTypeScript(path.resolve(path.dirname(filename), name + '.ts'), dependencies);
     return require(name);
   };
   compiled._compile(

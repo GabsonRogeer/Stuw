@@ -12,6 +12,7 @@ export type ProductMedia = {
   role: 'frente' | 'costas' | 'detalhe' | 'lifestyle';
 };
 export type ProductSku = {
+  components?: { sku: string; quantity: number }[];
   size: string;
   code: string;
   gtin: string;
@@ -455,6 +456,24 @@ export function validateProduct(
     codes = new Set<string>(),
     gtins = new Set<string>();
   for (const c of p.colors) {
+    for (const s of Array.isArray(c?.skus) ? c.skus : []) {
+      if (
+        s?.components !== undefined &&
+        (!Array.isArray(s.components) ||
+          s.components.length > 20 ||
+          new Set(s.components.map((v) => v?.sku)).size !== s.components.length ||
+          s.components.some(
+            (v) =>
+              !v ||
+              !/^[A-Z0-9_-]{1,30}$/.test(v.sku) ||
+              v.sku === s.code ||
+              !Number.isInteger(v.quantity) ||
+              v.quantity < 1 ||
+              v.quantity > 100,
+          ))
+      )
+        return 'Composição do kit inválida: informe SKUs distintos e quantidades inteiras.';
+    }
     if (
       !c ||
       typeof c.name !== 'string' ||

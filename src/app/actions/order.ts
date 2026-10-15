@@ -113,6 +113,18 @@ export async function placeOrder(request: OrderRequest, card?: CardPaymentData):
     ]);
     if (orderRow.error || integration.error)
       return { error: 'Pedido registrado. Consulte suas compras antes de tentar novamente.' };
+    if (production && process.env.OLIST_ENABLED === 'true') {
+      const fiscal = await db.rpc('prepare_olist_order', {
+        input_id: id,
+        input_user: user.id,
+        input_document: taxDocument,
+      });
+      if (fiscal.error)
+        return {
+          error:
+            'Não foi possível preparar os dados de faturamento. Tente novamente antes de pagar.',
+        };
+    }
     let payment;
     let creatingPayment = false;
     try {

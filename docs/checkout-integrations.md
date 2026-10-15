@@ -132,8 +132,10 @@ comerciais que não estejam configuradas na conta recebedora. A seleção de fre
 - O cliente acompanha o resultado na própria página. A URL contém apenas o UUID
   do pedido; recarregar recupera o acompanhamento com verificação de propriedade.
   Pix pendente também pode ser recuperado em Minha conta → Compras.
-- Nenhum token de cartão, PAN, CVV ou CPF/CNPJ é persistido no banco. O documento
-  é enviado ao Mercado Pago para a transação; emissão de nota fiscal não está incluída.
+- Nenhum token de cartão, PAN ou CVV é persistido no banco. O CPF/CNPJ é enviado ao
+  Mercado Pago para a transação. Com Olist habilitada em produção, também é armazenado
+  na fila fiscal restrita ao servidor para cadastrar o pedido no ERP; não fica acessível
+  pela API aos clientes ou administradores. A emissão automática de NF não está incluída.
 - Pedidos novos só recebem atualizações de pagamento/entrega pelas integrações.
   A ferramenta antiga de atualização manual continua disponível apenas para demos.
 

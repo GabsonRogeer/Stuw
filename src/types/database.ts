@@ -131,6 +131,146 @@ export type QuoteEvent = {
 export type Database = {
   public: {
     Tables: {
+      olist_orders: {
+        Row: {
+          order_id: string;
+          remote_id: string | null;
+          tax_document: string | null;
+          state: string;
+          attempted_at: string | null;
+          invoice_id: string | null;
+          last_error: string | null;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: {
+          remote_id?: string;
+          state?: string;
+          attempted_at?: string;
+          invoice_id?: string | null;
+          last_error?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      olist_products: {
+        Row: {
+          product_id: number;
+          remote_id: string | null;
+          state: string;
+          last_error: string | null;
+          attempted_at: string | null;
+          synced_revision: number | null;
+          remote_hash: string | null;
+          updated_at: string;
+        };
+        Insert: { product_id: number };
+        Update: {
+          remote_id?: string;
+          state?: string;
+          last_error?: string | null;
+          attempted_at?: string;
+          synced_revision?: number;
+          remote_hash?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      olist_inventory: {
+        Row: {
+          sku: string;
+          physical: number | null;
+          reserved: number | null;
+          observed_at: string | null;
+          checked_at: string | null;
+          next_check_at: string;
+          error: string | null;
+          enabled: boolean;
+        };
+        Insert: { sku: string };
+        Update: { checked_at?: string; next_check_at?: string; error?: string | null };
+        Relationships: [];
+      };
+      olist_skus: {
+        Row: {
+          sku: string;
+          product_id: number;
+          remote_id: string | null;
+          state: string;
+          attempted_at: string | null;
+          remote_hash: string | null;
+          last_error: string | null;
+        };
+        Insert: { sku: string; product_id: number; state?: string };
+        Update: {
+          state?: string;
+          attempted_at?: string;
+          remote_hash?: string;
+          last_error?: string | null;
+        };
+        Relationships: [];
+      };
+      olist_inbox: {
+        Row: {
+          remote_id: string;
+          name: string;
+          state: string;
+          last_error: string | null;
+          remote_hash: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          remote_id: string;
+          name: string;
+          state: string;
+          last_error?: string | null;
+          remote_hash?: string;
+          updated_at?: string;
+        };
+        Update: {
+          state?: string;
+          last_error?: string | null;
+          remote_hash?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      olist_cursor: {
+        Row: {
+          id: boolean;
+          page: number;
+          position: number;
+          locked_until: string;
+          owner: string | null;
+        };
+        Insert: never;
+        Update: { page?: number; position?: number; locked_until?: string; owner?: string | null };
+        Relationships: [];
+      };
+      email_outbox: {
+        Row: {
+          id: string;
+          order_id: string;
+          kind: string;
+          status: string;
+          attempts: number;
+          available_at: string;
+          claimed_at: string | null;
+          sent_at: string | null;
+          last_error: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: {
+          status?: string;
+          attempts?: number;
+          available_at?: string;
+          claimed_at?: string;
+          sent_at?: string;
+          last_error?: string | null;
+        };
+        Relationships: [];
+      };
       checkout_shipping_quotes: {
         Row: {
           id: string;
@@ -245,6 +385,40 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      apply_olist_inventory: {
+        Args: {
+          code: string;
+          erp_id: string;
+          physical_stock: number;
+          reserved_stock: number;
+          observed: string;
+        };
+        Returns: string;
+      };
+      confirm_olist_inventory: { Args: { input_order: string; proof: string }; Returns: undefined };
+      prepare_olist_order: {
+        Args: { input_id: string; input_user: string; input_document: string };
+        Returns: undefined;
+      };
+      claim_olist_sync: { Args: { worker: string }; Returns: boolean };
+      link_olist_product: {
+        Args: {
+          local_id: number;
+          erp_id: string;
+          sku_links: unknown;
+          revision_seen: number;
+          hash_seen: string;
+        };
+        Returns: undefined;
+      };
+      link_olist_sku: {
+        Args: { local_id: number; sku_code: string; erp_id: string; hash_seen: string };
+        Returns: undefined;
+      };
+      import_olist_product: {
+        Args: { erp_id: string; doc: unknown; sku_links: unknown; hash_seen: string };
+        Returns: number;
+      };
       create_checkout_order: {
         Args: {
           input_user: string;
