@@ -1,7 +1,9 @@
 ﻿import { requireAccount } from '@/lib/supabase/account';
 import { ProfileForm } from '@/components/account/ProfileForm';
+import Link from 'next/link';
 export default async function AccountPage() {
   const { supabase, user } = await requireAccount();
+  const access = await supabase.rpc('operation_allowed', { permission: 'orders' });
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('full_name,birth_date,phone')
@@ -9,6 +11,11 @@ export default async function AccountPage() {
     .maybeSingle();
   return (
     <>
+      {access.data && (
+        <Link href="/operacao" className="inline-block mb-6 underline">
+          Acessar operação da loja
+        </Link>
+      )}
       <h2 className="font-serif text-3xl border-b border-stuw-border dark:border-stuw-borderDark pb-5">
         Dados pessoais
       </h2>

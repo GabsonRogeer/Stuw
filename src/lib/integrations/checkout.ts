@@ -140,15 +140,14 @@ export async function applyPayment(payment: MercadoPayment) {
       : payment.payment_type_id !== 'credit_card')
   )
     throw new Error('Pagamento divergente. Revisão necessária.');
-  const status =
-    payment.transaction_amount_refunded && payment.transaction_amount_refunded > 0
-      ? 'refunded'
-      : payment.status;
-  const update = await db.rpc('apply_checkout_payment', {
+  const refunded = toCents(payment.transaction_amount_refunded ?? 0);
+  if (refunded > order.total_cents) throw new Error('Valor de reembolso divergente.');
+  const update = await db.rpc('reconcile_checkout_payment', {
     input_id: order.id,
     provider_id: String(payment.id),
-    next_status: status,
+    next_status: payment.status,
     provider_time: payment.date_last_updated,
+    refunded_cents: refunded,
   });
   if (update.error) throw new Error('Não foi possível confirmar o pagamento.');
   return order.id;

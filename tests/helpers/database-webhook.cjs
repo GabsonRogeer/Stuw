@@ -39,12 +39,13 @@ function databaseWebhook(db) {
       };
     },
     rpc: async (name, args) => {
-      assert.equal(name, 'apply_checkout_payment');
-      await db.query('select public.apply_checkout_payment($1,$2,$3,$4)', [
+      assert.equal(name, 'reconcile_checkout_payment');
+      await db.query('select public.reconcile_checkout_payment($1,$2,$3,$4,$5)', [
         args.input_id,
         args.provider_id,
         args.next_status,
         args.provider_time,
+        args.refunded_cents,
       ]);
       return {};
     },

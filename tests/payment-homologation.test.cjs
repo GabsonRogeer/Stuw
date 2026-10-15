@@ -151,7 +151,7 @@ test('reconciliation finds a payment whose creation response was lost; missing p
   ];
   await runtime.syncOrderPayment(order.id);
   assert.equal(writes.length, 1);
-  assert.equal(writes[0].name, 'apply_checkout_payment');
+  assert.equal(writes[0].name, 'reconcile_checkout_payment');
   assert.equal(writes[0].args.provider_id, '12345');
   assert.equal(writes[0].args.next_status, 'approved');
 });

@@ -30,6 +30,8 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
       '20261014215041_olist_catalog_sync.sql',
       '20261014234221_olist_simple_products_and_kits.sql',
       '20261015003758_olist_inventory_reconciliation.sql',
+      '20261015010526_operational_admin.sql',
+      '20261015012816_short_order_numbers.sql',
     ])
       await db.exec(fs.readFileSync('supabase/migrations/' + file, 'utf8'));
     const uid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -150,6 +152,9 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
     await assert.rejects(create(request, 'other', other), /Quote expired/);
     await assert.rejects(create({ ...request, shipping: 'me:999' }), /Invalid shipping/);
     const order = (await create()).rows[0].id;
+    const orderNumber = (await db.query('select number from public.orders where id=$1', [order]))
+      .rows[0].number;
+    assert.match(orderNumber, /^STUW-[0-9A-Z]{6}$/);
     const persistedExpiry = async () =>
       (await db.query('select payment_expires_at from public.orders where id=$1', [order])).rows[0]
         .payment_expires_at;
@@ -167,6 +172,11 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
     );
     await db.exec('set role service_role');
     assert.equal((await create()).rows[0].id, order);
+    assert.equal(
+      (await db.query('select number from public.orders where id=$1', [order])).rows[0].number,
+      orderNumber,
+      'checkout retry preserves the short order number',
+    );
     assert.deepEqual(
       await persistedExpiry(),
       initialExpiry,
@@ -246,7 +256,200 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
         'BR123',
       ]);
     for (const status of ['label_generated', 'in_transit', 'label_generated']) await ship(status);
-    await apply('refunded', '2026-10-12T13:00:00Z');
+    // Partial refunds keep a paid order usable and are recorded once even on webhook replay.
+    await deliver({
+      ...providerPayment,
+      transaction_amount_refunded: 15,
+      date_last_updated: '2026-10-12T12:00:00Z',
+    });
+    assert.equal(
+      (await db.query('select payment_status from public.orders where id=$1', [order])).rows[0]
+        .payment_status,
+      'approved',
+    );
+    assert.deepEqual(
+      (
+        await db.query(
+          'select amount_cents,cumulative_cents from public.order_refunds where order_id=$1',
+          [order],
+        )
+      ).rows,
+      [{ amount_cents: 1500, cumulative_cents: 1500 }],
+    );
+    await assert.rejects(
+      db.query(
+        "select public.reconcile_checkout_payment($1,'987','approved','2026-10-12T12:30:00Z',1000)",
+        [order],
+      ),
+      /Refund regression/,
+    );
+    await db.exec('set role authenticated');
+    const stage = (revision, status) =>
+      db.query('select public.change_operation($1,$2,$3,$4)', [
+        order,
+        revision,
+        status,
+        'Conferência operacional de teste',
+      ]);
+    await assert.rejects(stage(0, 'checked'), /Invalid transition/);
+    await stage(0, 'picked');
+    await assert.rejects(stage(0, 'checked'), /Revision conflict/);
+    await stage(1, 'checked');
+    await assert.rejects(stage(2, 'invoiced'), /Invoice confirmation/);
+    const returnKey = '88888888-8888-4888-8888-888888888888';
+    const createReturn = (quantity = 1, key = returnKey) =>
+      db.query(
+        "select public.manage_return($1,null,$2,0,$3,'return','requested',0,'Peça com defeito') id",
+        [order, key, quantity],
+      );
+    const returned = (await createReturn()).rows[0].id;
+    assert.equal((await createReturn()).rows[0].id, returned, 'return creation is idempotent');
+    await assert.rejects(createReturn(2), /Request conflict/);
+    await assert.rejects(
+      createReturn(1, '99999999-9999-4999-8999-999999999999'),
+      /Quantity exceeds/,
+    );
+    const updateReturn = (revision, status, details = {}) =>
+      db.query(
+        "select public.manage_return($1,$2,$3,0,1,'return',$4,$5,'Comprovante ERP e financeiro conferidos',$6)",
+        [order, returned, returnKey, status, revision, JSON.stringify(details)],
+      );
+    await assert.rejects(updateReturn(0, 'completed'), /Invalid transition/);
+    await updateReturn(0, 'authorized');
+    await updateReturn(1, 'received');
+    await assert.rejects(updateReturn(2, 'inspected'), /Inspection required/);
+    await updateReturn(2, 'inspected', { inspection: 'damaged' });
+    await assert.rejects(updateReturn(3, 'completed'), /Resolution evidence/);
+    await assert.rejects(
+      updateReturn(3, 'completed', {
+        stock_disposition: 'olist_recorded',
+        stock_reference: 'Entrada 123',
+        settlement_reference: 'Estorno 123',
+      }),
+      /Resolution evidence/,
+    );
+    await updateReturn(3, 'completed', {
+      stock_disposition: 'no_restock',
+      settlement_reference: 'Estorno 123',
+    });
+    await assert.rejects(updateReturn(4, 'completed'), /Invalid transition/);
+    await assert.rejects(db.query('delete from public.operation_audit'), /permission/);
+    assert.ok(
+      (
+        await db.query('select count(*)::int n from public.operation_audit where order_id=$1', [
+          order,
+        ])
+      ).rows[0].n >= 8,
+    );
+    await db.exec('reset role');
+    await db.query("insert into public.operation_staff(user_id,role) values($1,'logistics')", [
+      other,
+    ]);
+    await db.query("select set_config('request.jwt.claims',$1,false)", [
+      JSON.stringify({ sub: other }),
+    ]);
+    await db.exec('set role authenticated');
+    assert.equal((await db.query('select public.is_admin() allowed')).rows[0].allowed, false);
+    assert.equal(
+      (await db.query("select public.operation_allowed('fulfill') allowed")).rows[0].allowed,
+      true,
+    );
+    assert.equal((await db.query('select count(*)::int n from public.order_refunds')).rows[0].n, 0);
+    await assert.rejects(
+      db.query("select public.set_operation_staff($1,'finance',true)", [other]),
+      /insufficient_privilege|permission/,
+    );
+    await assert.rejects(
+      db.query("update public.operation_orders set stage='posted'"),
+      /permission/,
+    );
+    for (const [role, permissions] of [
+      ['finance', ['orders', 'finance']],
+      ['support', ['orders', 'returns']],
+      ['auditor', ['orders', 'stock', 'audit']],
+    ]) {
+      await db.exec('reset role');
+      await db.query('update public.operation_staff set role=$1 where user_id=$2', [role, other]);
+      await db.exec('set role authenticated');
+      for (const permission of [
+        'orders',
+        'fulfill',
+        'returns',
+        'finance',
+        'stock',
+        'audit',
+        'team',
+      ]) {
+        assert.equal(
+          (await db.query('select public.operation_allowed($1) allowed', [permission])).rows[0]
+            .allowed,
+          permissions.includes(permission),
+          `${role}: ${permission}`,
+        );
+      }
+      assert.equal(
+        (await db.query('select count(*)::int n from public.admin_products')).rows[0].n,
+        0,
+        'operational staff cannot read the private catalog',
+      );
+    }
+    await db.exec('reset role');
+    await db.query('update public.operation_staff set active=false where user_id=$1', [other]);
+    await db.exec('set role authenticated');
+    assert.equal(
+      (await db.query("select public.operation_allowed('orders') allowed")).rows[0].allowed,
+      false,
+    );
+    await assert.rejects(stage(2, 'invoiced'), /insufficient_privilege|permission/);
+    await db.exec('reset role');
+    await db.query("select set_config('request.jwt.claims',$1,false)", [
+      JSON.stringify({ sub: uid }),
+    ]);
+    await db.exec('set role service_role');
+    assert.ok(
+      (
+        await db.query(
+          "select count(*)::int n from public.stock_movements where order_id=$1 and kind='reservation'",
+          [order],
+        )
+      ).rows[0].n > 0,
+      'checkout movement is linked to the order',
+    );
+    await db.query("update public.orders set payment_status='refunded' where id=$1", [order]);
+    await deliver({
+      ...providerPayment,
+      transaction_amount_refunded: 15,
+      date_last_updated: '2026-10-12T12:00:00Z',
+    });
+    assert.equal(
+      (await db.query('select payment_status from public.orders where id=$1', [order])).rows[0]
+        .payment_status,
+      'approved',
+      'fresh confirmation repairs legacy partial normalization even when provider timestamp is unchanged',
+    );
+    assert.equal(
+      (await db.query("select stock from private.product_skus where code='REAL-P'")).rows[0].stock,
+      2,
+      'return workflow and refund never restock automatically',
+    );
+    await deliver({
+      ...providerPayment,
+      status: 'refunded',
+      transaction_amount_refunded: 115,
+      date_last_updated: '2026-10-12T13:00:00Z',
+    });
+    assert.deepEqual(
+      (
+        await db.query(
+          'select amount_cents,cumulative_cents from public.order_refunds where order_id=$1 order by cumulative_cents',
+          [order],
+        )
+      ).rows,
+      [
+        { amount_cents: 1500, cumulative_cents: 1500 },
+        { amount_cents: 10000, cumulative_cents: 11500 },
+      ],
+    );
     await ship('delivered');
     await ship('in_transit');
     assert.equal(

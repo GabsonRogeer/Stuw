@@ -131,6 +131,73 @@ export type QuoteEvent = {
 export type Database = {
   public: {
     Tables: {
+      operation_staff: ReadTable<{
+        user_id: string;
+        role: string;
+        active: boolean;
+        updated_at: string;
+      }>;
+      operation_orders: ReadTable<{
+        order_id: string;
+        stage: string;
+        responsible_id: string | null;
+        evidence: string;
+        revision: number;
+        updated_at: string;
+      }>;
+      order_refunds: ReadTable<{
+        id: string;
+        order_id: string;
+        payment_id: string;
+        amount_cents: number;
+        cumulative_cents: number;
+        provider_time: string;
+        source: string;
+        created_at: string;
+      }>;
+      order_returns: ReadTable<{
+        id: string;
+        request_key: string;
+        order_id: string;
+        item_index: number;
+        quantity: number;
+        kind: string;
+        status: string;
+        reason: string;
+        resolution: string;
+        inspection: string;
+        stock_disposition: string;
+        stock_reference: string;
+        settlement_reference: string;
+        responsible_id: string;
+        revision: number;
+        created_at: string;
+        updated_at: string;
+      }>;
+      operation_audit: ReadTable<{
+        id: number;
+        entity: string;
+        entity_id: string;
+        order_id: string | null;
+        actor_id: string | null;
+        actor_source: string;
+        action: string;
+        before_data: Record<string, unknown> | null;
+        after_data: Record<string, unknown>;
+        created_at: string;
+      }>;
+      stock_movements: ReadTable<{
+        id: number;
+        sku: string;
+        stock_before: number;
+        stock_after: number;
+        quantity: number;
+        kind: string;
+        reason: string;
+        actor_id: string | null;
+        order_id: string | null;
+        created_at: string;
+      }>;
       olist_orders: {
         Row: {
           order_id: string;
@@ -385,6 +452,53 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      operation_allowed: { Args: { permission: string }; Returns: boolean };
+      change_operation: {
+        Args: {
+          input_order: string;
+          expected_revision: number;
+          next_stage: string;
+          input_note: string;
+        };
+        Returns: undefined;
+      };
+      manage_return: {
+        Args: {
+          input_order: string;
+          input_id: string | null;
+          request_key: string;
+          item_index: number;
+          quantity: number;
+          kind: string;
+          next_status: string;
+          expected_revision: number;
+          note: string;
+          details?: Record<string, string>;
+        };
+        Returns: string;
+      };
+      set_operation_staff: {
+        Args: { input_user: string; input_role: string; input_active: boolean };
+        Returns: undefined;
+      };
+      set_operation_staff_email: {
+        Args: { input_email: string; input_role: string; input_active: boolean };
+        Returns: undefined;
+      };
+      operation_people: {
+        Args: Record<string, never>;
+        Returns: { user_id: string; full_name: string }[];
+      };
+      reconcile_checkout_payment: {
+        Args: {
+          input_id: string;
+          provider_id: string;
+          next_status: string;
+          provider_time: string;
+          refunded_cents: number;
+        };
+        Returns: undefined;
+      };
       apply_olist_inventory: {
         Args: {
           code: string;
@@ -493,3 +607,4 @@ export type Database = {
     CompositeTypes: { [_ in never]: never };
   };
 };
+type ReadTable<T> = { Row: T; Insert: never; Update: never; Relationships: [] };

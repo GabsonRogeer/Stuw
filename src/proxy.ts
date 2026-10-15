@@ -32,6 +32,7 @@ export const config = {
     '/login',
     '/cadastro',
     '/admin/:path*',
+    '/operacao/:path*',
     '/conta/:path*',
     '/auth/:path*',
     '/checkout/:path*',

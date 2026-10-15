@@ -22,6 +22,9 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         Voltar aos pedidos
       </Link>
       <OrderDetails order={order} events={eventsResult.data ?? []} />
+      <Link className="inline-block underline" href={`/operacao/pedidos/${id}`}>
+        Preparação, reembolsos, trocas e devoluções
+      </Link>
       <OrderEditor key={order.revision} order={order} />
     </div>
   );

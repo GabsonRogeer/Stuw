@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { requireAdminPage } from '@/lib/supabase/admin-page';
 import { ORDER_LABELS } from '@/services/orders';
 import { currency } from '@/lib/commerce';
+import { OrderListFilters } from '@/components/admin/OrderListFilters';
+import { orderFilters } from '@/services/order-filters';
 export default async function OrdersPage({
   searchParams,
 }: {
@@ -9,13 +11,8 @@ export default async function OrdersPage({
 }) {
   const { supabase } = await requireAdminPage();
   const params = await searchParams;
-  const status = Object.hasOwn(ORDER_LABELS, params.status ?? '') ? params.status! : '';
-  const q = (params.q ?? '')
-    .replace(/[^\p{L}\p{N}@.\s-]/gu, '')
-    .trim()
-    .slice(0, 100);
+  const { status, q, mode } = orderFilters(params);
   const page = Math.min(10000, Math.max(1, Math.floor(Number(params.page) || 1)));
-  const mode = ['demo', 'sandbox', 'live'].includes(params.mode ?? '') ? params.mode! : '';
   let query = supabase
     .from('orders')
     .select(
@@ -44,35 +41,9 @@ export default async function OrdersPage({
       <p className="text-sm text-stuw-slate my-5">
         Acompanhe compras, entregas e pedidos de teste.
       </p>
-      <form className="grid sm:grid-cols-2 gap-3 mb-7">
-        <label className="text-xs">
-          Buscar por número, nome ou e-mail
-          <input name="q" defaultValue={q} maxLength={100} className="field mt-2" />
-        </label>
-        <label className="text-xs">
-          Status
-          <select name="status" defaultValue={status} className="field mt-2">
-            <option value="">Todos os status</option>
-            {Object.entries(ORDER_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-xs">
-          Tipo
-          <select name="mode" defaultValue={mode} className="field mt-2">
-            <option value="">Todos</option>
-            <option value="demo">Teste</option>
-            <option value="sandbox">Sandbox Mercado Pago</option>
-            <option value="live">Real</option>
-          </select>
-        </label>
-        <button className="self-end py-3 border rounded-md border-stuw-border dark:border-stuw-borderDark text-sm">
-          Filtrar pedidos
-        </button>
-      </form>
+      <div className="mb-7">
+        <OrderListFilters basePath="/admin/pedidos" q={q} status={status} mode={mode} />
+      </div>
       {error ? (
         <p role="alert">
           Não foi possível carregar os pedidos. Verifique se a migração de pedidos foi aplicada e
