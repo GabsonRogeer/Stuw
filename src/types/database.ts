@@ -36,6 +36,7 @@ export type Banner = {
   layout: 'split' | 'image';
   starts_at: string | null;
   ends_at: string | null;
+  desktop_position_y?: number;
   position: number;
   created_at: string;
   deleted_at: string | null;
@@ -131,6 +132,17 @@ export type QuoteEvent = {
 export type Database = {
   public: {
     Tables: {
+      complete_look_settings: {
+        Row: import('@/services/complete-look').CompleteLookSettings;
+        Insert: never;
+        Update: Partial<
+          Omit<
+            import('@/services/complete-look').CompleteLookSettings,
+            'id' | 'revision' | 'updated_at'
+          >
+        >;
+        Relationships: [];
+      };
       operation_staff: ReadTable<{
         user_id: string;
         role: string;

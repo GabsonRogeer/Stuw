@@ -96,6 +96,7 @@ export function BannerCarousel({
               subtitle={banner.subtitle}
               description={banner.description}
               layout={banner.layout}
+              desktopPositionY={banner.desktop_position_y}
               link={banner.link}
               desktop={bannerImageUrl(banner.desktop_path)}
               mobile={bannerImageUrl(banner.mobile_path)}

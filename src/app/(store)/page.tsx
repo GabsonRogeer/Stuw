@@ -1,17 +1,22 @@
 import Link from 'next/link';
 import { HeroSection } from '@/components/home/HeroSection/HeroSection';
-import { FabricSection } from '@/components/home/FabricSection/FabricSection';
 import { LifestyleSection } from '@/components/home/LifestyleSection/LifestyleSection';
+import { CompleteLookSection } from '@/components/home/CompleteLookSection/CompleteLookSection';
 import { ProductGrid } from '@/components/catalog/ProductGrid/ProductGrid';
 import { getProducts } from '@/services/product-service';
 import { ProductDiscovery } from '@/components/product/ProductDiscovery/ProductDiscovery';
 import { getPublishedBanners } from '@/repositories/banners';
+import { getCompleteLook } from '@/repositories/complete-look';
 import { BannerCarousel } from '@/components/home/ManagedBanner/BannerCarousel';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [products, banners] = await Promise.all([getProducts(), getPublishedBanners()]);
+  const [products, banners, completeLook] = await Promise.all([
+    getProducts(),
+    getPublishedBanners(),
+    getCompleteLook(),
+  ]);
   // This dynamic server component supplies one shared clock snapshot for hydration.
   // eslint-disable-next-line react-hooks/purity
   const serverNow = Date.now();
@@ -37,7 +42,7 @@ export default async function HomePage() {
       <div className="page-container">
         <ProductDiscovery />
       </div>
-      <FabricSection />
+      <CompleteLookSection products={products} settings={completeLook} />
       <LifestyleSection />
     </>
   );

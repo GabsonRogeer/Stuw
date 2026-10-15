@@ -11,6 +11,7 @@ export type BannerContent = {
   starts_at?: string | null;
   ends_at?: string | null;
   position?: number;
+  desktop_position_y?: number;
 };
 export const bannerPathValid = (path: string) => /^home\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(path);
 export function bannerLinkValid(link: string) {
@@ -31,6 +32,13 @@ export function bannerLinkValid(link: string) {
   }
 }
 export function validateBanner(value: BannerContent) {
+  if (
+    value.desktop_position_y !== undefined &&
+    (!Number.isInteger(value.desktop_position_y) ||
+      value.desktop_position_y < 0 ||
+      value.desktop_position_y > 100)
+  )
+    return 'A posição vertical deve ser um número inteiro entre 0 e 100.';
   if (value.layout !== undefined && !['split', 'image'].includes(value.layout))
     return 'Selecione imagem inteira ou imagem com texto.';
   if (
