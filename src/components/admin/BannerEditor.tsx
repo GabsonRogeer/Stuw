@@ -50,6 +50,7 @@ export function BannerEditor({
   const [layout, setLayout] = useState<Banner['layout']>(draft?.layout ?? 'split');
   const [starts, setStarts] = useState(localDate(draft?.starts_at));
   const [ends, setEnds] = useState(localDate(draft?.ends_at));
+  const [desktopPositionY, setDesktopPositionY] = useState(draft?.desktop_position_y ?? 0);
   const [position, setPosition] = useState(draft?.position ?? 0);
   const [reuseImage, setReuseImage] = useState(!draft || draft.desktop_path === draft.mobile_path);
   const [desktop, setDesktop] = useState<File | null>(null);
@@ -136,6 +137,7 @@ export function BannerEditor({
               starts_at: starts ? new Date(starts).toISOString() : '',
               ends_at: ends ? new Date(ends).toISOString() : '',
               position: String(position),
+              desktop_position_y: String(desktopPositionY),
               title,
               subtitle,
               description,
@@ -325,6 +327,31 @@ export function BannerEditor({
               </span>
             </label>
           </div>
+          <label className="block text-sm">
+            Posição vertical da foto no desktop: {desktopPositionY}%
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={desktopPositionY}
+              className="block w-full mt-3 accent-stuw-sage"
+              onChange={(event) => {
+                setDesktopPositionY(Number(event.target.value));
+                setMode('desktop');
+                setDirty(true);
+              }}
+            />
+            <span className="flex justify-between text-xs text-stuw-slate mt-2">
+              <span>Topo (0%)</span>
+              <span>Centro (50%)</span>
+              <span>Base (100%)</span>
+            </span>
+            <span className="block text-xs text-stuw-slate mt-2">
+              A foto permanece centralizada na horizontal. Ajuste e confira o rosto na prévia
+              abaixo. O recorte pode variar com a largura da tela.
+            </span>
+          </label>
           <Button type="submit" disabled={pending}>
             {pending ? 'Aguarde…' : 'Salvar rascunho'}
           </Button>
@@ -365,6 +392,7 @@ export function BannerEditor({
             <div className={mode === 'mobile' ? 'w-[375px] max-w-full mx-auto' : 'min-w-[800px]'}>
               <ManagedBanner
                 layout={layout}
+                desktopPositionY={desktopPositionY}
                 title={title || 'Título do banner'}
                 subtitle={subtitle}
                 description={description}

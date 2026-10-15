@@ -195,3 +195,10 @@ test('deletion and withdrawal target only the selected campaign and guard stale 
   assert.ok((await invalid.actions.deleteBanner('', 2)).error);
   assert.deepEqual(invalid.calls, []);
 });
+
+test('desktop framing accepts only integer percentages', () => {
+  for (const desktop_position_y of [0, 20, 50, 100])
+    assert.equal(banner.validateBanner({ ...content, desktop_position_y }), null);
+  for (const desktop_position_y of [-1, 101, 20.5, NaN, Infinity])
+    assert.ok(banner.validateBanner({ ...content, desktop_position_y }));
+});

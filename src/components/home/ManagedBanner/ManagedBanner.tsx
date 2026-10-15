@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import styles from './ManagedBanner.module.css';
 export function ManagedBanner({
   title,
@@ -9,6 +10,7 @@ export function ManagedBanner({
   preview,
   layout = 'split',
   priority = true,
+  desktopPositionY = 0,
 }: {
   title: string;
   subtitle?: string;
@@ -19,6 +21,7 @@ export function ManagedBanner({
   preview?: 'desktop' | 'mobile';
   layout?: 'split' | 'image';
   priority?: boolean;
+  desktopPositionY?: number;
 }) {
   const media =
     preview === 'desktop' ? 'all' : preview === 'mobile' ? 'not all' : '(min-width: 768px)';
@@ -29,7 +32,16 @@ export function ManagedBanner({
     </>
   );
   const picture = (
-    <picture className={styles.media}>
+    <picture
+      className={styles.media}
+      style={
+        {
+          '--banner-desktop-position-y':
+            (Number.isFinite(desktopPositionY) ? Math.min(100, Math.max(0, desktopPositionY)) : 0) +
+            '%',
+        } as CSSProperties
+      }
+    >
       <source media={media} srcSet={desktop} />
       {/* Native picture preserves art direction with distinct mobile/desktop assets. */}
       <img

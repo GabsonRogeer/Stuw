@@ -63,6 +63,9 @@ test('campaign migration preserves the current banner; independent publishing, s
     await db.exec(
       fs.readFileSync('supabase/migrations/20261013055416_home_banner_campaigns.sql', 'utf8'),
     );
+    await db.exec(
+      fs.readFileSync('supabase/migrations/20261015035455_banner_vertical_position.sql', 'utf8'),
+    );
     const legacy = (await rows('select * from public.banner_campaigns'))[0];
     assert.equal(legacy.title, 'Edição ainda não publicada');
     assert.equal(
@@ -70,11 +73,40 @@ test('campaign migration preserves the current banner; independent publishing, s
       'Original no ar',
     );
     assert.equal(legacy.layout, 'split');
+    assert.equal(legacy.desktop_position_y, 0);
     await role('authenticated', admin);
     let first = await create('Primeira campanha');
     let second = await create('Segunda campanha');
     first = await change(first, 'publish');
     second = await change(second, 'publish');
+    first = (
+      await rows(
+        'update public.banner_campaigns set desktop_position_y=20 where id=$1 returning *',
+        [first.id],
+      )
+    )[0];
+    assert.equal(
+      (
+        await rows('select desktop_position_y from public.banner_publications where id=$1', [
+          first.id,
+        ])
+      )[0].desktop_position_y,
+      0,
+    );
+    first = await change(first, 'publish');
+    assert.equal(
+      (
+        await rows('select desktop_position_y from public.banner_publications where id=$1', [
+          first.id,
+        ])
+      )[0].desktop_position_y,
+      20,
+    );
+    await assert.rejects(
+      query('update public.banner_campaigns set desktop_position_y=101 where id=$1', [first.id]),
+      /check constraint/,
+    );
+
     assert.equal((await rows('select * from public.banner_publications')).length, 3);
     assert.equal(
       (await rows('select * from public.banner_publications where id=$1', [first.id]))[0].layout,

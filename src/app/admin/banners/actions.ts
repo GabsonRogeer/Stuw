@@ -27,6 +27,7 @@ export async function saveBanner(form: FormData): Promise<BannerResult> {
       starts_at: String(form.get('starts_at') ?? '') || null,
       ends_at: String(form.get('ends_at') ?? '') || null,
       position: Number(form.get('position') ?? 0),
+      desktop_position_y: Number(form.get('desktop_position_y') ?? 0),
     };
     const invalid = validateBanner(value);
     if (invalid) return { error: invalid };

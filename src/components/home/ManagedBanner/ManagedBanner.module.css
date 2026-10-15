@@ -60,6 +60,9 @@
   min-height: 480px;
   aspect-ratio: auto;
 }
+.desktop .media img {
+  object-position: center var(--banner-desktop-position-y, 0%);
+}
 @media (min-width: 768px) {
   .responsive {
     grid-template-columns: 1fr 1fr;
@@ -72,5 +75,8 @@
     order: 2;
     min-height: 620px;
     aspect-ratio: auto;
+  }
+  .responsive .media img {
+    object-position: center var(--banner-desktop-position-y, 0%);
   }
 }

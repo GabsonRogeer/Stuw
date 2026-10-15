@@ -86,3 +86,8 @@ test('single card hides carousel controls and no current campaigns shows the ori
     '<div>Destaque original</div>',
   );
 });
+
+test('carousel carries each saved desktop framing to its image', () => {
+  assert.match(render([{ ...fixture, desktop_position_y: 20 }]), /--banner-desktop-position-y:20%/);
+  assert.match(render([fixture]), /--banner-desktop-position-y:0%/);
+});

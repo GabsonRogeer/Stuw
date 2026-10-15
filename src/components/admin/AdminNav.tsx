@@ -17,6 +17,7 @@ const links = [
   ['/admin/categorias', 'Categorias', Tags, false],
   ['/admin/cupons', 'Cupons', TicketPercent, false],
   ['/admin/banners', 'Banners', Image, false],
+  ['/admin/look-completo', 'Look completo', Image, false],
   ['/admin/pedidos', 'Pedidos', ShoppingBag, false],
   ['/admin/atacado', 'Atacado', ShoppingBag, false],
   ['/admin/relatorios', 'Relatórios', ChartNoAxesCombined, true],
