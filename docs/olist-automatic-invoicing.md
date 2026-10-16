@@ -41,7 +41,7 @@ from cron.job where jobname='stuw-olist-invoices';
 commit;
 ```
 
-Conferir o diagnóstico autenticado, o registro `private.commerce_job_runs` de tipo `invoices` e a resposta HTTP correspondente no `pg_net`. A rotina usa `/api/jobs/olist?direction=invoices`, a cada 30 segundos, e compartilha o bloqueio global com estoque/pedidos. Execuções ocupadas aguardam o próximo ciclo.
+Conferir o diagnóstico autenticado, o registro `private.commerce_job_runs` de tipo `invoices` e a resposta HTTP correspondente no `pg_net`. O agendador verifica a fila a cada 30 segundos; o [processamento condicionado às filas](conditional-commerce-scheduler.md) chama `/api/jobs/olist?direction=invoices` somente com trabalho disponível e sem bloqueio global ocupado. O worker compartilha a trava com estoque/pedidos e a verifica novamente ao iniciar. Execuções ocupadas aguardam o próximo ciclo.
 
 Os workers continuam na Vercel durante a transição da loja para a Hostinger, usando o mesmo Supabase. O novo admin precisa ser publicado por ZIP na Hostinger para mostrar essa fila no domínio oficial. Preservar a Vercel e não duplicar o cron. Para migrar as rotinas, validar antes autenticação, variáveis, SMTP e Chromium/PDF na Hostinger e então trocar o único destino no banco.
 
@@ -68,3 +68,25 @@ Referências oficiais: [gerar NF a partir do pedido](https://tiny.com.br/api-doc
 - 168 testes passaram, incluindo isolamento de acesso, data de corte, leases, retomada, respostas perdidas e não repetição de solicitações fiscais. Lint e build Webpack passaram localmente; o deploy final também compilou com TypeScript na Vercel (Node de build 24.21.0 fornecido pela plataforma; versão local declarada 24.19.0).
 - O fluxo de documentos existente mantém uma NF autorizada com PDF/XML armazenados e e-mail registrado como enviado. O próximo pedido elegível validará a automação fiscal completa com dados reais; as verificações desta ativação não substituem essa evidência.
 - ZIP dos fontes para atualizar o admin na Hostinger: `.local-backups/stuw-hostinger-nf-automatica-20261016.zip`, 305 arquivos, sem `.env`, `.vercel`, banco, documentos fiscais ou dependências compiladas. O envio desse ZIP ao hPanel permanece a cargo do usuário.
+
+## Compra real após a ativação — 16/10/2026
+
+Pedido **STW-1610202611470000020001**, venda Olist **79** (`364186725`), uma unidade de `STUW-TOP-AZUL-TESTE-G`, total **R$ 1,00**. O pagamento foi aprovado às 11:47 de Brasília.
+
+A validação fiscal interrompeu a fila antes de qualquer geração: o SKU de teste tinha NCM, mas seu componente físico `STUW-TOP-AZUL-G` estava sem esse campo. O responsável corrigiu o componente na Olist para `6106.20.00`; origem `0` e unidade `UN` já estavam corretas. Após conferir por leitura, a fila desse pedido foi retomada sem limpar tentativas fiscais e sem incluir pedidos anteriores à ativação.
+
+O worker agendado validou o componente, gerou uma única NF às **12:01:56**, solicitou sua emissão uma única vez às **12:02:55** e confirmou a autorização às **12:02:56**, todos em Brasília. A **NF nº 77, série 1**, ID `364189576`, foi autorizada por **R$ 1,00**; o pedido passou para **Faturado** na Olist.
+
+PDF e XML autorizados foram armazenados com seus hashes e vinculados à compra. O e-mail `invoice_available` foi registrado como enviado às **12:03:09**, em uma tentativa, sem erro. A confirmação da compra havia sido enviada às **11:48:02**. O registro de envio comprova aceite pelo SMTP; o recebimento na caixa de entrada depende da conferência do destinatário.
+
+Leitura independente da Olist confirmou o componente e a quantidade, NCM `6106.20.00`, CFOP `5102`, valor da nota, situação **Autorizada** e chave presente. O estoque físico da Olist passou de **5 para 4** e sua reserva de **1 para 0**, sem lançamento manual. A rotina de estoque do site ainda exige a conferência do movimento para marcar a reserva local como refletida; não foi registrada essa confirmação sem evidência específica do movimento. Etiqueta e postagem continuam fora desta validação.
+
+## Histórico fiscal do cliente — 16/10/2026
+
+Em **Minha conta → Compras → Pedido → Histórico**, as etapas **Nota fiscal gerada** e **Nota fiscal autorizada** aparecem em ordem cronológica, com data e hora de Brasília. A autorização oferece **Consultar nota fiscal**, que leva aos documentos já disponíveis no mesmo pedido.
+
+As etapas são compostas na leitura, sem alterar o histórico persistido ou executar ações fiscais. A geração exige um ID de nota confirmado e usa o horário registrado da solicitação de geração; uma tentativa isolada não aparece como nota gerada. A autorização usa os metadados dos documentos fiscais validados e armazenados. Pedidos de demonstração ou pagamento de teste não recebem essas etapas.
+
+A página verifica a sessão e a propriedade do pedido antes da consulta fiscal privilegiada. Essa consulta é exclusiva do servidor e seleciona somente o ID do pedido, o ID da nota e a data da tentativa de geração. As regras de acesso aos documentos permanecem vigentes, sem nova migração ou ampliação de permissões.
+
+Leitura dos registros reais confirmou a composição do histórico das NFs 75 e 77. Validação local: 182 testes, TypeScript, lint e build Webpack aprovados. Deploy `dpl_2Kwe9rhDba8CmqxyHATAgTfrNX6x` compilado e promovido para `stuw.vercel.app`; catálogo respondeu HTTP 200 e pedido sem sessão redirecionou com HTTP 307. ZIP dos fontes: `.local-backups/stuw-hostinger-historico-nf-20261016.zip`, 311 arquivos, sem credenciais; a interface da Hostinger depende do envio desse arquivo ao hPanel.

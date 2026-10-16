@@ -4,6 +4,8 @@ import { requireAccount } from '@/lib/supabase/account';
 import { isUuid } from '@/services/orders';
 import { OrderDetails } from '@/components/orders/OrderDetails';
 import { PaymentStatus } from '@/components/checkout/PaymentStatus';
+import { loadOwnedInvoiceGeneration } from '@/lib/invoices/customer-history';
+import { orderHistoryWithInvoice } from '@/services/order-history';
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { supabase, user } = await requireAccount();
   const { id } = await params;
@@ -16,22 +18,27 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     .maybeSingle();
   if (error) return <p role="alert">Não foi possível carregar o pedido. Tente novamente.</p>;
   if (!order) notFound();
-  const { data: events, error: eventsError } = await supabase
-    .from('order_events')
-    .select('*')
-    .eq('order_id', id)
-    .order('created_at');
-  const { data: invoice, error: invoiceError } = await supabase
-    .from('order_invoice_documents')
-    .select('order_id,number,series,total_cents,authorized_at')
-    .eq('order_id', id)
-    .maybeSingle();
+  const [eventResult, invoiceResult, generation] = await Promise.all([
+    supabase.from('order_events').select('*').eq('order_id', id).order('created_at'),
+    supabase
+      .from('order_invoice_documents')
+      .select('order_id,number,series,total_cents,authorized_at')
+      .eq('order_id', id)
+      .maybeSingle(),
+    loadOwnedInvoiceGeneration(order, user.id),
+  ]);
+  const { data: invoice, error: invoiceError } = invoiceResult;
+  const events = orderHistoryWithInvoice(order, eventResult.data ?? [], generation.data, invoice);
   return (
     <div className="space-y-7">
       <Link href="/conta/compras" className="text-sm underline">
         Voltar às compras
       </Link>
-      <OrderDetails order={order} events={events ?? []} />
+      <OrderDetails
+        order={order}
+        events={events}
+        invoiceAvailable={!invoiceError && Boolean(invoice)}
+      />
       {invoice && (
         <section
           aria-labelledby="invoice-title"
@@ -80,7 +87,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             }}
           />
         )}
-      {eventsError && <p role="alert">Histórico temporariamente indisponível.</p>}
+      {eventResult.error && <p role="alert">Histórico temporariamente indisponível.</p>}
+      {generation.error && <p role="alert">Etapas fiscais temporariamente indisponíveis.</p>}
     </div>
   );
 }

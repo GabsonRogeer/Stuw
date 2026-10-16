@@ -1,8 +1,11 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useId, useState } from 'react';
 import { saveAddress, deleteAddress } from '@/app/conta/actions';
 import { Button } from '@/components/ui/button/button';
-import { STATES } from '@/services/account';
+import { STATES, type AddressInput } from '@/services/account';
+import { formatPostalCode, postalAddressPatch, postalCodeDigits } from '@/services/postal-code';
+import { usePostalCode } from '@/hooks/use-postal-code';
+import { PostalCodeFeedback } from './PostalCodeFeedback';
 import type { Address } from '@/types/database';
 import { accountInput } from './ProfileForm';
 const fields = [
@@ -16,30 +19,90 @@ const fields = [
   ['city', 'Cidade', 'shipping address-level2', 200],
 ] as const;
 export function AddressForm({ address }: { address?: Address }) {
-  const [state, action, pending] = useActionState(saveAddress, {});
+  const emptyAddress = (): AddressInput => ({
+    label: '',
+    recipient: '',
+    postal_code: '',
+    street: '',
+    number: '',
+    complement: '',
+    district: '',
+    city: '',
+    state: '',
+  });
+  const [values, setValues] = useState<AddressInput>(() => ({
+    ...emptyAddress(),
+    ...address,
+    postal_code: formatPostalCode(address?.postal_code ?? ''),
+  }));
+  const [state, action, pending] = useActionState(
+    async (previous: Parameters<typeof saveAddress>[0], form: FormData) => {
+      const result = await saveAddress(previous, form);
+      if (result.message && !address) setValues(emptyAddress());
+      return result;
+    },
+    {},
+  );
+  const postal = usePostalCode();
+  const feedbackId = useId();
+  function lookupAddress(value: string) {
+    const baseline = values;
+    postal.lookup(value, (found) =>
+      setValues((current) =>
+        postalCodeDigits(current.postal_code) === found.postalCode
+          ? { ...current, ...postalAddressPatch(current, baseline, found) }
+          : current,
+      ),
+    );
+  }
   return (
-    <form action={action} className="space-y-5">
+    <form action={action} onSubmit={postal.cancel} className="space-y-5">
       <input type="hidden" name="id" value={address?.id ?? ''} />
       <fieldset disabled={pending} className="grid sm:grid-cols-2 gap-5">
         {fields.map(([key, label, autoComplete, max]) => (
-          <label key={key} className="block text-sm">
-            {label}
-            <input
-              name={key}
-              defaultValue={address?.[key] ?? ''}
-              required={key !== 'complement'}
-              maxLength={max}
-              autoComplete={autoComplete}
-              inputMode={key === 'postal_code' ? 'numeric' : undefined}
-              className={accountInput + ' mt-2'}
-            />
-          </label>
+          <div key={key}>
+            <label className="block text-sm">
+              {label}
+              <input
+                name={key}
+                value={values[key]}
+                onChange={(event) => {
+                  const value =
+                    key === 'postal_code'
+                      ? formatPostalCode(event.target.value)
+                      : event.target.value;
+                  setValues((current) => ({ ...current, [key]: value }));
+                  if (key === 'postal_code') lookupAddress(value);
+                }}
+                required={key !== 'complement'}
+                maxLength={max}
+                autoComplete={autoComplete}
+                inputMode={key === 'postal_code' ? 'numeric' : undefined}
+                pattern={key === 'postal_code' ? '[0-9]{5}-?[0-9]{3}' : undefined}
+                placeholder={key === 'postal_code' ? '00000-000' : undefined}
+                aria-describedby={key === 'postal_code' ? feedbackId : undefined}
+                className={accountInput + ' mt-2'}
+              />
+            </label>
+            {key === 'postal_code' && (
+              <div className="mt-2">
+                <PostalCodeFeedback
+                  id={feedbackId}
+                  {...postal}
+                  onRetry={() => lookupAddress(values.postal_code)}
+                />
+              </div>
+            )}
+          </div>
         ))}
         <label className="block text-sm">
           Estado
           <select
             name="state"
-            defaultValue={address?.state ?? ''}
+            value={values.state}
+            onChange={(event) =>
+              setValues((current) => ({ ...current, state: event.target.value }))
+            }
             required
             autoComplete="shipping address-level1"
             className={accountInput + ' mt-2'}

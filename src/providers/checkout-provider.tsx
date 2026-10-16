@@ -190,8 +190,13 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
     },
     informationValid,
     submitInformation,
-    updateInformation: (patch: Partial<CheckoutInformation>) => {
+    updateInformation: (
+      patch:
+        | Partial<CheckoutInformation>
+        | ((current: CheckoutInformation) => Partial<CheckoutInformation>),
+    ) => {
       if (
+        typeof patch === 'function' ||
         Object.keys(patch).some((key) =>
           [
             'firstName',
@@ -207,7 +212,11 @@ function useCheckoutState({ email, profile, addresses, loadError }: CheckoutProf
         )
       )
         setSelectedAddressId('');
-      setInformation((current) => ({ ...current, ...patch, email }));
+      setInformation((current) => ({
+        ...current,
+        ...(typeof patch === 'function' ? patch(current) : patch),
+        email,
+      }));
     },
     shippingOptions,
     shippingLoading,

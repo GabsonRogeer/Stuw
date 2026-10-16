@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useCheckout } from '@/providers/checkout-provider';
 import { useStorefront } from '@/providers/storefront-provider';
 import { BRAZIL_STATES } from '@/services/checkout';
 import { Button } from '@/components/ui/button/button';
+import { usePostalCode } from '@/hooks/use-postal-code';
+import { formatPostalCode, postalAddressPatch, postalCodeDigits } from '@/services/postal-code';
+import { PostalCodeFeedback } from '@/components/account/PostalCodeFeedback';
 
 const addressFields = [
   { name: 'firstName', label: 'Nome', autocomplete: 'given-name' },
@@ -46,11 +49,24 @@ export function CheckoutInformation() {
   const { setPanel } = useStorefront();
   const router = useRouter();
   const [error, setError] = useState('');
+  const postal = usePostalCode();
+  const feedbackId = useId();
+  function lookupAddress(value: string) {
+    const baseline = information;
+    postal.lookup(value, (found) =>
+      updateInformation((current) =>
+        postalCodeDigits(current.postalCode) === found.postalCode
+          ? postalAddressPatch(current, baseline, found)
+          : {},
+      ),
+    );
+  }
   return (
     <form
       method="post"
       onSubmit={(event) => {
         event.preventDefault();
+        postal.cancel();
         if (submitInformation()) router.push('/checkout/shipping');
         else setError('Confira os dados de contato e o endereço para continuar.');
       }}
@@ -111,6 +127,7 @@ export function CheckoutInformation() {
               className="field"
               value={selectedAddressId}
               onChange={(event) => {
+                postal.cancel();
                 selectAddress(event.target.value);
                 setError('');
               }}
@@ -142,24 +159,41 @@ export function CheckoutInformation() {
             </select>
           </label>
           {addressFields.map((field) => (
-            <label
+            <div
               key={field.name}
               className={`text-xs space-y-2 ${'wide' in field ? 'sm:col-span-2' : ''}`}
             >
-              <span>{field.label}</span>
-              <input
-                required={!('optional' in field)}
-                name={field.name}
-                autoComplete={field.autocomplete}
-                placeholder={'placeholder' in field ? field.placeholder : undefined}
-                pattern={'pattern' in field ? field.pattern : undefined}
-                inputMode={'inputMode' in field ? field.inputMode : undefined}
-                maxLength={'maxLength' in field ? field.maxLength : 180}
-                value={information[field.name]}
-                onChange={(event) => updateInformation({ [field.name]: event.target.value })}
-                className="field"
-              />
-            </label>
+              <label className="block space-y-2">
+                <span>{field.label}</span>
+                <input
+                  required={!('optional' in field)}
+                  name={field.name}
+                  autoComplete={field.autocomplete}
+                  placeholder={'placeholder' in field ? field.placeholder : undefined}
+                  pattern={'pattern' in field ? field.pattern : undefined}
+                  inputMode={'inputMode' in field ? field.inputMode : undefined}
+                  maxLength={'maxLength' in field ? field.maxLength : 180}
+                  value={information[field.name]}
+                  onChange={(event) => {
+                    const value =
+                      field.name === 'postalCode'
+                        ? formatPostalCode(event.target.value)
+                        : event.target.value;
+                    updateInformation({ [field.name]: value });
+                    if (field.name === 'postalCode') lookupAddress(value);
+                  }}
+                  aria-describedby={field.name === 'postalCode' ? feedbackId : undefined}
+                  className="field"
+                />
+              </label>
+              {field.name === 'postalCode' && (
+                <PostalCodeFeedback
+                  id={feedbackId}
+                  {...postal}
+                  onRetry={() => lookupAddress(information.postalCode)}
+                />
+              )}
+            </div>
           ))}
           <label className="text-xs space-y-2">
             <span>Estado</span>

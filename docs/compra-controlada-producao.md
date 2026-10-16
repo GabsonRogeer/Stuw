@@ -23,6 +23,16 @@ Os quatro cadastros foram confirmados por leitura após a inclusão. A classific
 
 `CONTROLLED_PRODUCT_IDS` recebe os IDs dos produtos reservados ao teste; `CONTROLLED_BUYER_IDS`, os UUIDs das contas autorizadas. As listas usam vírgulas. A verificação ocorre no frete, antes de reservar o pedido e antes de criar o pagamento. Com produto configurado e nenhuma conta autorizada, a compra é recusada. O ID da conta conferida está somente no arquivo operacional ignorado pelo Git.
 
+### Abertura para outras contas — 16/10/2026
+
+O responsável autorizou os produtos de R$ 1,00 para testes com outras contas. A liberação usa a configuração existente: remover `CONTROLLED_PRODUCT_IDS` do ambiente de produção e publicar/reiniciar a aplicação. Com essa lista ausente ou vazia, `CONTROLLED_BUYER_IDS` deixa de restringir esses produtos; login e as validações normais de estoque, frete, valores e pagamento continuam obrigatórios.
+
+Na Vercel, a variável foi removida de Production e o deploy `dpl_AWEsAVm2jf3zywxhNL8eersCbmeB` foi promovido para `stuw.vercel.app`, após confirmar a ausência da restrição na configuração e a página do produto com HTTP 200. No `.env.local`, ela já estava ausente; o comércio local continua desativado. Na Hostinger, remover **`CONTROLLED_PRODUCT_IDS`**, se configurada, nas variáveis da aplicação no hPanel e reiniciar/republicar. Não é necessário um novo ZIP apenas para essa configuração. Esvaziar somente a lista de compradores enquanto a lista de produtos continua preenchida bloqueia as compras controladas.
+
+Os testes continuam em produção e novos pedidos elegíveis seguem o [faturamento automático e envio da NF por e-mail](olist-automatic-invoicing.md). Antes da divulgação, arquivar os produtos de teste para removê-los da vitrine preservando pedidos, vínculos de estoque e documentos fiscais. Não excluir compras ou notas para limpar o catálogo.
+
+Verificação: os 20 testes direcionados de restrição de compradores, autorização, pedido e integrações de pagamento/frete passaram. Nenhum pagamento foi criado para esta liberação.
+
 `OLIST_INVOICE_ENABLED=true` é necessário, junto de `OLIST_ENABLED=true` e Mercado Pago em `production`, para liberar o faturamento administrativo. O padrão é desativado.
 
 **Admin → Integração Olist → Faturamento de pedidos reais** oferece três operações separadas: gerar a nota, consultar a situação e solicitar autorização. Somente administrador verificado pode executar. O pagamento deve ser real e aprovado; totais, CPF/CNPJ, referência do pedido e SKUs/quantidades são conferidos. Pedidos com reembolso registrado exigem revisão.

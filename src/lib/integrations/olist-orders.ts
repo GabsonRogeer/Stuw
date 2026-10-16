@@ -5,14 +5,26 @@ import { olistRequest, OlistError } from './olist';
 
 export async function syncOlistOrder() {
   const db = createServiceClient();
-  const rows = await db
+  // New/uncertain orders take priority over routine checks of existing links.
+  const queued = await db
     .from('olist_orders')
     .select('*')
-    .in('state', ['pending', 'uncertain', 'linked'])
+    .in('state', ['pending', 'uncertain'])
     .order('updated_at')
     .limit(1);
-  if (rows.error) throw new Error('Fila de pedidos indisponível.');
-  const task = rows.data[0];
+  if (queued.error) throw new Error('Fila de pedidos indisponível.');
+  let task = queued.data[0];
+  if (!task) {
+    const linked = await db
+      .from('olist_orders')
+      .select('*')
+      .eq('state', 'linked')
+      .lte('updated_at', new Date(Date.now() - 5 * 60_000).toISOString())
+      .order('updated_at')
+      .limit(1);
+    if (linked.error) throw new Error('Fila de pedidos indisponível.');
+    task = linked.data[0];
+  }
   if (!task) return 'idle';
   let writing = false;
   try {

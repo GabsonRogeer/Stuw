@@ -3,7 +3,16 @@ import { currency } from '@/lib/commerce';
 import { ORDER_LABELS } from '@/services/orders';
 import { PAYMENT_LABELS, SHIPMENT_LABELS } from '@/services/fulfillment';
 import { ShipmentTimeline } from './ShipmentTimeline';
-export function OrderDetails({ order, events }: { order: Order; events: OrderEvent[] }) {
+import { INVOICE_HISTORY_LABELS } from '@/services/order-history';
+export function OrderDetails({
+  order,
+  events,
+  invoiceAvailable = false,
+}: {
+  order: Order;
+  events: OrderEvent[];
+  invoiceAvailable?: boolean;
+}) {
   const address = order.delivery;
   return (
     <div className="space-y-7">
@@ -127,6 +136,7 @@ export function OrderDetails({ order, events }: { order: Order; events: OrderEve
                 {(!order.is_demo && event.status === 'pending'
                   ? 'Pedido registrado'
                   : ORDER_LABELS[event.status]) ??
+                  INVOICE_HISTORY_LABELS[event.status] ??
                   (event.status.startsWith('payment_')
                     ? PAYMENT_LABELS[event.status.slice(8)]
                     : event.status.startsWith('shipment_')
@@ -134,11 +144,19 @@ export function OrderDetails({ order, events }: { order: Order; events: OrderEve
                       : event.status)}{' '}
                 · {event.note}
               </p>
-              <time className="text-xs text-stuw-slate">
+              <time dateTime={event.created_at} className="text-xs text-stuw-slate">
                 {new Date(event.created_at).toLocaleString('pt-BR', {
                   timeZone: 'America/Sao_Paulo',
                 })}
               </time>
+              {event.status === 'invoice_authorized' && invoiceAvailable && (
+                <a
+                  href="#invoice-title"
+                  className="block mt-2 text-xs underline underline-offset-4"
+                >
+                  Consultar nota fiscal
+                </a>
+              )}
             </li>
           ))}
         </ol>
