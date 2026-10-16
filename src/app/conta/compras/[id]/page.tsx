@@ -21,12 +21,53 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     .select('*')
     .eq('order_id', id)
     .order('created_at');
+  const { data: invoice, error: invoiceError } = await supabase
+    .from('order_invoice_documents')
+    .select('order_id,number,series,total_cents,authorized_at')
+    .eq('order_id', id)
+    .maybeSingle();
   return (
     <div className="space-y-7">
       <Link href="/conta/compras" className="text-sm underline">
         Voltar às compras
       </Link>
       <OrderDetails order={order} events={events ?? []} />
+      {invoice && (
+        <section
+          aria-labelledby="invoice-title"
+          className="rounded-2xl border border-stone-200 bg-white/70 p-6 shadow-sm"
+        >
+          <p className="text-xs uppercase tracking-widest text-stone-500">Documentos do pedido</p>
+          <h2 id="invoice-title" className="mt-2 font-serif text-2xl">
+            Sua nota fiscal
+          </h2>
+          <p className="mt-2 text-sm text-stone-600">
+            NF-e nº {invoice.number} · Série {invoice.series} · Autorizada em{' '}
+            {new Date(invoice.authorized_at).toLocaleDateString('pt-BR', {
+              timeZone: 'America/Sao_Paulo',
+            })}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a
+              href={`/conta/compras/${id}/nota-fiscal/pdf`}
+              className="rounded-lg bg-stone-900 px-5 py-3 text-sm font-medium text-white"
+            >
+              Baixar DANFE (PDF)
+            </a>
+            <a
+              href={`/conta/compras/${id}/nota-fiscal/xml`}
+              className="rounded-lg border border-stone-300 px-5 py-3 text-sm font-medium"
+            >
+              Baixar NF-e (XML)
+            </a>
+          </div>
+        </section>
+      )}
+      {invoiceError && (
+        <p role="alert" className="text-sm">
+          Documentos fiscais temporariamente indisponíveis.
+        </p>
+      )}
       {!order.is_demo &&
         ['initializing', 'pending', 'in_process', 'authorized'].includes(order.payment_status) && (
           <PaymentStatus

@@ -191,6 +191,27 @@ export function ProductEditor({
                   ? 'Preço de venda'
                   : section.title}
               </summary>
+              {section.title === 'Preços, promoções e atacado' && (
+                <div className="mt-5 space-y-3 text-sm">
+                  <label className="flex gap-2 items-start">
+                    <input
+                      type="checkbox"
+                      checked={draft.freeShipping === true}
+                      onChange={(event) => set('freeShipping', event.target.checked)}
+                    />
+                    Oferecer a opção de frete padrão grátis quando a sacola tiver somente produtos
+                    com esse benefício.
+                  </label>
+                  <label className="flex gap-2 items-start">
+                    <input
+                      type="checkbox"
+                      checked={draft.pixDiscountEligible !== false}
+                      onChange={(event) => set('pixDiscountEligible', event.target.checked)}
+                    />
+                    Aplicar desconto de 5% no Pix a este produto.
+                  </label>
+                </div>
+              )}
               {section.title === 'Frete e embalagem' && (
                 <div className="mt-4 space-y-3 text-sm">
                   <p>

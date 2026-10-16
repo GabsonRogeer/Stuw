@@ -1,4 +1,5 @@
 import 'server-only';
+import { assertControlledCheckout } from '@/services/controlled-checkout';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { commerceConfig, requiredEnv } from './config';
 import { integrationRequest } from './http';
@@ -40,6 +41,7 @@ function paymentExpiration(value: string | null) {
   return date.toISOString().replace('Z', '+00:00');
 }
 export async function createPayment(order: Order, taxDocument: string, card?: CardPaymentData) {
+  assertControlledCheckout(order.user_id, order.items);
   const { origin, localTest } = commerceConfig();
   if (order.payment_method === 'card') {
     const methods = await request<{ id: string; payment_type_id: string }[]>('/v1/payment_methods');

@@ -83,7 +83,9 @@ export function CheckoutPayment() {
               checked={checkout.payment === 'pix'}
               onChange={() => checkout.setPayment('pix')}
             />
-            Pix · 5% de desconto nos produtos
+            {checkout.items.some((item) => item.pixDiscountEligible !== false)
+              ? 'Pix · 5% de desconto nos produtos elegíveis'
+              : 'Pix'}
           </label>
           <label className="flex gap-3 border rounded-xl p-5 text-sm">
             <input

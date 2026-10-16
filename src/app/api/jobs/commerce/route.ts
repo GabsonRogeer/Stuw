@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { createServiceClient } from '@/lib/supabase/service';
 import { syncOrderPayment, syncOrderShipment } from '@/lib/integrations/checkout';
+import { commerceConfig } from '@/lib/integrations/config';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 export async function GET(request: Request) {
@@ -13,9 +14,12 @@ export async function GET(request: Request) {
   )
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   const db = createServiceClient();
+  const { production } = commerceConfig();
   const { data, error } = await db
     .from('order_integrations')
-    .select('*')
+    .select('*,orders!inner(payment_test_mode,is_demo)')
+    .eq('orders.payment_test_mode', !production)
+    .eq('orders.is_demo', false)
     .lt('next_sync_at', new Date().toISOString())
     .order('next_sync_at')
     .limit(10);

@@ -12,6 +12,8 @@ function load(file, deps = {}) {
     if (name === 'server-only') return {};
     if (name.startsWith('node:')) return require(name);
     if (name in deps) return deps[name];
+    if (name === '@/services/controlled-checkout')
+      return load('src/services/controlled-checkout.ts');
     throw new Error('Unexpected import ' + name);
   };
   loaded._compile(

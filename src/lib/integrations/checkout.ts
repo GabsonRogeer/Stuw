@@ -1,4 +1,5 @@
 import 'server-only';
+import { assertControlledCheckout } from '@/services/controlled-checkout';
 import { createHash } from 'node:crypto';
 import { createServiceClient } from '@/lib/supabase/service';
 import {
@@ -16,6 +17,7 @@ import { getPayment, findOrderPayments, type MercadoPayment } from './mercado-pa
 export const hash = (value: string) => createHash('sha256').update(value).digest('hex');
 
 export async function quoteCheckout(userId: string, request: QuoteRequest, refresh = false) {
+  assertControlledCheckout(userId, request.items);
   const { production } = shippingConfig();
   const db = createServiceClient();
   // Bound provider traffic and keep quotes reusable for the same address and basket.
@@ -76,6 +78,7 @@ export async function quoteCheckout(userId: string, request: QuoteRequest, refre
       );
     return {
       ...item,
+      freeShipping: document.freeShipping === true,
       sku: variant.sku,
       title: product.title,
       image: product.image,
@@ -99,6 +102,7 @@ export async function quoteCheckout(userId: string, request: QuoteRequest, refre
     })),
   );
   const freeShipping =
+    products.every((p) => p.freeShipping === true) ||
     products.reduce((sum, p) => sum + p.price_cents * p.qty, 0) >= FREE_SHIPPING_THRESHOLD * 100;
   const options = quotedOptions.map((option, index) => ({
     ...option,

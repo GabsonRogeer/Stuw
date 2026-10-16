@@ -75,6 +75,8 @@ test('Pix hides expired codes, keeps polling, accepts later approval and cleans 
       },
     },
     '@/services/fulfillment': loadTypeScript('src/services/fulfillment.ts'),
+    '@/services/pix-countdown': loadTypeScript('src/services/pix-countdown.ts'),
+    './payment-status.css': {},
     '@/lib/commerce': { currency: (value) => `R$ ${value}` },
     '@/providers/cart-provider': { useCart: () => ({ clear() {} }) },
   };
@@ -139,7 +141,10 @@ test('Pix hides expired codes, keeps polling, accepts later approval and cleans 
     status = 'approved';
     t.mock.timers.tick(20000);
     await flush();
-    assert.match(render().html, /Pagamento aprovado/);
+    const approved = render().html;
+    assert.match(approved, /Pagamento concluído/);
+    assert.match(approved, /nota fiscal for emitida/);
+    assert.doesNotMatch(approved, /test-pix-code|test-image|Copiar código Pix|role="timer"/);
     const finalPolls = polls;
     t.mock.timers.tick(40000);
     await flush();

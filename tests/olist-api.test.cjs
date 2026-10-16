@@ -21,6 +21,8 @@ test('Olist validates credentials server-side, normalizes empty categories, and 
     return new Response(JSON.stringify({ retorno: [] }));
   });
   await assert.rejects(olistRequest('produto.incluir.php'), /DISABLED/);
+  await assert.rejects(olistRequest('gerar.nota.fiscal.pedido.php'), /DISABLED/);
+  await assert.rejects(olistRequest('nota.fiscal.emitir.php'), /DISABLED/);
   assert.equal(calls, 0);
   assert.deepEqual(await olistRequest('produtos.categorias.arvore.php'), {
     status: 'OK',

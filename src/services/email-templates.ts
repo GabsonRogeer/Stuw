@@ -98,3 +98,31 @@ export function purchaseEmail(order: Order, siteUrl: string) {
     }),
   };
 }
+
+export function invoiceEmail(
+  order: Order,
+  invoice: { number: string; series: string; total_cents: number },
+  siteUrl: string,
+) {
+  const site = new URL(siteUrl);
+  if (site.protocol !== 'https:' || site.username || site.password)
+    throw new Error('Invalid site URL');
+  const url = new URL(`/conta/compras/${encodeURIComponent(order.id)}`, site).href;
+  const total = (invoice.total_cents / 100).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+  return {
+    subject: `Sua nota fiscal chegou · Pedido ${order.number} | STUW`,
+    text: `Olá, ${order.customer_name}.\n\nA nota fiscal do pedido ${order.number} foi emitida e autorizada.\nNF-e nº ${invoice.number} · Série ${invoice.series}\nValor: ${total}\n\nO DANFE em PDF e o XML autorizado estão anexados a este e-mail. Você também pode consultá-los nos detalhes do pedido:\n${url}\n\nObrigada por escolher a STUW.\nSTUW · contato@stuw.com.br`,
+    html: emailLayout({
+      title: 'Sua nota fiscal chegou.',
+      preview: `A nota fiscal do pedido ${order.number} já está disponível.`,
+      action: 'Consultar meu pedido',
+      url,
+      content: `<p style="margin:0 0 16px;">Olá, ${escapeHtml(order.customer_name)}.</p><p style="margin:0 0 24px;">A nota fiscal do seu pedido <strong>${escapeHtml(order.number)}</strong> foi emitida e autorizada.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#FBF9F5;"><tr><td style="padding:20px;font-size:14px;line-height:1.8;">NF-e <strong>nº ${escapeHtml(invoice.number)}</strong> · Série ${escapeHtml(invoice.series)}<br>Valor da nota: <strong>${total}</strong></td></tr></table><p style="margin:24px 0 16px;">O DANFE em PDF e o XML autorizado estão anexados a este e-mail. Eles também ficam disponíveis nos detalhes do pedido, na sua conta.</p><p style="margin:0;">Obrigada por escolher a STUW.</p>`,
+      footer:
+        'Guarde os arquivos anexos para consultar quando precisar. Este e-mail informa a emissão da nota fiscal; o acompanhamento da entrega está disponível na sua conta.',
+    }),
+  };
+}

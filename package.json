@@ -25,12 +25,15 @@
     "test:payments": "node --test tests/orders.test.cjs tests/payment-shipping.test.cjs tests/checkout-integrations-database.test.cjs tests/payment-homologation.test.cjs tests/checkout-tools.test.cjs tests/pix-status.test.cjs"
   },
   "dependencies": {
+    "@sparticuz/chromium": "153.0.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "@vercel/analytics": "^2.0.1",
+    "fast-xml-parser": "5.11.2",
     "lucide-react": "^0.453.0",
     "next": "^16.3.6",
     "nodemailer": "10.1.1",
+    "puppeteer-core": "25.11.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "server-only": "^0.0.1"
