@@ -4,7 +4,8 @@ Migração do MVP HTML para Next.js App Router, React e TypeScript. A interface 
 
 ## Executar
 
-Requer Node.js 20.9 ou superior. Base: Next.js 16 e React 19.
+Node.js **24.19.0**, declarado em `package.json`, `.nvmrc` e `.node-version`.
+Base: Next.js 16 e React 19. Se usar nvm, execute `nvm install 24.19.0` e `nvm use 24.19.0` antes de instalar as dependências.
 
 ```bash
 npm ci
@@ -12,6 +13,8 @@ npm run dev
 ```
 
 Abra [localhost:3000](http://localhost:3000). Se a porta estiver ocupada, use a URL indicada pelo Next.js no terminal.
+
+Para a publicação no domínio oficial, consulte o [deploy na Hostinger](docs/deploy-hostinger.md).
 
 O `.env.local` usa somente credenciais de testes. As credenciais de produção
 ficam na Vercel, separadas das variáveis Preview da branch `teste`.
