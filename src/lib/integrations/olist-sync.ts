@@ -20,6 +20,7 @@ import { copyOlistImage } from './olist-images';
 import { syncOlistOrder } from './olist-orders';
 import { exportOne } from './olist-export';
 import { syncOlistInventory } from './olist-inventory';
+import { syncAutomaticOlistInvoice } from './olist-invoice-automation';
 
 const fingerprint = (p: OlistProduct) =>
   createHash('sha256').update(JSON.stringify(p)).digest('hex');
@@ -191,7 +192,7 @@ async function importOne() {
 }
 
 export async function syncOlistCatalog(
-  direction: 'export' | 'import' | 'orders' | 'stock' = 'export',
+  direction: 'export' | 'import' | 'orders' | 'stock' | 'invoices' = 'export',
 ) {
   if (
     process.env.OLIST_ENABLED !== 'true' &&
@@ -222,7 +223,9 @@ export async function syncOlistCatalog(
           ? exportOne()
           : direction === 'orders'
             ? syncOlistOrder()
-            : importOne()),
+            : direction === 'invoices'
+              ? syncAutomaticOlistInvoice()
+              : importOne()),
     };
   } finally {
     const release = await db

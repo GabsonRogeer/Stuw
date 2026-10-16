@@ -10,7 +10,7 @@ import { olistRequest, OlistError } from './olist';
 
 export async function processOlistInvoice(
   orderId: string,
-  actorId: string,
+  actorId: string | null,
   operation: 'generate' | 'emit' | 'refresh',
 ) {
   if (
@@ -182,6 +182,6 @@ export async function processOlistInvoice(
       .eq('order_id', orderId);
     if (saved.error)
       throw new Error('Falha ao registrar a pendência fiscal. Confira a Olist antes de continuar.');
-    throw new Error(message);
+    throw error;
   }
 }

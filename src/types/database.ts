@@ -232,6 +232,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      olist_invoice_automation: {
+        Row: { id: boolean; enabled: boolean; activated_at: string | null };
+        Insert: never;
+        Update: { enabled?: boolean; activated_at?: string };
+        Relationships: [];
+      };
       olist_invoice_jobs: {
         Row: {
           order_id: string;
@@ -244,6 +250,12 @@ export type Database = {
           last_error: string | null;
           document_error: string | null;
           documents_next_attempt_at: string;
+          automatic: boolean;
+          automation_attempts: number;
+          validated_skus: string[];
+          next_attempt_at: string;
+          lease_owner: string | null;
+          lease_until: string | null;
           updated_at: string;
         };
         Insert: { order_id: string };
@@ -252,8 +264,13 @@ export type Database = {
           status?: string;
           generate_attempted_at?: string;
           emit_attempted_at?: string;
-          generate_actor?: string;
-          emit_actor?: string;
+          generate_actor?: string | null;
+          emit_actor?: string | null;
+          automation_attempts?: number;
+          validated_skus?: string[];
+          next_attempt_at?: string;
+          lease_owner?: string | null;
+          lease_until?: string | null;
           last_error?: string | null;
           document_error?: string | null;
           documents_next_attempt_at?: string;
@@ -606,6 +623,10 @@ export type Database = {
         Returns: undefined;
       };
       claim_olist_sync: { Args: { worker: string }; Returns: boolean };
+      claim_automatic_olist_invoice: {
+        Args: { worker: string };
+        Returns: Database['public']['Tables']['olist_invoice_jobs']['Row'][];
+      };
       link_olist_product: {
         Args: {
           local_id: number;

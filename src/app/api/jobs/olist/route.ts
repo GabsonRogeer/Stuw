@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import { syncOlistCatalog } from '@/lib/integrations/olist-sync';
+import { getInvoiceAutomationStatus } from '@/lib/integrations/olist-invoice-automation';
 export const runtime = 'nodejs';
 export const maxDuration = 120;
 export async function GET(request: Request) {
@@ -16,10 +17,13 @@ export async function GET(request: Request) {
     direction !== 'export' &&
     direction !== 'import' &&
     direction !== 'orders' &&
-    direction !== 'stock'
+    direction !== 'stock' &&
+    direction !== 'invoices'
   )
     return Response.json({ error: 'Invalid direction' }, { status: 400 });
   try {
+    if (direction === 'invoices' && new URL(request.url).searchParams.get('verify') === '1')
+      return Response.json(await getInvoiceAutomationStatus());
     return Response.json(await syncOlistCatalog(direction));
   } catch {
     return Response.json({ error: 'Olist sync unavailable' }, { status: 503 });
