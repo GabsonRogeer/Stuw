@@ -30,7 +30,8 @@ export function calculateTotals(
       ? 0
       : shippingPrice !== undefined && Number.isFinite(shippingPrice) && shippingPrice >= 0
         ? Math.round(shippingPrice * 100)
-        : subtotalCents >= FREE_SHIPPING_THRESHOLD * 100
+        : subtotalCents >= FREE_SHIPPING_THRESHOLD * 100 ||
+            items.every((item) => item.freeShipping === true)
           ? 0
           : 2800;
   const giftCents = gift && items.length > 0 ? 3500 : 0;
@@ -48,9 +49,18 @@ export function calculateTotals(
     : coupon === 'PRIVE10'
       ? Math.round(subtotalCents * 0.1)
       : 0;
-  const merchandiseDiscount = rate ? Math.round((subtotalCents * rate) / 10000) : discount;
+  const eligibleSubtotal = items.reduce(
+    (sum, item) =>
+      sum + (item.pixDiscountEligible === false ? 0 : Math.round(item.price * 100) * item.qty),
+    0,
+  );
+  const merchandiseDiscount = rate
+    ? Math.round((eligibleSubtotal * rate) / 10000)
+    : coupon === 'PRIVE10'
+      ? Math.round(eligibleSubtotal * 0.1)
+      : 0;
   const pixDiscount =
-    payment === 'pix' ? Math.round((subtotalCents - merchandiseDiscount) * 0.05) : 0;
+    payment === 'pix' ? Math.round((eligibleSubtotal - merchandiseDiscount) * 0.05) : 0;
   return {
     subtotal: subtotalCents / 100,
     discount: discount / 100,
@@ -78,6 +88,8 @@ export function addCartItem(
     return items;
   const newItem: CartItem = {
     id: product.id,
+    ...(product.freeShipping === true ? { freeShipping: true } : {}),
+    ...(product.pixDiscountEligible === false ? { pixDiscountEligible: false } : {}),
     title: product.title,
     price: variant?.price ?? product.price,
     image: product.colorMedia?.[color]?.[0]?.src ?? product.image,
@@ -112,6 +124,8 @@ export function restoreCart(value: unknown, products: Product[]): CartItem[] {
     if (limit < 1) continue;
     const item = {
       id: product.id,
+      ...(product.freeShipping === true ? { freeShipping: true } : {}),
+      ...(product.pixDiscountEligible === false ? { pixDiscountEligible: false } : {}),
       title: product.title,
       price: productVariant(product, entry.color, entry.size)?.price ?? product.price,
       image: product.colorMedia?.[entry.color]?.[0]?.src ?? product.image,

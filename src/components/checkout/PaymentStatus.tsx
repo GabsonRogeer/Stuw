@@ -6,6 +6,9 @@ import { checkOrderPayment } from '@/app/actions/order';
 import { PAYMENT_LABELS, type CheckoutPaymentResult } from '@/services/fulfillment';
 import { currency } from '@/lib/commerce';
 import { useCart } from '@/providers/cart-provider';
+import { Check, Clock3, Copy, Mail, QrCode, ReceiptText, ShieldCheck } from 'lucide-react';
+import { pixCountdown } from '@/services/pix-countdown';
+import './payment-status.css';
 
 export function PaymentStatus({
   initial,
@@ -27,6 +30,8 @@ export function PaymentStatus({
   const pendingPix = order.paymentStatus === 'pending' && Boolean(order.pix);
   const pixExpired = pendingPix && now !== null && pixDeadline <= now;
   const pixAvailable = pendingPix && now !== null && pixDeadline > now;
+  const countdown = now === null ? null : pixCountdown(order.pix?.expiresAt ?? '', now);
+  const approved = order.paymentStatus === 'approved';
   useEffect(() => {
     if (!pendingPix) return;
     const tick = () => setNow(Date.now());
@@ -75,28 +80,35 @@ export function PaymentStatus({
     void poll();
     const timer = setInterval(() => {
       void poll();
-    }, 20000);
+    }, 5000);
+    document.addEventListener('visibilitychange', poll);
     return () => {
       disposed = true;
       clearInterval(timer);
+      document.removeEventListener('visibilitychange', poll);
     };
   }, [initial.id, terminal]);
   return (
-    <section className="max-w-lg mx-auto py-8 space-y-5">
+    <section className={`payment-status glass-card ${approved ? 'payment-status-success' : ''}`}>
       {order.testMode && (
         <p className="text-sm border rounded p-3">
           Ambiente de teste. Não faça transferências nem use dados de cartão real.
         </p>
       )}
-      <p className="eyebrow">Pedido {order.code}</p>
+      <div className="payment-symbol" aria-hidden="true">
+        {approved ? <Check size={30} strokeWidth={1.4} /> : <QrCode size={28} strokeWidth={1.3} />}
+      </div>
+      <p className="eyebrow break-all">Pedido {order.code}</p>
       <h1 className="font-serif text-3xl" role="status">
         {order.paymentIssue?.kind === 'request_rejected'
           ? 'Não foi possível iniciar o pagamento'
           : pixExpired
             ? 'Código Pix vencido'
-            : (PAYMENT_LABELS[order.paymentStatus] ?? 'Conferindo pagamento')}
+            : approved
+              ? 'Pagamento concluído'
+              : (PAYMENT_LABELS[order.paymentStatus] ?? 'Conferindo pagamento')}
       </h1>
-      <p className="text-lg">{currency(order.total)}</p>
+      <p className="payment-total">{currency(order.total)}</p>
       {order.paymentIssue && (
         <p role="alert" className="text-sm text-red-700 dark:text-red-300">
           {order.paymentIssue.message}
@@ -116,24 +128,72 @@ export function PaymentStatus({
         </p>
       )}
       {pixAvailable && order.pix && (
-        <div className="space-y-4">
-          <p className="text-sm">
+        <div className="space-y-6">
+          {countdown && (
+            <div className="pix-countdown">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="flex items-center gap-2 text-xs font-medium">
+                    <Clock3 size={14} aria-hidden="true" /> Tempo para pagar
+                  </p>
+                  <p className="mt-2 text-xs text-stuw-slate">
+                    {countdown.inCycles
+                      ? `Etapa ${countdown.cycle} de 3 · ${countdown.cycleLabel} nesta etapa`
+                      : 'Seu Pix está pronto para pagamento'}
+                  </p>
+                </div>
+                <span
+                  className="pix-time"
+                  role="timer"
+                  aria-label={`Tempo restante para pagar: ${countdown.label}`}
+                >
+                  {countdown.label}
+                </span>
+              </div>
+              <div
+                className="pix-cycle-bars"
+                role="progressbar"
+                aria-label="Tempo disponível para pagar o Pix"
+                aria-valuemin={0}
+                aria-valuemax={1800}
+                aria-valuenow={Math.min(1800, countdown.remaining)}
+                aria-valuetext={`${countdown.label} restantes`}
+              >
+                {countdown.segments.map((fraction, index) => (
+                  <span className="pix-cycle-track" key={index}>
+                    <span style={{ transform: `scaleX(${fraction})` }} />
+                  </span>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] text-stuw-slate">
+                O prazo é contínuo. A mudança de etapa não renova o código.
+              </p>
+            </div>
+          )}
+          <p className="text-sm text-stuw-slate">
             Escaneie o QR Code no aplicativo do seu banco ou copie o código Pix.
           </p>
-          <Image
-            unoptimized
-            src={`data:image/png;base64,${order.pix.image}`}
-            alt="QR Code para pagamento Pix"
-            width={240}
-            height={240}
-          />
+          <div className="pix-code-image">
+            <Image
+              unoptimized
+              src={`data:image/png;base64,${order.pix.image}`}
+              alt="QR Code para pagamento Pix"
+              width={240}
+              height={240}
+            />
+          </div>
           <label className="block text-xs">
             Código Pix
-            <textarea readOnly value={order.pix.code} className="field mt-2" rows={3} />
+            <textarea
+              readOnly
+              value={order.pix.code}
+              className="field mt-2 pix-code-text"
+              rows={3}
+            />
           </label>
           <button
             type="button"
-            className="border rounded px-4 py-3 text-sm"
+            className="pix-copy-button"
             onClick={async () => {
               // A suspended tab may not have processed the expiry timer yet.
               if (pixDeadline <= Date.now()) {
@@ -148,10 +208,15 @@ export function PaymentStatus({
               }
             }}
           >
+            {copied ? (
+              <Check size={17} aria-hidden="true" />
+            ) : (
+              <Copy size={16} aria-hidden="true" />
+            )}
             {copied ? 'Código copiado' : 'Copiar código Pix'}
           </button>
           {order.pix.expiresAt && (
-            <p className="text-xs">
+            <p className="text-xs text-center text-stuw-slate">
               Válido até{' '}
               {new Date(order.pix.expiresAt).toLocaleString('pt-BR', {
                 timeZone: 'America/Sao_Paulo',
@@ -162,9 +227,22 @@ export function PaymentStatus({
         </div>
       )}
       {order.paymentStatus === 'approved' && (
-        <p className="text-sm">
-          Pagamento confirmado. A preparação e a entrega serão atualizadas nos detalhes do pedido.
-        </p>
+        <div className="payment-success-details">
+          <p className="text-sm leading-relaxed text-stuw-slate">
+            Recebemos seu pagamento. Agora vamos cuidar dos próximos passos do seu pedido.
+          </p>
+          <div className="payment-next-step">
+            <Mail size={19} aria-hidden="true" />
+            <p>Em breve, você receberá a confirmação da compra por e-mail.</p>
+          </div>
+          <div className="payment-next-step">
+            <ReceiptText size={19} aria-hidden="true" />
+            <p>
+              Assim que a nota fiscal for emitida, enviaremos os arquivos por e-mail. Ela também
+              ficará disponível no seu pedido.
+            </p>
+          </div>
+        </div>
       )}
       {['rejected', 'cancelled'].includes(order.paymentStatus) && (
         <p className="text-sm">
@@ -182,9 +260,13 @@ export function PaymentStatus({
           {error}
         </p>
       )}
-      <Link href={`/conta/compras/${order.id}`} className="inline-block underline text-sm">
+      <Link href={`/conta/compras/${order.id}`} className="payment-order-link">
         Acompanhar meu pedido
       </Link>
+      <p className="payment-secure">
+        <ShieldCheck size={14} aria-hidden="true" /> Pagamento processado com segurança pelo Mercado
+        Pago
+      </p>
     </section>
   );
 }

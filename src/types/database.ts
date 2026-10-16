@@ -232,6 +232,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      olist_invoice_jobs: {
+        Row: {
+          order_id: string;
+          invoice_id: string | null;
+          status: string;
+          generate_attempted_at: string | null;
+          emit_attempted_at: string | null;
+          generate_actor: string | null;
+          emit_actor: string | null;
+          last_error: string | null;
+          document_error: string | null;
+          documents_next_attempt_at: string;
+          updated_at: string;
+        };
+        Insert: { order_id: string };
+        Update: {
+          invoice_id?: string;
+          status?: string;
+          generate_attempted_at?: string;
+          emit_attempted_at?: string;
+          generate_actor?: string;
+          emit_actor?: string;
+          last_error?: string | null;
+          document_error?: string | null;
+          documents_next_attempt_at?: string;
+        };
+        Relationships: [];
+      };
       olist_products: {
         Row: {
           product_id: number;
@@ -326,6 +354,45 @@ export type Database = {
         Update: { page?: number; position?: number; locked_until?: string; owner?: string | null };
         Relationships: [];
       };
+      order_invoice_documents: {
+        Row: {
+          order_id: string;
+          invoice_id: string;
+          number: string;
+          series: string;
+          access_key: string;
+          total_cents: number;
+          authorized_at: string;
+          pdf_path: string;
+          xml_path: string;
+          pdf_sha256: string;
+          xml_sha256: string;
+          created_at: string;
+        };
+        Insert: {
+          order_id: string;
+          invoice_id: string;
+          number: string;
+          series: string;
+          access_key: string;
+          total_cents: number;
+          authorized_at: string;
+          pdf_path: string;
+          xml_path: string;
+          pdf_sha256: string;
+          xml_sha256: string;
+        };
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'order_invoice_documents_order_id_fkey';
+            columns: ['order_id'];
+            isOneToOne: true;
+            referencedRelation: 'olist_invoice_jobs';
+            referencedColumns: ['order_id'];
+          },
+        ];
+      };
       email_outbox: {
         Row: {
           id: string;
@@ -385,7 +452,15 @@ export type Database = {
         };
         Insert: never;
         Update: { last_synced_at?: string; next_sync_at?: string | null; sync_error?: string };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'order_integrations_order_id_fkey';
+            columns: ['order_id'];
+            isOneToOne: true;
+            referencedRelation: 'orders';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       catalog_products: {
         Row: import('@/repositories/products').PublishedProduct;
@@ -522,6 +597,10 @@ export type Database = {
         Returns: string;
       };
       confirm_olist_inventory: { Args: { input_order: string; proof: string }; Returns: undefined };
+      get_olist_invoice_components: {
+        Args: { input_order: string };
+        Returns: { sku: string; quantity: number }[];
+      };
       prepare_olist_order: {
         Args: { input_id: string; input_user: string; input_document: string };
         Returns: undefined;

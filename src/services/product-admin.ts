@@ -72,6 +72,8 @@ export type ProductDraft = {
   width: number | null;
   height: number | null;
   shippingPackageIsTest?: boolean;
+  freeShipping?: boolean;
+  pixDiscountEligible?: boolean;
   seoTitle: string;
   seoDescription: string;
   canonical: string;
@@ -423,6 +425,12 @@ export function validateProduct(
     return 'Confira os dígitos do NCM e do CEST.';
   for (const n of [p.weight, p.length, p.width, p.height])
     if (n !== null && n <= 0) return 'Peso e dimensões devem ser maiores que zero.';
+  if (
+    [p.freeShipping, p.pixDiscountEligible].some(
+      (value) => value !== undefined && typeof value !== 'boolean',
+    )
+  )
+    return 'As opções de frete grátis e desconto Pix devem ser válidas.';
   if (p.shippingPackageIsTest !== undefined && typeof p.shippingPackageIsTest !== 'boolean')
     return 'Identificação da embalagem de teste inválida.';
   if (p.canonical && !/^https:\/\/stuw\.vercel\.app\/produtos\/[a-z0-9-]+$/.test(p.canonical))
@@ -584,6 +592,8 @@ export function toStoreProduct(id: number, p: ProductDraft, now = Date.now()): P
   );
   return {
     id,
+    ...(p.freeShipping === true ? { freeShipping: true } : {}),
+    ...(p.pixDiscountEligible === false ? { pixDiscountEligible: false } : {}),
     title: p.name,
     slug: p.slug,
     category: p.category,

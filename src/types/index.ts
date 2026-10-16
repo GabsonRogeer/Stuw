@@ -35,6 +35,8 @@ export interface Product extends ManagedProductFields {
 }
 
 export interface CartItem {
+  freeShipping?: boolean;
+  pixDiscountEligible?: boolean;
   id: number;
   title: string;
   price: number;
@@ -45,6 +47,8 @@ export interface CartItem {
 }
 
 export interface ManagedProductFields {
+  freeShipping?: boolean;
+  pixDiscountEligible?: boolean;
   wholesaleMinimum?: number;
   wholesalePack?: string;
   variants?: {

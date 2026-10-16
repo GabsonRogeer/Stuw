@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireAdminPage } from '@/lib/supabase/admin-page';
 import { confirmInventoryMovement } from './actions';
+import { OlistInvoiceForm } from '@/components/admin/OlistInvoiceForm';
 export default async function OlistPage() {
   const { supabase } = await requireAdminPage();
   // This dynamic server page evaluates freshness once for the authenticated request.
@@ -37,6 +38,15 @@ export default async function OlistPage() {
         Somente produtos da categoria Stuw e suas subcategorias entram como rascunho. Confira fotos,
         textos, grade e dados fiscais antes de publicar.
       </p>
+      <details className="border rounded p-4">
+        <summary>Faturamento de pedidos reais</summary>
+        <p className="text-sm my-4">
+          Gere a nota, confira os dados fiscais na Olist e então solicite a autorização. Uma
+          tentativa sem resposta exige consulta e conferência; o site não repete a emissão
+          automaticamente.
+        </p>
+        <OlistInvoiceForm />
+      </details>
       {products.error || inbox.error || skuWarnings.error || inventory.error ? (
         <p role="alert">
           A integração ainda não está disponível. Confira a configuração do servidor.

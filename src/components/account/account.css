@@ -1,0 +1,66 @@
+.account-store-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.85rem;
+  padding: 0.8rem 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.account-store-link:hover {
+  border-color: #87927f;
+  background: rgb(114 140 107 / 7%);
+}
+.account-sidebar {
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+}
+.account-nav a {
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.account-shell .admin-content input[type='tel'] {
+  border-radius: 0.8rem;
+  border-color: var(--color-border);
+  background: rgb(255 255 255 / 65%);
+}
+.account-shell .admin-content > ul > li {
+  border-radius: 1.15rem;
+  background: rgb(255 255 255 / 35%);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.account-shell .admin-content > ul > li:hover {
+  border-color: #87927f;
+  box-shadow: 0 6px 20px rgb(40 48 37 / 4%);
+}
+.account-shell .admin-content form button[type='submit'] {
+  border-radius: 0.85rem;
+}
+.dark .account-shell .admin-content input[type='tel'],
+.dark .account-shell .admin-content > ul > li {
+  background: rgb(19 20 19 / 40%);
+}
+@media (min-width: 1024px) {
+  .account-sidebar {
+    position: sticky;
+    top: 7rem;
+  }
+}
+@media (max-width: 1023px) {
+  .account-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.4rem;
+    padding-bottom: 0.3rem;
+  }
+  .account-nav a {
+    flex-shrink: 0;
+  }
+}

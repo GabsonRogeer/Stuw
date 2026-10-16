@@ -32,6 +32,31 @@ const checkout = load('src/services/checkout.ts');
 const cart = (product = PRODUCTS.find((product) => product.id === 1)) =>
   addCartItem([], product, product.sizes[0], product.colors[0].name);
 
+test('product benefits give a one-real Pix total and preserve regular rules in mixed baskets', () => {
+  const controlled = {
+    ...product,
+    id: 999,
+    price: 1,
+    variants: undefined,
+    freeShipping: true,
+    pixDiscountEligible: false,
+  };
+  const items = cart(controlled);
+  assert.equal(calculateTotals(items, null, 'pix').total, 1);
+  assert.equal(calculateTotals(items, null, 'pix').shipping, 0);
+  const mixed = [
+    ...items,
+    { ...items[0], id: 1000, price: 100, freeShipping: false, pixDiscountEligible: true },
+  ];
+  assert.equal(calculateTotals(mixed, null, 'pix').pixDiscount, 5);
+  assert.equal(calculateTotals(mixed, null, 'pix').shipping, 28);
+  const restored = restoreCart(
+    [{ ...items[0], freeShipping: false, pixDiscountEligible: true }],
+    [controlled],
+  );
+  assert.equal(calculateTotals(restored, null, 'pix').total, 1);
+});
+
 test('checkout validates information and prevents skipping required stages', () => {
   assert.equal(checkout.isInformationValid(checkout.EMPTY_INFORMATION), false);
   assert.equal(checkout.isInformationValid(checkout.DEMO_INFORMATION), true);

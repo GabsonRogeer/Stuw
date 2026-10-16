@@ -9,6 +9,8 @@ function load(file, deps = {}) {
   const compiledModule = new Module(filename);
   compiledModule.require = (name) => {
     if (name in deps) return deps[name];
+    if (name === '@/services/controlled-checkout')
+      return load('src/services/controlled-checkout.ts');
     throw new Error('Unexpected import ' + name);
   };
   compiledModule._compile(

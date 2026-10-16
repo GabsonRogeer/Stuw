@@ -8,6 +8,7 @@ import { createPayment } from '@/lib/integrations/mercado-pago';
 import { IntegrationError } from '@/lib/integrations/http';
 import { quoteContext, validCheckoutLines } from '@/services/checkout-integration';
 import { isUuid, validOrderRequest, type OrderRequest } from '@/services/orders';
+import { assertControlledCheckout } from '@/services/controlled-checkout';
 import type { CardPaymentData, CheckoutPaymentResult } from '@/services/fulfillment';
 
 type Result = { error?: string; loginRequired?: boolean; order?: CheckoutPaymentResult };
@@ -22,6 +23,7 @@ export async function placeOrder(request: OrderRequest, card?: CardPaymentData):
       return { error: 'Entre na sua conta para continuar.', loginRequired: true };
     if (!validOrderRequest(request) || !validCheckoutLines(request.items))
       return { error: 'Revise os dados do pedido antes de continuar.' };
+    assertControlledCheckout(user.id, request.items);
     const { production } = commerceConfig();
     const taxDocument = request.taxDocument.toUpperCase().replace(/[.\/\-\s]/g, '');
     if (

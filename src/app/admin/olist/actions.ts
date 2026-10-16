@@ -3,6 +3,39 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/supabase/admin';
 import { createServiceClient } from '@/lib/supabase/service';
+import { processOlistInvoice } from '@/lib/integrations/olist-invoices';
+
+export async function changeInvoice(form: FormData): Promise<{ error?: string; message?: string }> {
+  try {
+    const { user } = await requireAdmin();
+    const id = String(form.get('orderId') ?? '');
+    const operation = String(form.get('operation') ?? '');
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ||
+      !['generate', 'emit', 'refresh'].includes(operation)
+    )
+      return { error: 'Pedido ou operação inválida.' };
+    if (operation !== 'refresh' && form.get('reviewed') !== 'on')
+      return { error: 'Confira a operação fiscal antes de continuar.' };
+    const result = await processOlistInvoice(
+      id,
+      user.id,
+      operation as 'generate' | 'emit' | 'refresh',
+    );
+    revalidatePath('/admin/olist');
+    const labels = {
+      authorized: 'NF autorizada na Olist.',
+      generated: 'NF gerada. Confira os dados fiscais na Olist antes de solicitar a emissão.',
+      processing: 'Emissão em processamento. Consulte novamente.',
+      blocked: 'Nota com pendência, cancelamento ou rejeição. Revise na Olist.',
+    };
+    return { message: `${labels[result.status]} ID Olist: ${result.invoiceId}.` };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'Não foi possível processar o faturamento.',
+    };
+  }
+}
 
 export async function confirmInventoryMovement(form: FormData): Promise<void> {
   const { user } = await requireAdmin();

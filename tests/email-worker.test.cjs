@@ -2,12 +2,19 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadTypeScript: load } = require('../scripts/lib/load-typescript.cjs');
 
-function fixture({ smtpError = false, saveError = false, verifyError = false } = {}) {
+function fixture({
+  smtpError = false,
+  saveError = false,
+  verifyError = false,
+  kind = 'purchase_confirmation',
+  invoiceMissing = false,
+} = {}) {
   const tables = {
     email_outbox: [
       {
         id: 'mail-1',
         order_id: 'order-1',
+        kind,
         status: 'pending',
         attempts: 0,
         available_at: '2000-01-01T00:00:00.000Z',
@@ -21,6 +28,7 @@ function fixture({ smtpError = false, saveError = false, verifyError = false } =
         payment_status: 'approved',
         is_demo: false,
         payment_test_mode: false,
+        total_cents: 100,
       },
     ],
   };
@@ -87,6 +95,16 @@ function fixture({ smtpError = false, saveError = false, verifyError = false } =
     '@/lib/supabase/service': { createServiceClient: () => db },
     '@/services/email-templates': {
       purchaseEmail: () => ({ subject: 'Test', html: 'Test', text: 'Test' }),
+      invoiceEmail: () => ({ subject: 'Invoice', html: 'Invoice', text: 'Invoice' }),
+    },
+    '@/lib/invoices/files': {
+      readInvoiceFile: async (_id, format) =>
+        invoiceMissing
+          ? null
+          : {
+              bytes: Buffer.from(format === 'pdf' ? '%PDF-test' : '<nfeProc/>'),
+              document: { invoice_id: '99', number: '75', series: '1', total_cents: 100 },
+            },
     },
     './smtp': {
       smtpTransport: () => ({
@@ -96,7 +114,18 @@ function fixture({ smtpError = false, saveError = false, verifyError = false } =
         sendMail: async (input) => {
           sends++;
           assert.equal(input.to, 'buyer@example.com');
-          assert.equal(input.messageId, '<purchase-mail-1@stuw.example>');
+          assert.equal(
+            input.messageId,
+            `<${kind === 'invoice_available' ? 'invoice' : 'purchase'}-mail-1@stuw.example>`,
+          );
+          if (kind === 'invoice_available') {
+            assert.equal(input.attachments.length, 2);
+            assert.equal(input.attachments[0].filename, 'STUW-NFe-75-serie-1.pdf');
+            assert.equal(input.attachments[1].contentType, 'application/xml');
+            assert.ok(
+              input.attachments.every((a) => Buffer.isBuffer(a.content) && !a.path && !a.href),
+            );
+          }
           if (smtpError) throw new Error('timeout after DATA');
           return { accepted: ['buyer@example.com'], rejected: [] };
         },
@@ -129,6 +158,14 @@ test('worker deduplicates concurrent jobs and holds ambiguous outcomes for revie
     await assert.rejects(() => unavailable.worker.processEmailOutbox());
     assert.equal(unavailable.tables.email_outbox[0].status, 'pending');
     assert.equal(unavailable.sends(), 0);
+    const fiscal = fixture({ kind: 'invoice_available' });
+    await Promise.all([fiscal.worker.processEmailOutbox(), fiscal.worker.processEmailOutbox()]);
+    assert.equal(fiscal.sends(), 1);
+    assert.equal(fiscal.tables.email_outbox[0].status, 'sent');
+    const missing = fixture({ kind: 'invoice_available', invoiceMissing: true });
+    await missing.worker.processEmailOutbox();
+    assert.equal(missing.sends(), 0);
+    assert.equal(missing.tables.email_outbox[0].status, 'pending');
     const interrupted = fixture();
     Object.assign(interrupted.tables.email_outbox[0], {
       status: 'sending',
@@ -164,7 +201,17 @@ test('email job rejects unauthenticated requests before calling the worker', asy
   const previous = process.env.CRON_SECRET;
   process.env.CRON_SECRET = 'test-job-secret';
   let calls = 0;
+  let checks = 0;
   const route = load('src/app/api/jobs/email/route.ts', {
+    '@/lib/integrations/olist-invoice-documents': {
+      prepareNextInvoiceDocuments: async () => 'idle',
+      archiveOlistInvoice: async (id, verifyOnly) => {
+        assert.equal(id, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+        assert.equal(verifyOnly, true);
+        checks++;
+        return { status: 'verified', pdfBytes: 100 };
+      },
+    },
     '@/lib/email/outbox': {
       processEmailOutbox: async () => {
         calls++;
@@ -182,6 +229,22 @@ test('email job rejects unauthenticated requests before calling the worker', asy
     );
     assert.equal(response.status, 200);
     assert.equal(calls, 1);
+    const verification = await route.GET(
+      new Request(
+        'https://stuw.example/api/jobs/email?verifyInvoice=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+        { headers: { authorization: 'Bearer test-job-secret' } },
+      ),
+    );
+    assert.equal(verification.status, 200);
+    assert.equal(checks, 1);
+    assert.equal(calls, 1);
+    const unauthenticated = await route.GET(
+      new Request(
+        'https://stuw.example/api/jobs/email?verifyInvoice=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      ),
+    );
+    assert.equal(unauthenticated.status, 401);
+    assert.equal(checks, 1);
   } finally {
     if (previous === undefined) delete process.env.CRON_SECRET;
     else process.env.CRON_SECRET = previous;

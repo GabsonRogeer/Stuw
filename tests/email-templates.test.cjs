@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { loadTypeScript: load } = require('../scripts/lib/load-typescript.cjs');
-const { authEmail, purchaseEmail } = load('src/services/email-templates.ts');
+const { authEmail, purchaseEmail, invoiceEmail } = load('src/services/email-templates.ts');
 
 test('exported Auth templates keep Supabase tokens and distinct recovery/confirmation purposes', () => {
   for (const kind of ['confirmation', 'recovery']) {
@@ -13,6 +13,21 @@ test('exported Auth templates keep Supabase tokens and distinct recovery/confirm
     assert.match(html, /lang="pt-BR"/);
     assert.doesNotMatch(html, /<script|<form|<iframe/);
   }
+});
+
+test('invoice template identifies the order and attachments without exposing fiscal access tokens', () => {
+  const message = invoiceEmail(
+    { id: 'order-id', number: 'STUW-ABC123', customer_name: '<script>bad</script>' },
+    { number: '75', series: '1', total_cents: 100 },
+    'https://stuw.example',
+  );
+  assert.match(message.subject, /STUW-ABC123/);
+  assert.match(message.html, /&lt;script&gt;/);
+  assert.doesNotMatch(message.html, /<script>|doc\.view|token=/);
+  assert.match(message.html, /1,00/);
+  assert.match(message.text, /PDF e o XML autorizado estão anexados/);
+  assert.match(message.html, /https:\/\/stuw.example\/conta\/compras\/order-id/);
+  assert.throws(() => invoiceEmail({}, {}, 'http://stuw.example'));
 });
 
 test('purchase template escapes user data and reports persisted cent values', () => {

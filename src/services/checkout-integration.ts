@@ -2,6 +2,7 @@ import type { OrderItem } from '@/types/database';
 import type { CheckoutInformation } from './checkout';
 export type CheckoutLine = { id: number; color: string; size: string; qty: number };
 export type QuotedProduct = OrderItem & {
+  freeShipping?: boolean;
   sku: string;
   weight: number;
   width: number;

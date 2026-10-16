@@ -31,7 +31,7 @@ export function AccountNav({
           <p className="text-xs text-stuw-slate truncate">{email}</p>
         </div>
       </div>
-      <nav aria-label="Minha conta" className="space-y-1">
+      <nav aria-label="Minha conta" className="account-nav space-y-1">
         {links.map(([href, label, Icon]) => (
           <Link
             key={href}
@@ -42,13 +42,13 @@ export function AccountNav({
                 : undefined
             }
             className={
-              'flex items-center gap-3 rounded-md px-4 py-3 text-sm border-l-2 ' +
+              'flex items-center gap-3 rounded-xl px-4 py-3 text-sm border ' +
               (pathname === href || (href !== '/conta' && pathname.startsWith(href + '/'))
-                ? 'border-stuw-sage bg-stuw-sand dark:bg-stone-800 font-medium'
+                ? 'border-stuw-sage bg-stuw-sage text-white font-medium'
                 : 'border-transparent hover:bg-stuw-sand/50 dark:hover:bg-stone-800')
             }
           >
-            <Icon size={17} />
+            <Icon size={17} aria-hidden="true" />
             {label}
           </Link>
         ))}

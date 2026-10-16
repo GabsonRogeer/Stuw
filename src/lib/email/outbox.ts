@@ -1,6 +1,7 @@
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/service';
-import { purchaseEmail } from '@/services/email-templates';
+import { purchaseEmail, invoiceEmail } from '@/services/email-templates';
+import { readInvoiceFile } from '@/lib/invoices/files';
 import { smtpTransport } from './smtp';
 
 export async function processEmailOutbox() {
@@ -67,7 +68,29 @@ export async function processEmailOutbox() {
           }
           if (!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(order.customer_email))
             throw new Error('Invalid recipient');
-          const message = purchaseEmail(order, site);
+          if (!['purchase_confirmation', 'invoice_available'].includes(row.kind))
+            throw new Error('Unknown email kind');
+          let message;
+          let attachments;
+          if (row.kind === 'invoice_available') {
+            const [pdf, xml] = await Promise.all([
+              readInvoiceFile(order.id, 'pdf'),
+              readInvoiceFile(order.id, 'xml'),
+            ]);
+            if (
+              !pdf ||
+              !xml ||
+              pdf.document.invoice_id !== xml.document.invoice_id ||
+              pdf.document.total_cents !== order.total_cents
+            )
+              throw new Error('Authorized invoice attachments unavailable');
+            message = invoiceEmail(order, pdf.document, site);
+            const stem = `STUW-NFe-${pdf.document.number}-serie-${pdf.document.series}`;
+            attachments = [
+              { filename: `${stem}.pdf`, content: pdf.bytes, contentType: 'application/pdf' },
+              { filename: `${stem}.xml`, content: xml.bytes, contentType: 'application/xml' },
+            ];
+          } else message = purchaseEmail(order, site);
           smtpStarted = true;
           const delivery = await transport.sendMail({
             from: {
@@ -75,8 +98,9 @@ export async function processEmailOutbox() {
               address: process.env.SMTP_FROM_EMAIL!,
             },
             to: order.customer_email,
-            messageId: `<purchase-${row.id}@${new URL(site).hostname}>`,
+            messageId: `<${row.kind === 'invoice_available' ? 'invoice' : 'purchase'}-${row.id}@${new URL(site).hostname}>`,
             ...message,
+            ...(attachments ? { attachments } : {}),
           });
           if (delivery.rejected.length || delivery.accepted.length !== 1)
             throw new Error('Recipient rejected');

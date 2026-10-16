@@ -32,6 +32,7 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
       '20261015003758_olist_inventory_reconciliation.sql',
       '20261015010526_operational_admin.sql',
       '20261015012816_short_order_numbers.sql',
+      '20261016001356_product_checkout_benefits.sql',
     ])
       await db.exec(fs.readFileSync('supabase/migrations/' + file, 'utf8'));
     const uid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -863,6 +864,106 @@ test('real checkout: trusted quotes, atomic inventory, idempotency, provider tra
     );
     assert.equal((await snapshot('KIT-TOP-P', '8001', 99, 0, latest)).rows[0].result, 'stale');
     await assert.rejects(snapshot('KIT-TOP-P', 'wrong-id', 2), /identity/);
+    // Product-specific benefits are authoritative in SQL, including mixed baskets.
+    await db.exec('reset role');
+    const benefitDoc = {
+      ...document,
+      name: 'Controlled',
+      slug: 'controlled-benefit',
+      freeShipping: true,
+      pixDiscountEligible: false,
+      colors: [
+        {
+          ...document.colors[0],
+          skus: [{ size: 'P', code: 'CONTROLLED-P', gtin: '', stock: 3, price: 1, active: true }],
+        },
+      ],
+    };
+    const benefitProduct = {
+      ...product,
+      variants: [{ ...product.variants[0], sku: 'CONTROLLED-P', stock: 3, price: 1 }],
+    };
+    const benefitId = (
+      await db.query('select public.save_product(null,0,$1::jsonb,$2::jsonb,null) id', [
+        JSON.stringify(benefitDoc),
+        JSON.stringify({
+          regular: benefitProduct,
+          promotion: benefitProduct,
+          saleStart: '',
+          saleEnd: '',
+        }),
+      ])
+    ).rows[0].id;
+    const benefitQuote = (
+      await db.query(
+        "insert into public.checkout_shipping_quotes(user_id,context_hash,products,options) values($1,'benefit',$2::jsonb,$3::jsonb) returning id",
+        [
+          uid,
+          JSON.stringify([
+            {
+              ...quoted,
+              id: benefitId,
+              sku: 'CONTROLLED-P',
+              price_cents: 100,
+              qty: 1,
+              pixDiscountEligible: true,
+            },
+          ]),
+          JSON.stringify([
+            {
+              id: 'me:free',
+              name: 'Frete padrão',
+              price: 0,
+              carrierPrice: 10.3,
+              deliveryEstimate: '3 dias',
+            },
+          ]),
+        ],
+      )
+    ).rows[0].id;
+    await db.exec('set role service_role');
+    const benefitOrder = (
+      await create(
+        {
+          ...request,
+          key: randomUUID(),
+          quoteId: benefitQuote,
+          items: [{ id: benefitId, size: 'P', color: 'Black', qty: 1 }],
+          shipping: 'me:free',
+          expectedTotal: 100,
+        },
+        'benefit',
+      )
+    ).rows[0].id;
+    const benefitTotals = (
+      await db.query(
+        'select total_cents,shipping_cents,pix_discount_cents from public.orders where id=$1',
+        [benefitOrder],
+      )
+    ).rows[0];
+    assert.deepEqual(benefitTotals, { total_cents: 100, shipping_cents: 0, pix_discount_cents: 0 });
+    assert.equal(
+      (
+        await db.query('select private.checkout_pix_discount($1::jsonb,0) discount', [
+          JSON.stringify([
+            { id: benefitId, price_cents: 100, qty: 1 },
+            { id, price_cents: 10000, qty: 1 },
+          ]),
+        ])
+      ).rows[0].discount,
+      500,
+    );
+    assert.equal(
+      (
+        await db.query('select private.checkout_pix_discount($1::jsonb,10) discount', [
+          JSON.stringify([
+            { id: benefitId, price_cents: 100, qty: 1 },
+            { id, price_cents: 10000, qty: 1 },
+          ]),
+        ])
+      ).rows[0].discount,
+      450,
+    );
     await db.exec('set role anon');
     await assert.rejects(db.query('select * from public.olist_inventory'), /permission/);
     await assert.rejects(

@@ -46,10 +46,17 @@ export type OlistResult = {
   produto?: OlistProduct;
   categorias?: { id: number; descricao: string; nodes?: unknown[] }[];
   registros?: {
-    registro: { status?: string; id?: string | number; codigo_erro?: string | number };
+    registro: {
+      status?: string;
+      id?: string | number;
+      idNotaFiscal?: string | number;
+      codigo_erro?: string | number;
+    };
   }[];
   pedidos?: { pedido: Record<string, unknown> }[];
   pedido?: Record<string, unknown>;
+  nota_fiscal?: Record<string, unknown>;
+  link_nfe?: string;
 };
 
 const endpoints = [
@@ -63,6 +70,9 @@ const endpoints = [
   'pedido.incluir.php',
   'pedido.obter.php',
   'nota.fiscal.obter.php',
+  'nota.fiscal.obter.link.php',
+  'gerar.nota.fiscal.pedido.php',
+  'nota.fiscal.emitir.php',
 ] as const;
 export async function olistRequest(
   endpoint: (typeof endpoints)[number],
@@ -71,8 +81,13 @@ export async function olistRequest(
   const token = process.env.OLIST_API_TOKEN;
   if (!token) throw new OlistError('TOKEN_MISSING');
   if (!endpoints.includes(endpoint)) throw new OlistError('ENDPOINT_INVALID');
-  const mutation = endpoint.includes('.incluir.') || endpoint.includes('.alterar.');
+  const fiscalMutation =
+    endpoint === 'gerar.nota.fiscal.pedido.php' || endpoint === 'nota.fiscal.emitir.php';
+  const mutation =
+    endpoint.includes('.incluir.') || endpoint.includes('.alterar.') || fiscalMutation;
   if (mutation && process.env.OLIST_ENABLED !== 'true') throw new OlistError('DISABLED');
+  if (fiscalMutation && process.env.OLIST_INVOICE_ENABLED !== 'true')
+    throw new OlistError('INVOICE_DISABLED');
   let response: Response;
   try {
     response = await fetch(`https://api.tiny.com.br/api2/${endpoint}`, {
