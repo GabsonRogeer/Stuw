@@ -12,11 +12,34 @@ export async function changeInvoice(form: FormData): Promise<{ error?: string; m
     const operation = String(form.get('operation') ?? '');
     if (
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ||
-      !['generate', 'emit', 'refresh'].includes(operation)
+      !['generate', 'emit', 'refresh', 'retry'].includes(operation)
     )
       return { error: 'Pedido ou operação inválida.' };
     if (operation !== 'refresh' && form.get('reviewed') !== 'on')
       return { error: 'Confira a operação fiscal antes de continuar.' };
+    if (operation === 'retry') {
+      const resumed = await createServiceClient()
+        .from('olist_invoice_jobs')
+        .update({
+          status: 'pending',
+          automation_attempts: 0,
+          validated_skus: [],
+          next_attempt_at: new Date().toISOString(),
+          last_error: `Retomada após revisão pelo administrador ${user.id}.`,
+        })
+        .eq('order_id', id)
+        .eq('automatic', true)
+        .eq('status', 'blocked')
+        .is('lease_owner', null)
+        .select('order_id')
+        .maybeSingle();
+      if (resumed.error || !resumed.data)
+        return { error: 'A retomada exige uma pendência automática sem execução em andamento.' };
+      revalidatePath('/admin/olist');
+      return {
+        message: 'Consultas retomadas. Tentativas fiscais anteriores serão apenas consultadas.',
+      };
+    }
     const result = await processOlistInvoice(
       id,
       user.id,

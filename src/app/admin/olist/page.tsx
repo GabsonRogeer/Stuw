@@ -7,7 +7,7 @@ export default async function OlistPage() {
   // This dynamic server page evaluates freshness once for the authenticated request.
   // eslint-disable-next-line react-hooks/purity
   const staleBefore = Date.now() - 600_000;
-  const [products, inbox, skuWarnings, inventory] = await Promise.all([
+  const [products, inbox, skuWarnings, inventory, invoiceJobs, automation] = await Promise.all([
     supabase
       .from('olist_products')
       .select('*')
@@ -21,7 +21,23 @@ export default async function OlistPage() {
       .order('sku')
       .limit(100),
     supabase.from('olist_inventory').select('*').order('sku').limit(200),
+    supabase
+      .from('olist_invoice_jobs')
+      .select('*')
+      .eq('automatic', true)
+      .order('updated_at', { ascending: false })
+      .limit(30),
+    supabase.from('olist_invoice_automation').select('*').eq('id', true).single(),
   ]);
+  const fiscalOrders = invoiceJobs.data?.length
+    ? await supabase
+        .from('orders')
+        .select('id,number')
+        .in(
+          'id',
+          invoiceJobs.data.map((j) => j.order_id),
+        )
+    : null;
   const labels: Record<string, string> = {
     pending: 'Aguardando',
     linked: 'Vinculado',
@@ -29,6 +45,9 @@ export default async function OlistPage() {
     uncertain: 'Conferir na Olist',
     conflict: 'Revisar alterações',
     imported: 'Importado',
+    generated: 'NF gerada · aguardando emissão',
+    processing: 'Aguardando autorização fiscal',
+    authorized: 'NF autorizada',
     ignored: 'Fora da categoria Stuw ou variação do produto pai',
   };
   return (
@@ -38,12 +57,48 @@ export default async function OlistPage() {
         Somente produtos da categoria Stuw e suas subcategorias entram como rascunho. Confira fotos,
         textos, grade e dados fiscais antes de publicar.
       </p>
+      <section className="border rounded p-4 space-y-3">
+        <h3 className="font-medium">Faturamento automático</h3>
+        {automation.error || invoiceJobs.error || fiscalOrders?.error ? (
+          <p role="alert">Não foi possível consultar a fila fiscal.</p>
+        ) : (
+          <>
+            <p className="text-sm">
+              {automation.data?.enabled
+                ? 'Ativo para novos pedidos reais com pagamento aprovado e vínculo na Olist.'
+                : 'Aguardando ativação operacional.'}{' '}
+              A autorização fiscal é confirmada antes de disponibilizar e enviar a NF.
+            </p>
+            {invoiceJobs.data?.map((job) => (
+              <div key={job.order_id} className="border rounded p-3 text-sm space-y-1">
+                <p className="font-medium">
+                  {fiscalOrders?.data?.find((o) => o.id === job.order_id)?.number ?? job.order_id}
+                </p>
+                <p>
+                  {labels[job.status] ?? job.status}
+                  {job.invoice_id ? ` · NF Olist ${job.invoice_id}` : ''}
+                </p>
+                {job.last_error && <p role="alert">{job.last_error}</p>}
+                {job.document_error && <p role="alert">{job.document_error}</p>}
+                {job.status === 'blocked' && (
+                  <p>
+                    Corrija na Olist e use a operação de retomada abaixo com o ID {job.order_id}.
+                  </p>
+                )}
+              </div>
+            ))}
+            {!invoiceJobs.data?.length && (
+              <p className="text-sm">Nenhum pedido na fila automática.</p>
+            )}
+          </>
+        )}
+      </section>
       <details className="border rounded p-4">
         <summary>Faturamento de pedidos reais</summary>
         <p className="text-sm my-4">
-          Gere a nota, confira os dados fiscais na Olist e então solicite a autorização. Uma
-          tentativa sem resposta exige consulta e conferência; o site não repete a emissão
-          automaticamente.
+          Use para consultar ou revisar pendências. Na retomada, tentativas de geração ou emissão já
+          registradas serão apenas consultadas, sem repetir solicitações fiscais. Pedidos anteriores
+          à ativação continuam disponíveis para tratamento manual.
         </p>
         <OlistInvoiceForm />
       </details>

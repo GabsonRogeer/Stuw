@@ -43,6 +43,7 @@ export function OlistInvoiceForm() {
             className="block border rounded p-2 w-full bg-white dark:bg-stone-900 mt-2"
           >
             <option value="refresh">Consultar situação da nota</option>
+            <option value="retry">Retomar fila após corrigir pendência na Olist</option>
             <option value="generate">Gerar nota a partir do pedido pago</option>
             <option value="emit">Solicitar autorização da NF em produção</option>
           </select>
